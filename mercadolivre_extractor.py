@@ -2,6 +2,10 @@ import requests
 import json
 import time
 from datetime import datetime, timedelta
+from bs4 import BeautifulSoup
+import pandas as pd
+import os
+import sys
 
 class MercadoLivreAPI:
     def __init__(self, access_token, refresh_token, client_id, client_secret, user_id):
@@ -573,49 +577,228 @@ class MercadoLivreAPI:
         print("Todas as tentativas de busca direta falharam.")
         return None
 
-# Example usage
+def ensure_package_installed(package_name):
+    """Verifica se um pacote está instalado e o instala se necessário"""
+    try:
+        __import__(package_name)
+        print(f"Pacote {package_name} já está instalado")
+        return True
+    except ImportError:
+        print(f"Instalando pacote {package_name}...")
+        try:
+            import subprocess
+            import sys
+            subprocess.check_call([sys.executable, "-m", "pip", "install", package_name])
+            print(f"Pacote {package_name} instalado com sucesso!")
+            return True
+        except Exception as e:
+            print(f"Erro ao instalar o pacote {package_name}: {str(e)}")
+            return False
+
+# Garantir que os pacotes necessários estão instalados
+for package in ['requests', 'beautifulsoup4', 'pandas', 'lxml']:
+    if not ensure_package_installed(package):
+        print(f"Não foi possível instalar {package}. Saindo...")
+        sys.exit(1)
+
+def scrape_mercado_livre(search_term, site_code="MLB", max_results=50):
+    """
+    Faz web scraping do Mercado Livre para buscar produtos
+    
+    Args:
+        search_term (str): Termo de busca
+        site_code (str): Código do país (MLB para Brasil, MLA para Argentina, etc.)
+        max_results (int): Número máximo de resultados a retornar
+        
+    Returns:
+        list: Lista de dicionários com dados dos produtos
+    """
+    print(f"Iniciando web scraping para: {search_term}")
+    
+    # Formatar o termo de busca para URL (substituir espaços por hífen)
+    search_url_term = search_term.replace(" ", "-")
+    
+    # URL base para busca
+    if site_code == "MLB":
+        base_url = f"https://lista.mercadolivre.com.br/{search_url_term}"
+    else:
+        # Ajustar URL para outros países
+        domain = site_code.replace("ML", "").lower()
+        base_url = f"https://listado.mercadolibre.com.{domain}/{search_url_term}"
+    
+    print(f"URL de busca: {base_url}")
+    
+    # Headers para simular um navegador
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
+    }
+    
+    products = []
+    page = 1
+    total_collected = 0
+    
+    try:
+        while total_collected < max_results:
+            # Adicionar parâmetro de página se não for a primeira página
+            current_url = base_url
+            if page > 1:
+                current_url = f"{base_url}_Desde_{(page-1)*50+1}"
+            
+            print(f"Acessando página {page}: {current_url}")
+            
+            # Fazer a requisição HTTP
+            response = requests.get(current_url, headers=headers)
+            
+            # Verificar se a requisição foi bem-sucedida
+            if response.status_code != 200:
+                print(f"Erro ao acessar a página {page}. Status code: {response.status_code}")
+                break
+            
+            # Parsear o HTML
+            soup = BeautifulSoup(response.text, 'lxml')
+            
+            # Encontrar os elementos de produto
+            # A classe pode variar, então tentamos diferentes seletores
+            product_elements = soup.select('.ui-search-layout__item')
+            if not product_elements:
+                product_elements = soup.select('.ui-search-result')
+            if not product_elements:
+                product_elements = soup.select('.ui-search-result__wrapper')
+            
+            if not product_elements:
+                print("Não foi possível encontrar produtos na página. Estrutura do site pode ter mudado.")
+                break
+            
+            print(f"Encontrados {len(product_elements)} produtos na página {page}")
+            
+            # Extrair informações de cada produto
+            for product in product_elements:
+                if total_collected >= max_results:
+                    break
+                
+                try:
+                    # Tentar diferentes seletores para o título
+                    title_element = product.select_one('.ui-search-item__title') or product.select_one('h2')
+                    title = title_element.text.strip() if title_element else "Título não encontrado"
+                    
+                    # Tentar diferentes seletores para o link
+                    link_element = product.select_one('.ui-search-link') or product.select_one('a')
+                    link = link_element['href'] if link_element else "#"
+                    
+                    # Tentar diferentes seletores para o preço
+                    price_element = product.select_one('.price-tag-fraction')
+                    price = price_element.text.strip() if price_element else "Preço não encontrado"
+                    
+                    # Tentar obter o vendedor
+                    seller_element = product.select_one('.ui-search-official-store-label') or product.select_one('.ui-search-item__brand-discoverability')
+                    seller = seller_element.text.strip() if seller_element else "Vendedor não especificado"
+                    
+                    # Adicionar à lista de produtos
+                    products.append({
+                        'titulo': title,
+                        'link': link,
+                        'preco': price,
+                        'vendedor': seller,
+                        'site_code': site_code
+                    })
+                    
+                    total_collected += 1
+                    print(f"Produto {total_collected} coletado: {title}")
+                    
+                except Exception as e:
+                    print(f"Erro ao extrair informações do produto: {str(e)}")
+            
+            # Verificar se há mais páginas
+            next_page = soup.select_one('.andes-pagination__button--next a')
+            if not next_page or not product_elements:
+                print("Não há mais páginas para navegar.")
+                break
+            
+            # Avançar para a próxima página
+            page += 1
+            
+            # Esperar um pouco para evitar bloqueio
+            time.sleep(2)
+    
+    except Exception as e:
+        print(f"Erro durante o web scraping: {str(e)}")
+    
+    print(f"Total de produtos coletados: {len(products)}")
+    return products
+
+def export_to_csv(products, search_term, site_code):
+    """
+    Exporta os produtos para um arquivo CSV
+    
+    Args:
+        products (list): Lista de dicionários com dados dos produtos
+        search_term (str): Termo de busca usado
+        site_code (str): Código do site (país)
+        
+    Returns:
+        str: Caminho do arquivo CSV gerado
+    """
+    if not products:
+        print("Nenhum produto para exportar.")
+        return None
+    
+    # Criar diretório para exportação se não existir
+    export_dir = "ml_data_exports"
+    if not os.path.exists(export_dir):
+        os.makedirs(export_dir)
+    
+    # Criar DataFrame
+    df = pd.DataFrame(products)
+    
+    # Gerar nome do arquivo
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    clean_search = search_term.replace(" ", "_").lower()
+    filename = f"{export_dir}/mercadolivre_{clean_search}_{site_code}_{timestamp}.csv"
+    
+    # Exportar para CSV
+    df.to_csv(filename, index=False, encoding='utf-8-sig')
+    
+    print(f"Dados exportados para: {filename}")
+    return filename
+
 if __name__ == "__main__":
-    # Replace with your actual credentials
-    ACCESS_TOKEN = "APP_USR-6940700813779269-043021-e53bceb91d8b8160f740cd24326f2e21-340557736"
-    REFRESH_TOKEN = "TG-6812caf93f6ca20001c4cefc-340557736"
-    CLIENT_ID = "6940700813779269"  # Your APP_ID
-    CLIENT_SECRET = "rN094Y2OsesaPFCJg7K9igQa7CYN4oyN"  # Your API KEY
-    USER_ID = "340557736"
+    print("=== MERCADO LIVRE WEB SCRAPER ===")
     
-    ml_api = MercadoLivreAPI(ACCESS_TOKEN, REFRESH_TOKEN, CLIENT_ID, CLIENT_SECRET, USER_ID)
+    # Obter termo de busca
+    search_term = input("Digite o termo de busca: ")
+    if not search_term:
+        print("Termo de busca é obrigatório. Saindo...")
+        sys.exit(1)
     
-    # Get user information
-    user_info = ml_api.get_user_info()
-    if user_info:
-        print(f"User: {user_info.get('nickname')}")
-        print(f"Registration date: {user_info.get('registration_date')}")
-        print("-" * 50)
+    # Obter código do site
+    print("\nSites disponíveis:")
+    print("MLB - Brasil")
+    print("MLA - Argentina")
+    print("MLM - México")
+    print("MCO - Colômbia")
+    print("MLU - Uruguai")
+    print("MLC - Chile")
+    print("MPE - Peru")
+    print("MLV - Venezuela")
+    site_code = input("Código do site (padrão: MLB para Brasil): ").upper() or "MLB"
     
-    # Search for items
-    search_results = ml_api.search_items(query="smartphone", limit=5)
-    if search_results:
-        print(f"Found {search_results.get('paging', {}).get('total')} items")
-        for item in search_results.get('results', []):
-            print(f"ID: {item.get('id')}, Title: {item.get('title')}, Price: {item.get('price')} {item.get('currency_id')}")
-        print("-" * 50)
+    # Obter número máximo de resultados
+    try:
+        max_results = int(input("Número máximo de resultados (padrão: 50): ") or "50")
+    except ValueError:
+        print("Valor inválido, usando padrão: 50")
+        max_results = 50
     
-    # Get multiple item details using the multiget functionality
-    if search_results and search_results.get('results'):
-        item_ids = [item.get('id') for item in search_results.get('results')[:3]]
-        item_details = ml_api.get_item_details(item_ids)
-        if item_details:
-            for item in item_details:
-                if item.get('code') == 200 and item.get('body'):
-                    print(f"Item: {item.get('body', {}).get('title')}")
-                    print(f"Description: {item.get('body', {}).get('subtitle')}")
-                    print(f"Available quantity: {item.get('body', {}).get('available_quantity')}")
-                    print("-" * 30)
-            print("-" * 50)
+    # Fazer scraping
+    products = scrape_mercado_livre(search_term, site_code, max_results)
     
-    # Get categories
-    categories = ml_api.get_categories()
-    if categories:
-        print("Categories:")
-        for category in categories[:5]:  # Show first 5 categories
-            print(f"ID: {category.get('id')}, Name: {category.get('name')}")
-        print("-" * 50) 
+    # Exportar resultados
+    if products:
+        csv_path = export_to_csv(products, search_term, site_code)
+        print(f"\nDados exportados com sucesso para: {csv_path}")
+    else:
+        print("Nenhum produto encontrado para exportar.")
+    
+    print("\n=== WEB SCRAPING CONCLUÍDO ===") 
