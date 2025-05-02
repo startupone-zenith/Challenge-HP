@@ -1,8 +1,0 @@
-{
-    "access_token": "APP_USR-6940700813779269-050110-2b2adae1508cb1c0228e551eb5a209d1-340557736",
-    "token_type": "Bearer",
-    "expires_in": 21600,
-    "scope": "offline_access read write",
-    "user_id": 340557736,
-    "refresh_token": "TG-681384968c1fbf0001ab6392-340557736"
-} 
