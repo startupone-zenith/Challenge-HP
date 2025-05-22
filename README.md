@@ -1,130 +1,77 @@
-# Extrator de Dados do Mercado Livre
+# Detector de Falsificações Mercado Livre
 
-Esta ferramenta permite extrair dados da API oficial do Mercado Livre de forma simples e eficiente. Com ela, você pode:
+Este projeto é um scraper para o Mercado Livre que permite buscar produtos e avaliações, ajudando a detectar possíveis falsificações.
 
-- Buscar e exportar produtos por palavra-chave, categoria ou vendedor
-- Obter detalhes completos de produtos específicos
-- Exportar seus próprios produtos (quando autenticado)
-- Consultar categorias do Mercado Livre
-- Ver informações da sua conta
+## Funcionalidades
+
+- Busca de produtos no Mercado Livre com filtros (ordenação, condição, etc.)
+- Extração de avaliações de produtos específicos
+- Possibilidade de baixar os dados em formato CSV
+- Interface web amigável
 
 ## Requisitos
 
-- Python 3.6 ou superior
-- Pacotes Python: `requests`
+- Python 3.8 ou superior
+- Bibliotecas listadas em `requirements.txt`
 
 ## Instalação
 
-1. Clone este repositório ou baixe os arquivos:
-   ```
-   git clone https://github.com/seu-usuario/mercadolivre-extractor.git
-   ```
-
-2. Instale as dependências:
-   ```
-   pip install requests
-   ```
-
-## Configuração
-
-Você precisa de credenciais do Mercado Livre para usar esta ferramenta:
-
-1. Acesse o [portal de desenvolvedores do Mercado Livre](https://developers.mercadolivre.com.br/)
-2. Crie uma aplicação para obter suas credenciais (APP_ID e SECRET_KEY)
-3. Obtenha um Access Token e Refresh Token seguindo a [documentação oficial](https://developers.mercadolivre.com.br/pt_br/autenticacao-e-autorizacao)
-4. Atualize as credenciais nos arquivos `ml_interactive.py`, `mercadolivre_extractor.py` ou `ml_data_exporter.py`
-
-## Uso
-
-### Interface Interativa
-
-Execute o script interativo para uma experiência guiada:
-
+1. Clone este repositório:
 ```
-python ml_interactive.py
+git clone <url-repositorio>
+cd Challenge-HP
 ```
 
-Siga as instruções na tela para escolher qual tipo de dados deseja extrair.
-
-### API Python
-
-Você também pode usar a API diretamente em seus próprios scripts:
-
-```python
-from mercadolivre_extractor import MercadoLivreAPI
-
-# Inicializar a API
-ml_api = MercadoLivreAPI(
-    access_token="SEU_ACCESS_TOKEN",
-    refresh_token="SEU_REFRESH_TOKEN",
-    client_id="SEU_APP_ID",
-    client_secret="SUA_SECRET_KEY",
-    user_id="SEU_USER_ID"
-)
-
-# Buscar produtos
-results = ml_api.search_items(query="smartphone", limit=10)
-
-# Obter detalhes de um produto específico
-item = ml_api.get_item_details("MLB123456789")
-
-# Buscar categorias
-categories = ml_api.get_categories()
+2. Crie e ative um ambiente virtual (opcional):
+```
+python -m venv .venv
+# Windows
+.venv\Scripts\activate
+# Linux/Mac
+source .venv/bin/activate
 ```
 
-### Exportador de Dados
-
-O exportador permite salvar os dados em formato CSV e JSON:
-
-```python
-from mercadolivre_extractor import MercadoLivreAPI
-from ml_data_exporter import MercadoLivreExporter
-
-# Inicializar a API
-ml_api = MercadoLivreAPI(
-    access_token="SEU_ACCESS_TOKEN",
-    refresh_token="SEU_REFRESH_TOKEN",
-    client_id="SEU_APP_ID",
-    client_secret="SUA_SECRET_KEY",
-    user_id="SEU_USER_ID"
-)
-
-# Inicializar o exportador
-exporter = MercadoLivreExporter(ml_api)
-
-# Exportar resultados de busca
-exporter.export_search_results(query="smartphone", limit=50)
-
-# Exportar detalhes de produtos específicos
-exporter.export_item_details(["MLB123456789", "MLB987654321"])
-
-# Exportar categorias
-exporter.export_categories()
+3. Instale as dependências:
 ```
+pip install -r requirements.txt
+```
+
+## Execução
+
+### Versão Streamlit (original)
+
+```
+streamlit run app.py
+```
+
+A aplicação estará disponível em `http://localhost:8501`
+
+### Versão Flask (nova)
+
+```
+python app_flask.py
+```
+
+A aplicação estará disponível em `http://localhost:5000`
 
 ## Estrutura do Projeto
 
-- `mercadolivre_extractor.py`: Classe principal para interagir com a API
-- `ml_data_exporter.py`: Exportador de dados para CSV e JSON
-- `ml_interactive.py`: Interface interativa para usuários finais
-- `README.md`: Este arquivo de documentação
+- `app.py`: Aplicação Streamlit original
+- `app_flask.py`: Nova versão da aplicação usando Flask
+- `mercadolivre_spider.py`: Spider para extrair dados de produtos
+- `mercadolivre_spider_reviews.py`: Spider para extrair avaliações de produtos
+- `templates/`: Diretório contendo templates HTML para a versão Flask
+- `static/`: Diretório para arquivos estáticos (CSS, imagens temporárias)
 
-## Limitações
+## Uso
 
-- Respeita os limites de requisição da API do Mercado Livre (1500/min para operações gerais)
-- O token de acesso expira após 6 horas, mas o script lidará com isso automaticamente usando o refresh token
-- Utiliza exponential backoff para lidar com limitações de taxa
+1. Na página inicial, digite o termo de busca desejado e selecione os filtros
+2. Clique em "Buscar" para iniciar a busca por produtos
+3. Visualize os resultados e baixe como CSV se desejar
+4. Para buscar avaliações, cole a URL da página de avaliações do Mercado Livre e clique em "Buscar Avaliações"
 
-## Referências
+## Notas
 
-- [Documentação oficial da API do Mercado Livre](https://developers.mercadolivre.com.br/pt_br/api-docs-pt-br)
-- [Autenticação e Autorização](https://developers.mercadolivre.com.br/pt_br/autenticacao-e-autorizacao)
-- [Boas práticas para usar a plataforma](https://developers.mercadolivre.com.br/pt_br/boas-praticas-para-usar-a-plataforma)
-
-## Contribuição
-
-Contribuições são bem-vindas! Abra um issue ou pull request para melhorar esta ferramenta.
-
-## Licença
-
-Este projeto está licenciado sob a licença MIT - veja o arquivo LICENSE para detalhes. 
+- A extração de imagens pode tornar a busca mais lenta. Desative a opção se velocidade for necessária.
+- Respeite os limites e políticas do Mercado Livre ao utilizar este scraper.
+- Alguns produtos podem não retornar todos os dados (preço, avaliações, etc.) dependendo da disponibilidade no site. 

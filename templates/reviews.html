@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avaliações do Produto - Detector de Falsificações ML</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .star-filled {
+            color: #FFD700;
+        }
+        .comment-box {
+            background-color: #f8f9fa;
+            border-radius: 0.5rem;
+            padding: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="mb-2">Detector de Falsificações ML</h1>
+        <h2 class="h4 mb-4">Avaliações do Produto</h2>
+        
+        <div class="alert alert-success">
+            <strong>Encontradas {{ count }} avaliações!</strong>
+        </div>
+        
+        <!-- URL da página de reviews -->
+        <div class="mb-4">
+            <h3 class="h5">URL da página de reviews:</h3>
+            <div class="list-group">
+                <a href="{{ review_url }}" target="_blank" class="list-group-item list-group-item-action">{{ review_url }}</a>
+            </div>
+        </div>
+        
+        <!-- Download CSV Button -->
+        <div class="mb-4">
+            <a href="{{ url_for('download_reviews_csv') }}" class="btn btn-success">Baixar avaliações como CSV</a>
+            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary ms-2">Nova Busca</a>
+        </div>
+        
+        <hr>
+        
+        <!-- Lista de Avaliações -->
+        <div class="row">
+            {% for review in reviews %}
+            <div class="col-md-12 mb-4">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <!-- Estrelas -->
+                            {% for i in range(5) %}
+                                {% if i < review.get('ESTRELAS', 0) %}
+                                <span class="star-filled">&#9733;</span> <!-- Estrela cheia -->
+                                {% else %}
+                                <span>&#9734;</span> <!-- Estrela vazia -->
+                                {% endif %}
+                            {% endfor %}
+                            <span class="ms-2">({{ review.get('ESTRELAS', 'N/A') }}/5)</span>
+                        </div>
+                        <div>
+                            <!-- Data da avaliação -->
+                            <span class="text-muted">{{ review.get('DATA', 'N/A') }}</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Comentário -->
+                        <div class="comment-box mb-3">
+                            <p class="card-text">{{ review.get('COMENTARIO', 'N/A') }}</p>
+                        </div>
+                        
+                        <!-- Curtidas (útil para) -->
+                        <div class="d-flex justify-content-end">
+                            <span class="badge bg-secondary">
+                                <i class="fas fa-thumbs-up"></i> Útil para {{ review.get('CURTIDAS', '0') }} pessoas
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Botões de navegação no final da página -->
+        <div class="my-4 text-center">
+            <a href="{{ url_for('download_reviews_csv') }}" class="btn btn-success">Baixar avaliações como CSV</a>
+            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary ms-2">Nova Busca</a>
+        </div>
+    </div>
+    
+    <footer class="container mt-5 mb-4 text-center">
+        <hr>
+        <p>Criado para detecção de falsificações no Mercado Livre</p>
+    </footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</body>
+</html> 
