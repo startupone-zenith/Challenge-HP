@@ -1,0 +1,25 @@
+[global]
+# Desabilitar warnings desnecessários
+disableWatchdogWarning = true
+showWarningOnDirectExecution = false
+
+[server]
+# Configurações do servidor
+enableCORS = false
+enableXsrfProtection = false
+maxUploadSize = 200
+
+[logger]
+# Configurações de logging
+level = "warning"
+messageFormat = "%(asctime)s %(message)s"
+
+[runner]
+# Configurações do runner
+magicEnabled = true
+installTracer = false
+fixMatplotlib = true
+
+[browser]
+# Configurações do browser
+gatherUsageStats = false 
