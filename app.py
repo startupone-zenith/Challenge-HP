@@ -218,7 +218,7 @@ def generate_csv_data(produtos, csv_config, resultados_falsificacao=None):
         csv_data.append(row_data)
     
     return csv_data
-
+#AAA
 # Configuração do logger para Streamlit
 logging.basicConfig(
     filename='scraper_errors.log', 
