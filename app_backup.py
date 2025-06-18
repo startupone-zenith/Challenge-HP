@@ -43,11 +43,9 @@ def generate_csv_data(produtos, csv_config, resultados_falsificacao=None):
     basic_fields = csv_config['basic_fields']
     detailed_fields = csv_config['detailed_fields']
     risk_fields = csv_config.get('risk_fields', {})
-    reviews_fields = csv_config.get('reviews_fields', {})
     
     # Verificar se precisa extrair dados detalhados
     needs_detailed_extraction = any(detailed_fields.values())
-    needs_reviews_extraction = reviews_fields.get('incluir_reviews', False)
     
     # Criar dicionário de resultados de falsificação por ID do produto para acesso rápido
     risk_data_by_id = {}
@@ -236,100 +234,6 @@ def generate_csv_data(produtos, csv_config, resultados_falsificacao=None):
                 row_data['Reviews Suspeitas Detalhadas'] = 'N/A'
                 row_data['Total Reviews Suspeitas'] = 'N/A'
         
-        # Campos de reviews (se configurado)
-        if needs_reviews_extraction and produto_id and produto_id != 'N/A':
-            try:
-                # Extrair reviews do produto
-                reviews_data = run_review_spider(produto_id, max_reviews=50)
-                
-                if reviews_data and reviews_data.get('reviews'):
-                    reviews = reviews_data.get('reviews', [])
-                    
-                    if reviews_fields.get('reviews_resumo'):
-                        row_data['Total Reviews Extraídas'] = len(reviews)
-                        if reviews:
-                            ratings = []
-                            for r in reviews:
-                                rating = r.get('rating', 0)
-                                try:
-                                    # Converter rating para float se for string
-                                    if isinstance(rating, str):
-                                        rating = float(rating)
-                                    elif rating is None:
-                                        rating = 0
-                                    ratings.append(rating)
-                                except (ValueError, TypeError):
-                                    # Se não conseguir converter, usar 0
-                                    ratings.append(0)
-                            
-                            avg_rating = sum(ratings) / len(ratings) if ratings else 0
-                            row_data['Média Reviews Extraídas'] = f"{avg_rating:.1f}"
-                        else:
-                            row_data['Média Reviews Extraídas'] = 'N/A'
-                    
-                    if reviews_fields.get('reviews_texto'):
-                        # Pegar as primeiras 3 reviews como amostra
-                        sample_reviews = reviews[:3]
-                        reviews_text = ' | '.join([r.get('text', '') for r in sample_reviews])
-                        row_data['Amostra Texto Reviews'] = reviews_text
-                    
-                    if reviews_fields.get('reviews_rating'):
-                        # Distribuição de ratings
-                        rating_counts = {}
-                        for review in reviews:
-                            rating = review.get('rating', 0)
-                            try:
-                                # Converter rating para int se for string
-                                if isinstance(rating, str):
-                                    rating = int(float(rating))  # Primeiro float, depois int
-                                elif rating is None:
-                                    rating = 0
-                                rating_counts[rating] = rating_counts.get(rating, 0) + 1
-                            except (ValueError, TypeError):
-                                # Se não conseguir converter, ignorar essa review
-                                pass
-                        
-                        for star in range(1, 6):
-                            row_data[f'Reviews {star}★'] = rating_counts.get(star, 0)
-                    
-                    if reviews_fields.get('reviews_data'):
-                        # Data da review mais recente e mais antiga
-                        dates = [r.get('date', '') for r in reviews if r.get('date')]
-                        if dates:
-                            row_data['Data Review Mais Recente'] = dates[0] if dates else 'N/A'
-                            row_data['Data Review Mais Antiga'] = dates[-1] if dates else 'N/A'
-                        else:
-                            row_data['Data Review Mais Recente'] = 'N/A'
-                            row_data['Data Review Mais Antiga'] = 'N/A'
-                else:
-                    # Sem reviews encontradas
-                    if reviews_fields.get('reviews_resumo'):
-                        row_data['Total Reviews Extraídas'] = 0
-                        row_data['Média Reviews Extraídas'] = 'N/A'
-                    if reviews_fields.get('reviews_texto'):
-                        row_data['Amostra Texto Reviews'] = 'Nenhuma review encontrada'
-                    if reviews_fields.get('reviews_rating'):
-                        for star in range(1, 6):
-                            row_data[f'Reviews {star}★'] = 0
-                    if reviews_fields.get('reviews_data'):
-                        row_data['Data Review Mais Recente'] = 'N/A'
-                        row_data['Data Review Mais Antiga'] = 'N/A'
-                        
-            except Exception as e:
-                logging.error(f"Erro ao extrair reviews para CSV do produto {i+1}: {str(e)}")
-                # Preencher com ERRO em caso de falha
-                if reviews_fields.get('reviews_resumo'):
-                    row_data['Total Reviews Extraídas'] = 'ERRO'
-                    row_data['Média Reviews Extraídas'] = 'ERRO'
-                if reviews_fields.get('reviews_texto'):
-                    row_data['Amostra Texto Reviews'] = 'ERRO'
-                if reviews_fields.get('reviews_rating'):
-                    for star in range(1, 6):
-                        row_data[f'Reviews {star}★'] = 'ERRO'
-                if reviews_fields.get('reviews_data'):
-                    row_data['Data Review Mais Recente'] = 'ERRO'
-                    row_data['Data Review Mais Antiga'] = 'ERRO'
-        
         csv_data.append(row_data)
     
     return csv_data
@@ -371,8 +275,9 @@ PALAVRAS_SUSPEITAS_TITULO = {
 
 # Erros de gramática/ortografia comuns em produtos falsificados
 ERROS_GRAMATICA = {
-    'CARTUXO', 'CARTUSHO', 'CARTUCHO HP', 'TINTA HP', 'IMPRESSORA HP',
-    'ORIGINAL HP', 'GENUINO HP', 'AUTENTICO HP'
+    'CARTUXO', 'CARTTUCHO', 'KCARTUCHO',  # Removido 'CARTUCHO' (correto)
+    'TINTTA',  # Removido 'TINTA' e 'TINT' (corretos)
+    'INPRESSORA', 'IMPRESORA', 'INPRESORA'  # Removido 'IMPRESSORA' (correto)
 }
 
 # Preços de referência baseados na imagem fornecida (valores sugeridos)
@@ -774,8 +679,7 @@ def analisar_titulo_suspeito(titulo):
     
     # Verificar erros de gramática/ortografia
     for erro in ERROS_GRAMATICA:
-        # Usar regex para encontrar apenas palavras inteiras e evitar falsos positivos
-        if re.search(r'\b' + re.escape(erro) + r'\b', titulo_upper):
+        if erro in titulo_upper:
             indicadores_suspeitos.append(f"Possível erro de grafia: '{erro}'")
             pontuacao_suspeita += 10  # 10 pontos por erro
     
@@ -938,6 +842,8 @@ def make_request(url, max_retries=3, initial_wait=1):
     return None
 
 # Initialize session state variables if they don't exist
+if 'current_products' not in st.session_state:
+    st.session_state.current_products = []
 if 'reviews_data' not in st.session_state:
     st.session_state.reviews_data = None
 if 'fetching_reviews_for_id' not in st.session_state:
@@ -1062,63 +968,45 @@ with st.sidebar:
     
     st.markdown("---")
 
-    # Configurações de Reviews
+# Configurações de Reviews
     st.markdown("## ⭐ Reviews & Análise")
 
-    # Configuração principal: Extrair reviews
-    extract_reviews = st.checkbox(
-        "🔍 Extrair Reviews dos Produtos",
-        value=st.session_state.get('extract_reviews', False),
-        help="Ativa a extração e exibição de reviews no frontend"
+use_rating_percentages = st.checkbox(
+        "📊 Usar distribuição personalizada por estrelas",
+        value=st.session_state.get('use_rating_percentages', False),
+        help="Coleta reviews específicas por rating"
     )
-    st.session_state.extract_reviews = extract_reviews
 
-    if extract_reviews:
-        # Configuração de quantidade de reviews
+if use_rating_percentages:
+        st.markdown("**Distribuição por estrela:**")
+        review_percentages = {}
+        total_percentage = 0
+        
+        for star in [5, 4, 3, 2, 1]:
+            default_value = st.session_state.get(f'percentage_{star}_star', 
+                                               {5: 40, 4: 30, 3: 10, 2: 10, 1: 10}[star])
+            percentage = st.slider(
+                f"{star}⭐", 
+                min_value=0,
+                max_value=100,
+                value=default_value,
+                help=f"Percentual de reviews de {star} estrelas"
+            )
+            review_percentages[star] = percentage
+            total_percentage += percentage
+    
+    if total_percentage != 100:
+            st.warning(f"⚠️ Total: {total_percentage}% (recomendado: 100%)")
+    else:
         max_reviews = st.number_input(
             "📈 Máximo de reviews por produto:",
             min_value=10,
             max_value=300,
-            value=st.session_state.get('max_reviews_to_fetch', 50),
-            step=10,
-            help="Quantidade máxima de reviews a extrair por produto"
+            value=st.session_state.get('max_reviews_to_fetch', 100),
+            step=10
         )
         st.session_state.max_reviews_to_fetch = max_reviews
-        
-        # Configuração avançada: Distribuição personalizada por estrelas
-        use_rating_percentages = st.checkbox(
-            "📊 Usar distribuição personalizada por estrelas",
-            value=st.session_state.get('use_rating_percentages', False),
-            help="Coleta reviews específicas por rating em percentuais definidos"
-        )
-        st.session_state.use_rating_percentages = use_rating_percentages
-
-        if use_rating_percentages:
-            st.markdown("**Distribuição por estrela:**")
-            review_percentages = {}
-            total_percentage = 0
-            
-            for star in [5, 4, 3, 2, 1]:
-                default_value = st.session_state.get(f'percentage_{star}_star', 
-                                                   {5: 40, 4: 30, 3: 10, 2: 10, 1: 10}[star])
-                percentage = st.slider(
-                    f"{star}⭐", 
-                    min_value=0,
-                    max_value=100,
-                    value=default_value,
-                    help=f"Percentual de reviews de {star} estrelas"
-                )
-                review_percentages[star] = percentage
-                total_percentage += percentage
-                st.session_state[f'percentage_{star}_star'] = percentage
-            
-            if total_percentage != 100:
-                st.warning(f"⚠️ Total: {total_percentage}% (recomendado: 100%)")
-            
-            st.session_state.rating_percentages = review_percentages
     
-    st.markdown("---")
-
 # =============================================================================
 # CONFIGURAÇÕES DE EXPORTAÇÃO NA SIDEBAR
 # =============================================================================
@@ -1132,7 +1020,7 @@ with st.sidebar:
     st.session_state.csv_generator_enabled = csv_enabled
     
     if csv_enabled:
-        with st.expander("⚙️ Configurar Campos CSV", expanded=True):
+        with st.expander("⚙️ Configurar Campos CSV"):
             # Simplificar configuração na sidebar
             basic_fields = st.session_state.csv_fields_config.get('basic_fields', {})
             detailed_fields = st.session_state.csv_fields_config.get('detailed_fields', {})
@@ -1155,27 +1043,6 @@ with st.sidebar:
             if risk_all != all(risk_fields.values()):
                 for field in risk_fields:
                     risk_fields[field] = risk_all
-            
-            st.markdown("**Reviews:**")
-            reviews_fields = st.session_state.csv_fields_config.get('reviews_fields', {})
-            if not reviews_fields:
-                # Inicializar reviews_fields se não existir
-                reviews_fields = {
-                    'incluir_reviews': False,
-                    'reviews_texto': False,
-                    'reviews_rating': False,
-                    'reviews_data': False,
-                    'reviews_resumo': True
-                }
-                st.session_state.csv_fields_config['reviews_fields'] = reviews_fields
-            
-            reviews_fields['incluir_reviews'] = st.checkbox("Incluir Reviews no CSV", value=reviews_fields.get('incluir_reviews', False))
-            
-            if reviews_fields['incluir_reviews']:
-                reviews_fields['reviews_resumo'] = st.checkbox("Resumo de Reviews", value=reviews_fields.get('reviews_resumo', True))
-                reviews_fields['reviews_texto'] = st.checkbox("Texto das Reviews", value=reviews_fields.get('reviews_texto', False))
-                reviews_fields['reviews_rating'] = st.checkbox("Rating das Reviews", value=reviews_fields.get('reviews_rating', False))
-                reviews_fields['reviews_data'] = st.checkbox("Data das Reviews", value=reviews_fields.get('reviews_data', False))
 
 # =============================================================================
 # ÁREA PRINCIPAL - ABAS ORGANIZADAS
@@ -1194,21 +1061,14 @@ tab_busca, tab_falsificacao, tab_dataset, tab_analytics = st.tabs([
 # =============================================================================
 
 with tab_busca:
-    st.markdown("## 🔍 Busca e Coleta de Dados")
+    st.markdown("## 🔍 Busca e Coleta de Produtos")
     
-    col1, col2 = st.columns([3, 1])
-    
-    with col1:
-        st.markdown(f"**Buscando:** `{search_query}` | **Itens:** {max_items} | **Ordenação:** {sort_by}")
-    
-    with col2:
-        search_button = st.button("🚀 Iniciar Busca", type="primary", use_container_width=True)
-    
-    if search_button:
-        with st.spinner(f"🔍 Buscando '{search_query}' no Mercado Livre..."):
-            search_results, urls_used = run_spider(
+    # Botão principal de busca
+    if st.button("🚀 Iniciar Busca", type="primary", use_container_width=True):
+        with st.spinner(f"🔍 Buscando produtos: '{search_query}'..."):
+            search_results = run_spider(
                 query=search_query,
-                max_items=max_items, 
+                max_items=max_items,
                 sort_by=sort_value,
                 condition=condition_value,
                 extract_images=load_images
@@ -1216,124 +1076,89 @@ with tab_busca:
             
             if search_results:
                 st.session_state.current_products = search_results
-                # Limpar resultados antigos de outras análises
-                if 'falsification_results' in st.session_state:
-                    del st.session_state.falsification_results
-                if 'labeled_dataset' in st.session_state:
-                    del st.session_state.labeled_dataset
+                st.success(f"✅ Encontrados {len(search_results)} produtos!")
+                
+                # Mostrar todos os produtos encontrados
+                st.markdown("### 📋 Produtos Encontrados")
+                
+                # Opção para expandir/colapsar todos
+                col_expand, col_stats = st.columns([1, 3])
+                
+                # Usar session state para manter o estado do checkbox
+                if 'expandir_todos_produtos' not in st.session_state:
+                    st.session_state.expandir_todos_produtos = False
+                
+                with col_expand:
+                    expandir_todos = st.checkbox(
+                        "📖 Expandir todos os produtos", 
+                        value=st.session_state.expandir_todos_produtos,
+                        key="checkbox_expandir_produtos"
+                    )
+                    # Atualizar session state quando checkbox muda
+                    st.session_state.expandir_todos_produtos = expandir_todos
+                
+                with col_stats:
+                    st.info(f"📊 Total de produtos: **{len(search_results)}**")
+                
+                # Mostrar todos os produtos
+                for i, produto in enumerate(search_results):
+                    titulo_completo = produto.get('TITULO PRODUTO', 'Sem título')
+                    titulo_preview = titulo_completo[:80] + "..." if len(titulo_completo) > 80 else titulo_completo
+                    
+                    with st.expander(f"📦 {titulo_preview}", expanded=expandir_todos):
+                        col_img, col_details = st.columns([1, 3])
+                        
+                        with col_img:
+                            if load_images and produto.get('IMAGEM') != 'N/A':
+                                try:
+                                    st.image(produto['IMAGEM'], width=100)
+                                except:
+                                    st.write("📷 Sem imagem")
+                            else:
+                                st.write("📷 Imagem desabilitada")
+                        
+                        with col_details:
+                            st.write(f"**📝 Título completo:** {titulo_completo}")
+                            st.write(f"**💰 Preço:** {produto.get('PREÇO', 'N/A')}")
+                            st.write(f"**🏪 Vendedor:** {produto.get('VENDEDOR', 'N/A')}")
+                            st.write(f"**⭐ Avaliações:** {produto.get('MÉDIA AVALIAÇÕES', 'N/A')} ({produto.get('TOTAL AVALIAÇÕES', 'N/A')})")
+                            st.write(f"**🏷️ Marca:** {produto.get('MARCA', 'N/A')}")
+                            st.write(f"**🆔 ID Produto:** {produto.get('ID PRODUTO', 'N/A')}")
+                            if produto.get('LINK') != 'N/A':
+                                st.markdown(f"🔗 [Ver produto]({produto['LINK']})")
+                
+                # Opções pós-busca
+                st.markdown("### 📊 Próximos Passos")
+                col_next1, col_next2, col_next3 = st.columns(3)
+                
+                with col_next1:
+                    if st.button("🚨 Analisar Falsificação", use_container_width=True):
+                        st.session_state.active_tab = 1  # Ir para aba de falsificação
+                        st.rerun()
+                
+                with col_next2:
+                    if st.button("📊 Gerar Dataset", use_container_width=True):
+                        st.session_state.active_tab = 2  # Ir para aba de dataset
+                        st.rerun()
+                
+                with col_next3:
+                    if csv_enabled and st.button("📥 Exportar CSV", use_container_width=True):
+                        # Gerar e baixar CSV
+                        csv_data = generate_csv_data(
+                            search_results, 
+                            st.session_state.csv_fields_config
+                        )
+                        df = pd.DataFrame(csv_data)
+                        csv_string = df.to_csv(index=False).encode('utf-8')
+                        
+                        st.download_button(
+                            label="⬇️ Download CSV",
+                            data=csv_string,
+                            file_name=f"produtos_{search_query.replace(' ', '_')}.csv",
+                            mime="text/csv"
+                        )
             else:
                 st.error("❌ Não foi possível realizar a busca. Tente novamente.")
-                if 'current_products' in st.session_state:
-                    del st.session_state.current_products
-
-    # Exibir resultados da busca (se existirem no estado da sessão)
-    if 'current_products' in st.session_state and st.session_state.current_products:
-        st.success(f"✅ Exibindo {len(st.session_state.current_products)} produtos encontrados!")
-        
-        # Mostrar todos os resultados
-        st.markdown("### 📋 Produtos Encontrados")
-        
-        for i, produto in enumerate(st.session_state.current_products):
-            # Exibir título completo, sem truncar
-            with st.expander(f"📦 {produto.get('TITULO PRODUTO', 'Sem título')}", expanded=True):
-                col_img, col_details = st.columns([1, 3])
-                
-                with col_img:
-                    if load_images and produto.get('IMAGEM') != 'N/A':
-                        try:
-                            st.image(produto['IMAGEM'], width=100)
-                        except Exception as e:
-                            st.write(f"📷 Erro ao carregar imagem: {e}")
-                    else:
-                        st.write("🖼️ Imagens desabilitadas")
-                
-                with col_details:
-                    st.write(f"**💰 Preço:** {produto.get('PREÇO', 'N/A')}")
-                    st.write(f"**🏪 Vendedor:** {produto.get('VENDEDOR', 'N/A')}")
-                    st.write(f"**⭐ Avaliações:** {produto.get('MÉDIA AVALIAÇÕES', 'N/A')} ({produto.get('TOTAL AVALIAÇÕES', 'N/A')})")
-                    if produto.get('LINK') != 'N/A':
-                        st.markdown(f"🔗 [Ver produto]({produto['LINK']})")
-                    
-                    # Exibir reviews se configurado
-                    if st.session_state.get('extract_reviews', False):
-                        produto_id = produto.get('ID_PRODUTO')
-                        if produto_id and produto_id != 'N/A':
-                            with st.spinner("Carregando reviews..."):
-                                try:
-                                    max_reviews_config = st.session_state.get('max_reviews_to_fetch', 50)
-                                    reviews_data = run_review_spider(produto_id, max_reviews=max_reviews_config)
-                                    
-                                    if reviews_data and reviews_data.get('reviews'):
-                                        reviews = reviews_data.get('reviews', [])
-                                        st.markdown("**💬 Reviews do Produto:**")
-                                        st.write(f"📊 **Total:** {len(reviews)} reviews")
-                                        
-                                        if reviews:
-                                            # Calcular média de rating
-                                            ratings = []
-                                            for r in reviews:
-                                                rating = r.get('rating', 0)
-                                                try:
-                                                    # Converter rating para float se for string
-                                                    if isinstance(rating, str):
-                                                        rating = float(rating)
-                                                    elif rating is None:
-                                                        rating = 0
-                                                    ratings.append(rating)
-                                                except (ValueError, TypeError):
-                                                    # Se não conseguir converter, usar 0
-                                                    ratings.append(0)
-                                            
-                                            if ratings:
-                                                avg_rating = sum(ratings) / len(ratings)
-                                                st.write(f"⭐ **Média:** {avg_rating:.1f}/5")
-                                            
-                                            # Mostrar algumas reviews
-                                            with st.expander(f"Ver primeiras {min(3, len(reviews))} reviews", expanded=False):
-                                                for j, review in enumerate(reviews[:3]):
-                                                    st.markdown(f"**Review {j+1}:**")
-                                                    st.write(f"⭐ {review.get('rating', 'N/A')}/5")
-                                                    st.write(f"📅 {review.get('date', 'N/A')}")
-                                                    st.write(f"💬 {review.get('text', 'N/A')[:200]}...")
-                                                    st.markdown("---")
-                                    else:
-                                        st.write("💬 **Reviews:** Nenhuma review encontrada")
-                                except Exception as e:
-                                    st.write(f"💬 **Reviews:** Erro ao carregar ({str(e)})")
-                        else:
-                            st.write("💬 **Reviews:** ID do produto não disponível")
-
-        # Opções pós-busca
-        st.markdown("### 📊 Próximos Passos")
-        st.info("Utilize as abas no topo da página para continuar a análise.")
-        
-        col_next1, col_next2, col_next3 = st.columns(3)
-        
-        with col_next1:
-            if st.button("🚨 Ir para Detecção de Falsificação", use_container_width=True):
-                st.session_state.active_tab = "🚨 Detecção de Falsificação"
-                st.rerun() # Força a atualização para mudar de aba
-
-        with col_next2:
-            if st.button("📊 Ir para Gerador de Dataset", use_container_width=True):
-                st.session_state.active_tab = "📊 Dataset Generator"
-                st.rerun()
-                    
-        with col_next3:
-            if csv_enabled:
-                csv_data_gerado = generate_csv_data(st.session_state.current_products, st.session_state.csv_fields_config)
-                df_export = pd.DataFrame(csv_data_gerado)
-                csv_string = df_export.to_csv(index=False).encode('utf-8')
-                
-                st.download_button(
-                    label="📥 Exportar CSV da Busca",
-                    data=csv_string,
-                    file_name=f"produtos_{search_query.replace(' ', '_')}.csv",
-                    mime="text/csv",
-                    use_container_width=True
-                )
-    elif not search_button:
-        st.info("Clique em 'Iniciar Busca' para carregar os dados dos produtos.")
 
 # =============================================================================
 # ABA 2: DETECÇÃO DE FALSIFICAÇÃO  
@@ -1342,7 +1167,7 @@ with tab_busca:
 with tab_falsificacao:
     st.markdown("## 🚨 Sistema de Detecção de Falsificação")
     
-    if 'current_products' not in st.session_state:
+    if 'current_products' not in st.session_state or len(st.session_state.current_products) == 0:
         st.info("🔍 **Primeiro faça uma busca** na aba 'Busca & Coleta' para carregar produtos.")
     else:
         produtos = st.session_state.current_products
@@ -1359,7 +1184,7 @@ with tab_falsificacao:
         with col_opt2:
             incluir_detalhes = st.checkbox("📋 Incluir Reviews Suspeitas Detalhadas", value=True,
                                           help="Mostra as reviews suspeitas encontradas")
-    
+        
         # Botão para iniciar análise
         if st.button("🚀 Iniciar Análise de Falsificação", type="primary", use_container_width=True):
             progress_bar = st.progress(0)
@@ -1423,7 +1248,7 @@ with tab_falsificacao:
             with filtro_col3:
                 apenas_com_reviews = st.checkbox("Apenas com reviews suspeitas", 
                                                 help="Mostrar apenas produtos com reviews suspeitas encontradas")
-    
+            
             # Aplicar filtros
             resultados_filtrados = resultados
             
@@ -1446,7 +1271,7 @@ with tab_falsificacao:
                 risco_cor = {"Alto Risco": "🔴", "Médio Risco": "🟡", "Baixo Risco": "🟢"}
                 cor = risco_cor.get(resultado['classificacao'], "⚪")
                 
-                with st.expander(f"{cor} {produto.get('TITULO PRODUTO', 'Sem título')[:70]}... - {resultado['classificacao']} ({resultado['probabilidade_total']:.1f}%)", expanded=True):
+                with st.expander(f"{cor} {produto.get('TITULO PRODUTO', 'Sem título')[:70]}... - {resultado['classificacao']} ({resultado['probabilidade_total']:.1f}%)"):
                     
                     col_info1, col_info2 = st.columns(2)
                     
@@ -1471,7 +1296,7 @@ with tab_falsificacao:
                         
                         # Mostrar reviews suspeitas se solicitado
                         if incluir_detalhes and resultado.get('reviews_suspeitas'):
-                            with st.expander(f"Ver {len(resultado['reviews_suspeitas'])} reviews suspeitas", expanded=True):
+                            with st.expander(f"Ver {len(resultado['reviews_suspeitas'])} reviews suspeitas"):
                                 for review in resultado['reviews_suspeitas']:
                                     st.write(f"**Review #{review.get('numero_review', 'N/A')}** (⭐{review.get('rating', 'N/A')})")
                                     st.write(f"**Texto:** {review.get('texto_completo', 'N/A')}")
@@ -1505,7 +1330,7 @@ with tab_falsificacao:
 with tab_dataset:
     st.markdown("## 📊 Dataset Generator - HP Challenge")
     
-    if 'current_products' not in st.session_state:
+    if 'current_products' not in st.session_state or len(st.session_state.current_products) == 0:
         st.info("🔍 **Primeiro faça uma busca** na aba 'Busca & Coleta' para carregar produtos.")
     else:
         produtos = st.session_state.current_products
@@ -1513,7 +1338,7 @@ with tab_dataset:
         st.markdown(f"### 📋 Gerando dataset rotulado para {len(produtos)} produtos")
         
         # Informações sobre a rotulagem
-        with st.expander("📋 Critérios de Rotulagem Heurística", expanded=True):
+        with st.expander("📋 Critérios de Rotulagem Heurística"):
             st.markdown("""
             **🟢 ORIGINAL:**
             - Vendedor oficial/confiável
@@ -1572,7 +1397,7 @@ with tab_dataset:
                 
                 rotulo_emoji = "🟢" if item['rotulo_heuristico'] == 'original' else "🔴"
                 
-                with st.expander(f"{rotulo_emoji} {produto.get('TITULO PRODUTO', 'Sem título')[:60]}... - {item['rotulo_heuristico'].upper()}", expanded=True):
+                with st.expander(f"{rotulo_emoji} {produto.get('TITULO PRODUTO', 'Sem título')[:60]}... - {item['rotulo_heuristico'].upper()}"):
                     col_prod1, col_prod2 = st.columns(2)
                     
                     with col_prod1:
@@ -1603,8 +1428,8 @@ with tab_dataset:
                     
                     dados_csv.append({
                         'titulo': produto.get('TITULO PRODUTO', 'N/A'),
-                        'preco': produto.get('PREÇO', 'N/A'),
-                        'vendedor': produto.get('VENDEDOR', 'N/A'),
+            'preco': produto.get('PREÇO', 'N/A'),
+            'vendedor': produto.get('VENDEDOR', 'N/A'),
                         'link': produto.get('LINK', 'N/A'),
                         'rotulo_heuristico': item['rotulo_heuristico'],
                         'score_total': detalhes['score_total'],
@@ -1633,9 +1458,9 @@ with tab_dataset:
 with tab_analytics:
     st.markdown("## 📈 Analytics e Exploração Avançada")
     
-    if 'current_products' not in st.session_state:
+    if 'current_products' not in st.session_state or len(st.session_state.current_products) == 0:
         st.info("🔍 **Primeiro faça uma busca** na aba 'Busca & Coleta' para carregar produtos.")
-    else:
+        else:
         produtos = st.session_state.current_products
         
         st.markdown(f"### 📊 Análise exploratória de {len(produtos)} produtos")
