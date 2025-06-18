@@ -1,5 +1,22 @@
-.venv/
+# Python
 __pycache__/
-scraper_errors.log
-produtos_mercadolivre (3).csv
-Briefing Anti pirataria FIAP.pdf
+*.pyc
+*.pyo
+*.pyd
+.Python
+build/
+dist/
+eggs/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Environment
+.env
+
+# Logs
+*.log
+classifier_log.txt
+
+# Jupyter Notebook
+.ipynb_checkpoints 

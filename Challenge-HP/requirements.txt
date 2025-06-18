@@ -1,0 +1,14 @@
+streamlit
+pandas
+requests
+lxml
+Pillow
+scrapy
+brotli 
+numpy
+matplotlib
+seaborn
+plotly
+textstat
+wordcloud
+unicodedata2 

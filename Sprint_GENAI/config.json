@@ -1,0 +1,10 @@
+{
+    "openai_api_key": "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",
+    "anthropic_api_key": "your-anthropic-api-key-here",
+    "google_api_key": "your-google-api-key-here",
+    "price_threshold": 0.4,
+    "min_photos": 3,
+    "min_description_length": 100,
+    "confidence_threshold": 0.7,
+    "high_risk_threshold": 0.9
+} 
