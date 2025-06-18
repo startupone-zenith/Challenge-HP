@@ -370,9 +370,10 @@ PALAVRAS_SUSPEITAS_TITULO = {
 }
 
 # Erros de gramática/ortografia comuns em produtos falsificados
-ERROS_GRAMATICA = {
-    'CARTUXO', 'CARTUSHO', 'CARTUCHO HP', 'TINTA HP', 'IMPRESSORA HP',
-    'ORIGINAL HP', 'GENUINO HP', 'AUTENTICO HP'
+ERROS_GRAMATICA_FALSIFICACAO = {
+    'CARTUXO', 'CARTUSHO', 'CARTTUCHO', 'KCARTUCHO',
+    'TINT', 'TINTTA', 'TINTAH',
+    'INPRESSORA', 'IMPRESORA', 'INPRESORA', 'IMPRESSOIRA'
 }
 
 # Preços de referência baseados na imagem fornecida (valores sugeridos)
@@ -718,11 +719,11 @@ PALAVRAS_SUSPEITAS_TITULO = {
     'IMPERDIVEL', 'SUPER PRECO', 'MEGA OFERTA'
 }
 
-# Erros de gramática comuns
+# Erros de gramática comuns (apenas as grafias incorretas)
 ERROS_GRAMATICA = {
-    'CARTUCHO', 'CARTUXO', 'CARTTUCHO', 'KCARTUCHO',
-    'TINTA', 'TINTA', 'TINT', 'TINTTA',
-    'IMPRESSORA', 'INPRESSORA', 'IMPRESORA', 'INPRESORA'
+    'CARTUXO', 'CARTUSHO', 'CARTTUCHO', 'KCARTUCHO',
+    'TINT', 'TINTTA', 'TINTAH',
+    'INPRESSORA', 'IMPRESORA', 'INPRESORA', 'IMPRESSOIRA'
 }
 
 # Preços de referência HP (valores aproximados em R$)
@@ -1288,13 +1289,13 @@ with tab_busca:
                                                 avg_rating = sum(ratings) / len(ratings)
                                                 st.write(f"⭐ **Média:** {avg_rating:.1f}/5")
                                             
-                                            # Mostrar algumas reviews
-                                            with st.expander(f"Ver primeiras {min(3, len(reviews))} reviews", expanded=False):
-                                                for j, review in enumerate(reviews[:3]):
-                                                    st.markdown(f"**Review {j+1}:**")
-                                                    st.write(f"⭐ {review.get('rating', 'N/A')}/5")
-                                                    st.write(f"📅 {review.get('date', 'N/A')}")
-                                                    st.write(f"💬 {review.get('text', 'N/A')[:200]}...")
+                                            # Mostrar algumas reviews diretamente (sem expander aninhado)
+                                            st.markdown("**📝 Primeiras Reviews:**")
+                                            for j, review in enumerate(reviews[:3]):
+                                                st.markdown(f"**Review {j+1}:** ⭐ {review.get('rating', 'N/A')}/5")
+                                                st.write(f"📅 {review.get('date', 'N/A')}")
+                                                st.write(f"💬 {review.get('text', 'N/A')[:150]}...")
+                                                if j < 2:  # Adicionar separador entre reviews (exceto na última)
                                                     st.markdown("---")
                                     else:
                                         st.write("💬 **Reviews:** Nenhuma review encontrada")
