@@ -106,9 +106,11 @@ def call_llm_for_structured_data(page_text: str) -> CartuchoAnuncio:
     system_prompt = (
         "Você é um assistente especialista em classificar e extrair atributos de anúncios "
         "de cartuchos de impressora HP no Mercado Livre. Extraia os seguintes campos "
-        "em formato JSON (use chaves exatamente como abaixo):\n\n"
-        "titulo, marca, modelo, preco, cor, qualidade_descricao, quantidade_reviews, "
-        "avaliacao, quantidade_fotos, seller_name, seller_reputation, listing_age_days."
+        "em formato JSON (use chaves exatamente como abaixo). IMPORTANTE: para valores numéricos "
+        "(preço, avaliação, quantidades) utilize ponto como separador decimal e não use símbolo 'R$'.\n\n"
+        "Campos esperados: titulo, marca, modelo, preco, cor, qualidade_descricao, "
+        "quantidade_reviews, avaliacao, quantidade_fotos, seller_name, seller_reputation, "
+        "listing_age_days."
     )
     messages = [
         {"role": "system", "content": system_prompt},
@@ -126,6 +128,27 @@ def call_llm_for_structured_data(page_text: str) -> CartuchoAnuncio:
     raw_json = response.choices[0].message.content
     try:
         data = json.loads(raw_json)
+
+        # --- Normalization --------------------------------------------------
+        def _to_float(val):
+            if isinstance(val, (float, int)):
+                return float(val)
+            if isinstance(val, str):
+                val = val.replace("R$", "").replace(" ", "").replace(",", ".")
+                try:
+                    return float(val)
+                except ValueError:
+                    return None
+            return None
+
+        data["preco"] = _to_float(data.get("preco"))
+        data["avaliacao"] = _to_float(data.get("avaliacao"))
+
+        for key in ["quantidade_reviews", "quantidade_fotos", "listing_age_days"]:
+            if key in data and isinstance(data[key], str):
+                cleaned = data[key].replace(".", "").replace(",", "")
+                data[key] = int(cleaned) if cleaned.isdigit() else None
+
         return CartuchoAnuncio(**data)
     except (json.JSONDecodeError, ValidationError) as exc:
         logger.error(f"Failed to parse/validate LLM output: {exc}. Raw output: {raw_json}")

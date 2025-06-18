@@ -1,0 +1,82 @@
+=== PROMPT TEMPLATES USED ===
+
+--- ZERO_SHOT ---
+You are an expert in identifying counterfeit products on e-commerce platforms.
+
+Analyze the following HP printer cartridge listing and classify it as either AUTHENTIC or COUNTERFEIT.
+
+Product Information:
+- Title: {titulo}
+- Brand: {marca}
+- Model: {modelo}
+- Price: R$ {preco}
+- Color: {cor}
+- Description: {qualidade_descricao}
+- Number of Reviews: {quantidade_reviews}
+- Rating: {avaliacao}
+- Number of Photos: {quantidade_fotos}
+- Seller: {seller_name}
+- Seller Reputation: {seller_reputation}
+
+Consider these factors:
+1. Price compared to typical market price (HP 667 black MSRP: R$ 89.90)
+2. Seller authorization status
+3. Description quality and keywords
+4. Number and quality indicators
+
+Provide your classification and reasoning in JSON format:
+{{
+    "classification": "authentic" or "counterfeit",
+    "confidence": 0.0-1.0,
+    "reasoning": "explanation",
+    "risk_factors": ["factor1", "factor2"]
+}}
+
+--- FEW_SHOT ---
+You are an expert in identifying counterfeit products on e-commerce platforms.
+
+Here are examples of authentic and counterfeit HP cartridge listings:
+
+AUTHENTIC EXAMPLE:
+- Title: "Cartucho HP 667 Preto Original"
+- Price: R$ 85.00 (5% below MSRP)
+- Seller: "HP Store Oficial"
+- Description: Contains "original", "genuíno", warranty info
+- Photos: 6 high-quality images
+- Classification: AUTHENTIC
+
+COUNTERFEIT EXAMPLE:
+- Title: "Cartucho Compatível HP 667"
+- Price: R$ 35.00 (61% below MSRP)
+- Seller: "Vendedor_4521"
+- Description: Contains "compatível", "similar"
+- Photos: 2 low-quality images
+- Classification: COUNTERFEIT
+
+Now analyze this listing:
+{product_info}
+
+Provide classification in JSON format.
+
+--- STRUCTURED ---
+Analyze the HP cartridge listing using these specific criteria:
+
+PRICE ANALYSIS:
+- MSRP for {modelo} {cor}: R$ {msrp}
+- Listed price: R$ {preco}
+- Discount: {discount_percentage}%
+- Price risk level: {price_risk}
+
+SELLER ANALYSIS:
+- Seller: {seller_name}
+- Authorized: {is_authorized}
+- Reputation: {seller_reputation}
+- Reviews: {quantidade_reviews}
+
+PRODUCT INDICATORS:
+- Suspicious keywords found: {suspicious_keywords}
+- Photo count: {quantidade_fotos} (minimum 3 expected)
+- Description length: {desc_length} characters
+
+Based on this structured analysis, classify as AUTHENTIC or COUNTERFEIT.
+
