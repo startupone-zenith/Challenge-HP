@@ -26,8 +26,8 @@ class MercadoLivreReviewsAPI:
     def __init__(self, product_id):
         self.product_id = product_id
         self.base_url = "https://api.mercadolibre.com"
-        self.max_limit = 50  # Máximo por requisição da API
-        self.max_offset = 10000  # Limite máximo de offset da API
+        self.max_limit = 30  # Máximo por requisição da API (baseado na API real)
+        self.max_offset = 200  # Limite máximo de offset da API (baseado na API real)
         
         # ============================================================================
         # CONFIGURAÇÃO DE SESSÃO HTTP OTIMIZADA
@@ -85,14 +85,18 @@ class MercadoLivreReviewsAPI:
                 logging.debug(f"Cache hit para {cache_key}")
                 return cache_data['data']
         
-        # Construir URL da API
-        url = f"{self.base_url}/reviews/item/{self.product_id}"
+        # Construir URL da API (baseado na estrutura real do ML)
+        url = f"https://www.mercadolivre.com.br/noindex/catalog/reviews/{self.product_id}/search"
         
-        # Parâmetros otimizados
+        # Parâmetros otimizados baseados na API real
         params = {
-            'limit': min(limit, self.max_limit),
+            'objectId': self.product_id,
+            'siteId': 'MLB',
+            'isItem': 'false',
+            'limit': min(limit, 30),  # Limite máximo observado: 30
             'offset': offset,
-            'attributes': 'id,rating,title,content,date_created,likes,dislikes,reviewer_id,status'
+            'x-is-webview': 'false',
+            'controlled': 'true'
         }
         
         if rating_filter:
@@ -109,6 +113,10 @@ class MercadoLivreReviewsAPI:
             if response.status_code == 200:
                 api_data = response.json()
                 
+                # Log da estrutura de resposta
+                reviews_count = len(api_data.get('reviews', [])) if api_data else 0
+                logging.debug(f"✅ API retornou {reviews_count} reviews para produto {self.product_id}")
+                
                 # Salvar no cache local
                 self._cache[cache_key] = {
                     'data': api_data,
@@ -117,7 +125,8 @@ class MercadoLivreReviewsAPI:
                 
                 return api_data
             else:
-                logging.warning(f"API retornou status {response.status_code} para produto {self.product_id}")
+                logging.warning(f"❌ API retornou status {response.status_code} para produto {self.product_id}")
+                logging.warning(f"Resposta: {response.text[:500]}...")
                 return None
                 
         except requests.exceptions.Timeout:
@@ -141,20 +150,41 @@ class MercadoLivreReviewsAPI:
         
         for review_data in api_data.get('reviews', []):
             try:
+                # Extrair dados baseado na estrutura real da API do ML
+                title_text = ''
+                if review_data.get('title') and isinstance(review_data['title'], dict):
+                    title_text = review_data['title'].get('text', '').strip()
+                
+                comment_text = ''
+                comment_date = ''
+                if review_data.get('comment'):
+                    comment = review_data['comment']
+                    if comment.get('content') and isinstance(comment['content'], dict):
+                        comment_text = comment['content'].get('text', '').strip()
+                    comment_date = comment.get('date', '')
+                
+                # Contagem de "útil"
+                helpful_count = 0
+                if review_data.get('actions'):
+                    for action in review_data['actions']:
+                        if action.get('type') == 'LIKE':
+                            helpful_count = action.get('value', 0)
+                            break
+                
                 # Processar review individual
                 processed_review = {
                     'id': review_data.get('id', ''),
                     'rating': str(review_data.get('rating', 0)),
-                    'title': review_data.get('title', '').strip(),
-                    'text': review_data.get('content', '').strip(),
-                    'date': self._format_date(review_data.get('date_created', '')),
-                    'helpful_count': str(review_data.get('likes', {}).get('positive', 0)),
-                    'reviewer_id': review_data.get('reviewer_id', ''),
-                    'status': review_data.get('status', '')
+                    'title': title_text,
+                    'text': comment_text,
+                    'date': self._format_date(comment_date),
+                    'helpful_count': str(helpful_count),
+                    'reviewer_id': '',  # Não disponível na nova API
+                    'status': review_data.get('type', '')
                 }
                 
-                # Validar review
-                if processed_review['rating'] and processed_review['text']:
+                # Validar review (menos restritivo - aceitar reviews mesmo sem texto)
+                if processed_review['rating'] and str(processed_review['rating']) != '0':
                     processed_reviews.append(processed_review)
                     
             except Exception as e:

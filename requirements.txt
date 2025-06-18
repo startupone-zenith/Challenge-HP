@@ -11,4 +11,7 @@ seaborn
 plotly
 textstat
 wordcloud
-unicodedata2 
+unicodedata2
+scikit-learn
+scipy
+nltk 

@@ -363,7 +363,7 @@ def generate_csv_data(produtos, csv_config, resultados_falsificacao=None):
                     for review in reviews_suspeitas:
                         review_texto = f"Review #{review.get('numero_review', 'N/A')} - " \
                                      f"⭐{review.get('rating', 'N/A')} - " \
-                                     f"Data: {review.get('data', 'N/A')} - " \
+                                     f"Data: {review.get('date', 'N/A')} - " \
                                      f"Palavras suspeitas: {', '.join(review.get('palavras_suspeitas_encontradas', []))} - " \
                                      f"Texto: {review.get('texto_completo', '')}"
                         reviews_formatadas.append(review_texto)
@@ -1736,71 +1736,97 @@ with tab_busca:
                                 st.write("💬 **Reviews:** Não carregadas (use o botão abaixo)")
                         
                         # Botão para mostrar todas as reviews
-                        if st.button(f"📋 Ver Todas as Reviews", key=f"all_reviews_{i}", use_container_width=True):
-                                with st.spinner("🔍 Carregando todas as reviews..."):
-                                    try:
-                                        # Carregar mais reviews (até 200)
-                                        all_reviews_data = cached_run_review_spider(produto_id, max_reviews=200)
+                        max_reviews_configured = st.session_state.get('max_reviews_to_fetch', 50)
+                        if st.button(f"📋 Ver até {max_reviews_configured} Reviews", key=f"all_reviews_{i}", use_container_width=True):
+                            with st.spinner("🔍 Carregando todas as reviews..."):
+                                try:
+                                    # Debug: Mostrar informações do produto
+                                    st.info(f"🔍 **Debug:** Buscando reviews para produto ID: `{produto_id}`")
+                                    
+                                    # Carregar reviews conforme selecionado pelo usuário
+                                    max_reviews_user = st.session_state.get('max_reviews_to_fetch', 50)
+                                    st.info(f"📊 **Coletando até {max_reviews_user} reviews** (conforme configurado)")
+                                    all_reviews_data = cached_run_review_spider(produto_id, max_reviews=max_reviews_user)
+                                    
+                                    # Debug: Mostrar resposta da API
+                                    if all_reviews_data:
+                                        st.info(f"📊 **Debug:** API retornou: {type(all_reviews_data)} com {len(all_reviews_data.get('reviews', []))} reviews")
+                                    else:
+                                        st.warning("⚠️ **Debug:** API não retornou dados ou retornou None")
+                                    
+                                    if all_reviews_data and all_reviews_data.get('reviews'):
+                                        all_reviews = all_reviews_data.get('reviews', [])
                                         
-                                        if all_reviews_data and all_reviews_data.get('reviews'):
-                                            all_reviews = all_reviews_data.get('reviews', [])
+                                        # Mostrar todas as reviews em uma nova seção
+                                        st.markdown(f"### 📋 Todas as {len(all_reviews)} Reviews")
+                                        
+                                        # Calcular estatísticas
+                                        if all_reviews:
+                                            ratings = []
+                                            for r in all_reviews:
+                                                rating = r.get('rating', 0)
+                                                try:
+                                                    if isinstance(rating, str):
+                                                        rating = float(rating)
+                                                    elif rating is None:
+                                                        rating = 0
+                                                    ratings.append(rating)
+                                                except (ValueError, TypeError):
+                                                    ratings.append(0)
                                             
-                                            # Mostrar todas as reviews em uma nova seção
-                                            st.markdown(f"### 📋 Todas as {len(all_reviews)} Reviews")
-                                            
-                                            # Calcular estatísticas
-                                            if all_reviews:
-                                                ratings = []
-                                                for r in all_reviews:
-                                                    rating = r.get('rating', 0)
-                                                    try:
-                                                        if isinstance(rating, str):
-                                                            rating = float(rating)
-                                                        elif rating is None:
-                                                            rating = 0
-                                                        ratings.append(rating)
-                                                    except (ValueError, TypeError):
-                                                        ratings.append(0)
+                                            if ratings:
+                                                # Métricas principais
+                                                avg_rating = sum(ratings) / len(ratings)
+                                                max_rating = max(ratings) if ratings else 0
                                                 
-                                                if ratings:
-                                                    # Métricas principais
-                                                    avg_rating = sum(ratings) / len(ratings)
-                                                    max_rating = max(ratings) if ratings else 0
-                                                    
-                                                    st.write(f"📊 **Estatísticas Gerais:**")
-                                                    st.write(f"• Média Geral: **{avg_rating:.1f}/5**")
-                                                    st.write(f"• Total de Reviews: **{len(all_reviews)}**")
-                                                    st.write(f"• Rating Máximo: **{max_rating:.0f}/5**")
-                                                    
-                                                    # Distribuição por estrelas
-                                                    star_counts = {}
-                                                    for rating in ratings:
-                                                        star = int(rating) if rating > 0 else 0
-                                                        star_counts[star] = star_counts.get(star, 0) + 1
-                                                    
-                                                    st.markdown("**📊 Distribuição por Estrelas:**")
-                                                    for star in range(5, 0, -1):
-                                                        count = star_counts.get(star, 0)
-                                                        percentage = (count / len(ratings)) * 100
-                                                        st.write(f"⭐ {star} estrelas: {count} reviews ({percentage:.1f}%)")
-                                                    
-                                                    st.markdown("---")
-                                            
-                                            # Lista completa de reviews
-                                            st.markdown("**💬 Lista Completa de Reviews:**")
-                                            
-                                            # Mostrar todas as reviews
-                                            for j, review in enumerate(all_reviews):
-                                                st.markdown(f"**Review #{j+1}**")
-                                                st.write(f"⭐ **Rating:** {review.get('rating', 'N/A')}/5 | 📅 **Data:** {review.get('date', 'N/A')} | 👍 **Útil:** {review.get('helpful_count', '0')}")
-                                                st.write(f"💬 **Comentário:** {review.get('text', 'N/A')}")
+                                                st.write(f"📊 **Estatísticas Gerais:**")
+                                                st.write(f"• Média Geral: **{avg_rating:.1f}/5**")
+                                                st.write(f"• Total de Reviews: **{len(all_reviews)}**")
+                                                st.write(f"• Rating Máximo: **{max_rating:.0f}/5**")
                                                 
-                                                if j < len(all_reviews) - 1:
-                                                    st.markdown("---")
+                                                # Distribuição por estrelas
+                                                star_counts = {}
+                                                for rating in ratings:
+                                                    star = int(rating) if rating > 0 else 0
+                                                    star_counts[star] = star_counts.get(star, 0) + 1
+                                                
+                                                st.markdown("**📊 Distribuição por Estrelas:**")
+                                                for star in range(5, 0, -1):
+                                                    count = star_counts.get(star, 0)
+                                                    percentage = (count / len(ratings)) * 100
+                                                    st.write(f"⭐ {star} estrelas: {count} reviews ({percentage:.1f}%)")
+                                                
+                                                st.markdown("---")
+                                        
+                                        # Lista completa de reviews
+                                        st.markdown("**💬 Lista Completa de Reviews:**")
+                                        
+                                        # Mostrar todas as reviews
+                                        for j, review in enumerate(all_reviews):
+                                            st.markdown(f"**Review #{j+1}**")
+                                            st.write(f"⭐ **Rating:** {review.get('rating', 'N/A')}/5 | 📅 **Data:** {review.get('date', 'N/A')} | 👍 **Útil:** {review.get('helpful_count', '0')}")
+                                            st.write(f"💬 **Comentário:** {review.get('text', 'N/A')}")
+                                            
+                                            if j < len(all_reviews) - 1:
+                                                st.markdown("---")
+                                    else:
+                                        # Melhor diagnóstico do erro
+                                        if all_reviews_data is None:
+                                            st.error("❌ **Erro:** Spider retornou None - possível problema de conexão ou produto inválido")
+                                        elif not all_reviews_data.get('reviews'):
+                                            st.error("❌ **Erro:** Produto sem reviews ou erro na API do Mercado Livre")
+                                            st.info(f"🔍 **Detalhes:** {all_reviews_data}")
                                         else:
                                             st.error("❌ Não foi possível carregar as reviews")
-                                    except Exception as e:
-                                        st.error(f"❌ Erro ao carregar reviews: {str(e)}")
+                                except Exception as e:
+                                    st.error(f"❌ **Erro detalhado ao carregar reviews:**")
+                                    st.code(f"Tipo: {type(e).__name__}\nDescrição: {str(e)}")
+                                    st.info(f"💡 **Dica:** Verifique se o produto ID `{produto_id}` é válido")
+                                    
+                                    # Log do erro para debug
+                                    import logging
+                                    logging.error(f"Erro ao carregar reviews para produto {produto_id}: {str(e)}")
+                                    logging.error(f"Traceback completo: {traceback.format_exc()}")
                     else:
                         st.write("💬 **Reviews:** ID do produto não disponível")
 
@@ -1963,7 +1989,8 @@ with tab_falsificacao:
                         
                         # Mostrar reviews suspeitas se solicitado
                         if incluir_detalhes and resultado.get('reviews_suspeitas'):
-                            with st.expander(f"Ver {len(resultado['reviews_suspeitas'])} reviews suspeitas", expanded=True):
+                            st.markdown(f"**📋 {len(resultado['reviews_suspeitas'])} Reviews Suspeitas:**")
+                            with st.container():
                                 for review in resultado['reviews_suspeitas']:
                                     st.write(f"**Review #{review.get('numero_review', 'N/A')}** (⭐{review.get('rating', 'N/A')})")
                                     st.write(f"**Texto:** {review.get('texto_completo', 'N/A')}")
