@@ -21,7 +21,19 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.express as px
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 from wordcloud import WordCloud
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+from sklearn.cluster import KMeans
+import nltk
+from collections import Counter
+import string
+from scipy import stats
+from scipy.stats import chi2_contingency
+import warnings
+warnings.filterwarnings('ignore')
 
 # Configurar o multiprocessing para Streamlit
 if __name__ == "__main__":
@@ -1476,12 +1488,11 @@ with st.sidebar:
 # =============================================================================
 
 # Criar abas principais para organizar funcionalidades
-tab_busca, tab_falsificacao, tab_dataset, tab_analytics, tab_data_analysis = st.tabs([
+tab_busca, tab_falsificacao, tab_dataset, tab_data_analysis = st.tabs([
     "🔍 Busca & Coleta", 
     "🚨 Detecção de Falsificação", 
     "📊 Dataset Generator",
-    "📈 Analytics Avançado",
-    "🔬 Análise de Dataset"
+    "🔬 Análise Exploratória (EDA)"
 ])
 
 # =============================================================================
@@ -2249,89 +2260,260 @@ with tab_dataset:
                 )
 
 # =============================================================================
-# ABA 4: ANALYTICS AVANÇADO
+# FUNÇÕES AUXILIARES PARA EDA (ANÁLISE EXPLORATÓRIA DE DADOS)
 # =============================================================================
 
-with tab_analytics:
-    st.markdown("## 📈 Analytics e Exploração Avançada")
+def clean_text_for_analysis(text):
+    """
+    Limpa texto para análise, removendo caracteres especiais e normalizando
+    """
+    if pd.isna(text) or text == 'N/A':
+        return ""
     
-    if 'current_products' not in st.session_state:
-        st.info("🔍 **Primeiro faça uma busca** na aba 'Busca & Coleta' para carregar produtos.")
-    else:
-        produtos = st.session_state.current_products
+    # Converter para string
+    text = str(text)
+    
+    # Verificar se é uma URL e retornar vazio se for
+    if text.startswith(('http://', 'https://', 'www.', 'ftp://')) or '.com' in text or '.br' in text:
+        return ""
+    
+    # Converter para minúsculas
+    text = text.lower()
+    
+    # Remover apenas alguns caracteres especiais, mantendo letras e números
+    # Manter números porque são importantes para produtos HP (664, 662, etc.)
+    text = re.sub(r'[^\w\s]', ' ', text)  # Remove pontuação mas mantém letras, números e espaços
+    
+    # Remover palavras muito comuns que não agregam valor e URLs
+    stopwords_custom = ['de', 'da', 'do', 'para', 'com', 'em', 'a', 'o', 'e', 'que', 'ml', 'mlb', 
+                       'mercadolivre', 'mercado', 'livre', 'www', 'http', 'https', 'com', 'br']
+    words = text.split()
+    words = [word for word in words if word not in stopwords_custom and len(word) > 1 
+             and not word.startswith('http') and not word.endswith('.com') and not word.endswith('.br')]
+    
+    # Juntar palavras novamente
+    text = ' '.join(words)
+    
+    # Remover espaços extras
+    text = ' '.join(text.split())
+    
+    return text
+
+def extract_ngrams(texts, n=2, max_features=20):
+    """
+    Extrai n-gramas mais frequentes dos textos
+    """
+    # Limpar textos e filtrar vazios
+    cleaned_texts = []
+    for text in texts:
+        if text and text != 'N/A' and str(text).strip():
+            cleaned = clean_text_for_analysis(text)
+            if cleaned and len(cleaned.split()) >= n:  # Garantir que há palavras suficientes para n-gramas
+                cleaned_texts.append(cleaned)
+    
+    if not cleaned_texts:
+        return []
+    
+    # Verificar se há conteúdo suficiente
+    total_words = sum(len(text.split()) for text in cleaned_texts)
+    if total_words < n:
+        return []
+    
+    # Usar CountVectorizer para extrair n-gramas
+    vectorizer = CountVectorizer(
+        ngram_range=(n, n),
+        max_features=max_features,
+        stop_words=None,  # Não usar stopwords automáticas para manter controle
+        min_df=1,  # Mínimo de documentos para uma palavra aparecer
+        token_pattern=r'\b\w+\b'  # Padrão para tokens
+    )
+    
+    try:
+        ngram_matrix = vectorizer.fit_transform(cleaned_texts)
         
-        st.markdown(f"### 📊 Análise exploratória de {len(produtos)} produtos")
+        # Verificar se há features
+        if ngram_matrix.shape[1] == 0:
+            return []
+            
+        feature_names = vectorizer.get_feature_names_out()
+        ngram_counts = ngram_matrix.sum(axis=0).A1
         
-        # Opções de análise avançada
-        col_adv1, col_adv2 = st.columns(2)
+        # Criar lista de n-gramas ordenados por frequência
+        ngrams = [(feature_names[i], ngram_counts[i]) for i in range(len(feature_names))]
+        ngrams.sort(key=lambda x: x[1], reverse=True)
         
-        with col_adv1:
-            incluir_limpeza = st.checkbox("🧹 Limpeza e Padronização", value=True)
-            incluir_enriquecimento = st.checkbox("⚡ Enriquecimento de Dados", value=True)
+        return ngrams
+    except ValueError as e:
+        if "empty vocabulary" in str(e).lower():
+            return []  # Retornar lista vazia silenciosamente para vocabulário vazio
+        else:
+            st.warning(f"⚠️ Erro ao extrair {n}-gramas: {str(e)}")
+            return []
+    except Exception as e:
+        st.warning(f"⚠️ Erro inesperado ao extrair {n}-gramas: {str(e)}")
+        return []
+
+def generate_wordcloud_data(texts, max_words=100):
+    """
+    Gera dados para wordcloud a partir de textos
+    """
+    # Filtrar e limpar textos
+    valid_texts = []
+    for text in texts:
+        if text and text != 'N/A' and str(text).strip():
+            cleaned = clean_text_for_analysis(text)
+            if cleaned and len(cleaned.strip()) > 0:
+                valid_texts.append(cleaned)
+    
+    if not valid_texts:
+        return None
+    
+    # Combinar todos os textos
+    all_text = ' '.join(valid_texts)
+    
+    if not all_text.strip():
+        return None
+    
+    try:
+        # Stopwords customizadas para produtos HP
+        custom_stopwords = set([
+            'mercado', 'livre', 'ml', 'mlb', 'produto', 'item', 'novo', 'usado',
+            'vendido', 'por', 'em', 'de', 'da', 'do', 'para', 'com', 'na', 'no',
+            'a', 'o', 'e', 'que', 'se', 'mais', 'muito', 'bem', 'como', 'sua',
+            'seu', 'uma', 'um', 'esta', 'este', 'isso', 'aqui', 'ali', 'onde'
+        ])
         
-        with col_adv2:
-            incluir_exploracao = st.checkbox("🔍 Análise Exploratória", value=True)
-            incluir_visualizacoes = st.checkbox("📊 Visualizações Interativas", value=True)
+        # Gerar wordcloud
+        wordcloud = WordCloud(
+            width=800, 
+            height=400, 
+            background_color='white',
+            max_words=max_words,
+            colormap='viridis',
+            stopwords=custom_stopwords,
+            min_font_size=10,
+            max_font_size=80,
+            relative_scaling=0.5,
+            collocations=False  # Evitar repetições de palavras próximas
+        ).generate(all_text)
         
-        if st.button("🚀 Executar Análise Avançada", type="primary", use_container_width=True):
-            progress_bar = st.progress(0)
-            status_text = st.empty()
-            
-            def update_progress_avancado(status_message):
-                status_text.text(status_message)
-            
-            with st.spinner("🔍 Executando análise exploratória avançada..."):
-                # Simular as etapas da análise avançada
-                etapas = []
-                if incluir_limpeza:
-                    etapas.append("Limpeza e Padronização")
-                if incluir_enriquecimento:
-                    etapas.append("Enriquecimento de Dados")
-                if incluir_exploracao:
-                    etapas.append("Análise Exploratória")
-                if incluir_visualizacoes:
-                    etapas.append("Geração de Visualizações")
-                
-                for i, etapa in enumerate(etapas):
-                    progress_bar.progress((i + 1) / len(etapas))
-                    update_progress_avancado(f"Executando: {etapa}...")
-                    time.sleep(1)  # Simular processamento
-                
-                # Resultado simulado (na implementação real seria a análise completa)
-                relatorio_avancado = {
-                    'produtos_analisados': len(produtos),
-                    'etapas_executadas': etapas,
-                    'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                }
-                
-                st.session_state.advanced_analysis = relatorio_avancado
-                progress_bar.empty()
-                status_text.empty()
-                st.success(f"✅ Análise avançada concluída! {len(etapas)} etapas executadas.")
-        
-        # Mostrar resultados da análise avançada
-        if hasattr(st.session_state, 'advanced_analysis'):
-            relatorio = st.session_state.advanced_analysis
-            
-            st.markdown("### 📊 Relatório da Análise Avançada")
-            
-            col_rel1, col_rel2, col_rel3 = st.columns(3)
-            
-            with col_rel1:
-                st.metric("📦 Produtos", relatorio['produtos_analisados'])
-            
-            with col_rel2:
-                st.metric("⚙️ Etapas", len(relatorio['etapas_executadas']))
-            
-            with col_rel3:
-                st.metric("🕒 Concluído", relatorio['timestamp'])
-            
-            # Placeholder para visualizações avançadas
-            st.markdown("### 📈 Visualizações Geradas")
-            st.info("💡 **Funcionalidade em Desenvolvimento:** As visualizações avançadas incluirão gráficos interativos, análise de correlações, detecção de outliers e análise lexical dos títulos.")
+        return wordcloud
+    except Exception as e:
+        st.warning(f"⚠️ Erro ao gerar wordcloud: {str(e)}")
+        return None
+
+def calculate_price_segments(prices, num_segments=5):
+    """
+    Calcula segmentos de preço baseado em quantis
+    """
+    if not prices or len(prices) == 0:
+        return [], []
+    
+    # Remover valores nulos
+    valid_prices = [p for p in prices if pd.notna(p) and p > 0]
+    
+    if len(valid_prices) == 0:
+        return [], []
+    
+    # Calcular quantis
+    quantiles = np.linspace(0, 1, num_segments + 1)
+    price_quantiles = np.quantile(valid_prices, quantiles)
+    
+    # Criar labels dos segmentos
+    segment_labels = []
+    for i in range(len(price_quantiles) - 1):
+        label = f"R$ {price_quantiles[i]:.2f} - R$ {price_quantiles[i+1]:.2f}"
+        segment_labels.append(label)
+    
+    return price_quantiles, segment_labels
+
+def perform_correlation_analysis(df, numeric_columns):
+    """
+    Realiza análise de correlação entre variáveis numéricas
+    """
+    if len(numeric_columns) < 2:
+        return None
+    
+    # Calcular matriz de correlação
+    correlation_matrix = df[numeric_columns].corr()
+    
+    return correlation_matrix
+
+def detect_outliers_iqr(data, column):
+    """
+    Detecta outliers usando método IQR
+    """
+    if column not in data.columns or data[column].dtype not in ['int64', 'float64']:
+        return []
+    
+    Q1 = data[column].quantile(0.25)
+    Q3 = data[column].quantile(0.75)
+    IQR = Q3 - Q1
+    
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+    
+    outliers = data[(data[column] < lower_bound) | (data[column] > upper_bound)]
+    return outliers
+
+def analyze_categorical_distribution(df, column):
+    """
+    Analisa distribuição de variável categórica
+    """
+    if column not in df.columns:
+        return None
+    
+    # Contar frequências
+    value_counts = df[column].value_counts()
+    
+    # Calcular percentuais
+    percentages = (value_counts / len(df)) * 100
+    
+    # Combinar contagens e percentuais
+    distribution = pd.DataFrame({
+        'Contagem': value_counts,
+        'Percentual': percentages.round(2)
+    })
+    
+    return distribution
+
+def create_price_rating_segments(df, price_col, rating_col):
+    """
+    Cria segmentos combinados de preço e rating para análise
+    """
+    if price_col not in df.columns or rating_col not in df.columns:
+        return None
+    
+    # Criar cópias das colunas para análise
+    df_analysis = df[[price_col, rating_col]].copy()
+    df_analysis = df_analysis.dropna()
+    
+    if len(df_analysis) == 0:
+        return None
+    
+    # Criar segmentos de preço (baixo, médio, alto)
+    price_quantiles = df_analysis[price_col].quantile([0.33, 0.67])
+    df_analysis['price_segment'] = pd.cut(
+        df_analysis[price_col], 
+        bins=[-np.inf, price_quantiles.iloc[0], price_quantiles.iloc[1], np.inf],
+        labels=['Baixo', 'Médio', 'Alto']
+    )
+    
+    # Criar segmentos de rating (baixo, médio, alto)
+    rating_quantiles = df_analysis[rating_col].quantile([0.33, 0.67])
+    df_analysis['rating_segment'] = pd.cut(
+        df_analysis[rating_col], 
+        bins=[-np.inf, rating_quantiles.iloc[0], rating_quantiles.iloc[1], np.inf],
+        labels=['Baixo', 'Médio', 'Alto']
+    )
+    
+    # Criar tabela de contingência
+    contingency_table = pd.crosstab(df_analysis['price_segment'], df_analysis['rating_segment'])
+    
+    return contingency_table, df_analysis
 
 # =============================================================================
-# ABA 5: ANÁLISE DE DATASET
+# ABA 4: ANÁLISE DE DATASET (EDA)
 # =============================================================================
 
 def detect_column_mappings(df):
@@ -2351,10 +2533,13 @@ def detect_column_mappings(df):
     # Converter nomes de colunas para minúsculas para comparação
     df_columns_lower = {col.lower(): col for col in df.columns}
     
-    # Detectar coluna de título
+    # Detectar coluna de título (excluindo colunas de URL/link)
     title_patterns = ['titulo', 'title', 'nome', 'produto', 'name', 'item']
+    url_patterns = ['link', 'url', 'endereco', 'address', 'imagem', 'image', 'foto', 'picture']
+    
     for pattern in title_patterns:
-        matches = [col for col_lower, col in df_columns_lower.items() if pattern in col_lower]
+        matches = [col for col_lower, col in df_columns_lower.items() 
+                  if pattern in col_lower and not any(url_pattern in col_lower for url_pattern in url_patterns)]
         if matches:
             column_mappings['title'] = matches[0]
             break
@@ -2494,9 +2679,277 @@ def show_column_detection_summary(column_mappings, df):
     
     return column_mappings
 
+# =============================================================================
+# FUNÇÕES AUXILIARES PARA LIMPEZA DE REVIEWS
+# =============================================================================
+
+def detect_review_columns(df):
+    """
+    Detecta automaticamente colunas relacionadas a reviews no dataset
+    """
+    review_columns = {
+        'individual_reviews': [],  # Reviews individuais (Review 1 - Texto, etc.)
+        'review_text_columns': [],  # Colunas com texto de reviews
+        'review_rating_columns': [],  # Colunas com ratings de reviews
+        'review_date_columns': [],  # Colunas com datas de reviews
+        'review_summary_columns': [],  # Colunas com resumos de reviews
+        'suspicious_review_columns': []  # Colunas com reviews suspeitas
+    }
+    
+    # Converter nomes de colunas para minúsculas para comparação
+    df_columns_lower = {col.lower(): col for col in df.columns}
+    
+    # Detectar reviews individuais (padrão Review X - Texto, Review X - Rating, etc.)
+    for col_lower, col_original in df_columns_lower.items():
+        if 'review' in col_lower and ('texto' in col_lower or 'text' in col_lower):
+            review_columns['individual_reviews'].append(col_original)
+            review_columns['review_text_columns'].append(col_original)
+        elif 'review' in col_lower and ('rating' in col_lower or 'nota' in col_lower):
+            review_columns['individual_reviews'].append(col_original)
+            review_columns['review_rating_columns'].append(col_original)
+        elif 'review' in col_lower and ('data' in col_lower or 'date' in col_lower):
+            review_columns['individual_reviews'].append(col_original)
+            review_columns['review_date_columns'].append(col_original)
+        elif 'review' in col_lower and ('suspeita' in col_lower or 'suspicious' in col_lower):
+            review_columns['suspicious_review_columns'].append(col_original)
+        elif 'review' in col_lower and ('amostra' in col_lower or 'sample' in col_lower or 'resumo' in col_lower):
+            review_columns['review_summary_columns'].append(col_original)
+    
+    # Remover duplicatas
+    for key in review_columns:
+        review_columns[key] = list(set(review_columns[key]))
+    
+    return review_columns
+
+def clean_review_text(text):
+    """
+    Limpa texto de reviews removendo caracteres especiais e normalizando
+    """
+    if pd.isna(text) or text == 'N/A' or text == '':
+        return ""
+    
+    # Converter para string
+    text = str(text)
+    
+    # Remover quebras de linha e espaços extras
+    text = ' '.join(text.split())
+    
+    # Remover caracteres especiais mantendo pontuação básica
+    text = re.sub(r'[^\w\s\.\,\!\?\-\(\)]', ' ', text)
+    
+    # Remover espaços extras
+    text = ' '.join(text.split())
+    
+    return text.strip()
+
+def validate_review_rating(rating):
+    """
+    Valida e normaliza ratings de reviews (1-5 estrelas)
+    """
+    if pd.isna(rating) or rating == 'N/A' or rating == '':
+        return None
+    
+    try:
+        # Converter para float
+        rating_float = float(str(rating).replace(',', '.'))
+        
+        # Verificar se está no range válido (1-5)
+        if 1 <= rating_float <= 5:
+            return rating_float
+        else:
+            return None
+    except (ValueError, TypeError):
+        return None
+
+def parse_review_date(date_str):
+    """
+    Tenta converter string de data em formato padronizado
+    """
+    if pd.isna(date_str) or date_str == 'N/A' or date_str == '':
+        return None
+    
+    # Formatos comuns de data
+    date_formats = [
+        '%d %b. %Y',  # 04 jun. 2024
+        '%d %b %Y',   # 04 jun 2024
+        '%d/%m/%Y',   # 04/06/2024
+        '%Y-%m-%d',   # 2024-06-04
+        '%d-%m-%Y',   # 04-06-2024
+        '%m/%d/%Y',   # 06/04/2024
+    ]
+    
+    # Mapeamento de meses em português
+    month_mapping = {
+        'jan': 'Jan', 'fev': 'Feb', 'mar': 'Mar', 'abr': 'Apr',
+        'mai': 'May', 'jun': 'Jun', 'jul': 'Jul', 'ago': 'Aug',
+        'set': 'Sep', 'out': 'Oct', 'nov': 'Nov', 'dez': 'Dec'
+    }
+    
+    date_str = str(date_str).strip()
+    
+    # Substituir meses em português
+    for pt_month, en_month in month_mapping.items():
+        date_str = date_str.replace(pt_month, en_month)
+    
+    # Tentar converter com diferentes formatos
+    for fmt in date_formats:
+        try:
+            return pd.to_datetime(date_str, format=fmt)
+        except:
+            continue
+    
+    # Se não conseguir converter, tentar parse automático
+    try:
+        return pd.to_datetime(date_str)
+    except:
+        return None
+
+def identify_duplicate_reviews(df, text_columns):
+    """
+    Identifica reviews duplicadas baseado no texto
+    """
+    if not text_columns:
+        return pd.DataFrame()
+    
+    duplicates_info = []
+    
+    for col in text_columns:
+        if col in df.columns:
+            # Limpar textos para comparação
+            df_temp = df.copy()
+            df_temp[f'{col}_clean'] = df_temp[col].apply(clean_review_text)
+            
+            # Encontrar duplicatas (excluindo textos vazios)
+            non_empty = df_temp[df_temp[f'{col}_clean'] != '']
+            duplicated_mask = non_empty.duplicated(subset=[f'{col}_clean'], keep=False)
+            
+            if duplicated_mask.any():
+                duplicates = non_empty[duplicated_mask]
+                
+                for idx, row in duplicates.iterrows():
+                    duplicates_info.append({
+                        'Linha': idx + 1,
+                        'Coluna': col,
+                        'Texto': row[col][:100] + '...' if len(str(row[col])) > 100 else str(row[col]),
+                        'Texto_Limpo': row[f'{col}_clean']
+                    })
+    
+    return pd.DataFrame(duplicates_info)
+
+def clean_reviews_dataset(df, review_columns, cleaning_options):
+    """
+    Aplica limpeza nas colunas de reviews baseado nas opções selecionadas
+    """
+    df_cleaned = df.copy()
+    cleaning_report = {
+        'original_rows': len(df),
+        'cleaned_rows': 0,
+        'removed_empty': 0,
+        'removed_duplicates': 0,
+        'normalized_ratings': 0,
+        'parsed_dates': 0,
+        'cleaned_text': 0
+    }
+    
+    # 1. Remover reviews vazias
+    if cleaning_options.get('remove_empty_reviews', False):
+        text_cols = review_columns.get('review_text_columns', [])
+        for col in text_cols:
+            if col in df_cleaned.columns:
+                before_count = len(df_cleaned)
+                df_cleaned = df_cleaned[
+                    (df_cleaned[col].notna()) & 
+                    (df_cleaned[col] != 'N/A') & 
+                    (df_cleaned[col] != '') &
+                    (df_cleaned[col].astype(str).str.strip() != '')
+                ]
+                cleaning_report['removed_empty'] += before_count - len(df_cleaned)
+    
+    # 2. Normalizar ratings
+    if cleaning_options.get('normalize_ratings', False):
+        rating_cols = review_columns.get('review_rating_columns', [])
+        for col in rating_cols:
+            if col in df_cleaned.columns:
+                original_values = df_cleaned[col].notna().sum()
+                df_cleaned[col] = df_cleaned[col].apply(validate_review_rating)
+                cleaned_values = df_cleaned[col].notna().sum()
+                cleaning_report['normalized_ratings'] += original_values - cleaned_values
+    
+    # 3. Limpar texto das reviews
+    if cleaning_options.get('clean_text', False):
+        text_cols = review_columns.get('review_text_columns', [])
+        for col in text_cols:
+            if col in df_cleaned.columns:
+                df_cleaned[col] = df_cleaned[col].apply(clean_review_text)
+                cleaning_report['cleaned_text'] += 1
+    
+    # 4. Converter datas
+    if cleaning_options.get('parse_dates', False):
+        date_cols = review_columns.get('review_date_columns', [])
+        for col in date_cols:
+            if col in df_cleaned.columns:
+                df_cleaned[f'{col}_parsed'] = df_cleaned[col].apply(parse_review_date)
+                cleaning_report['parsed_dates'] += df_cleaned[f'{col}_parsed'].notna().sum()
+    
+    # 5. Remover duplicatas (sempre por último)
+    if cleaning_options.get('remove_duplicates', False):
+        text_cols = review_columns.get('review_text_columns', [])
+        if text_cols:
+            before_count = len(df_cleaned)
+            # Criar coluna temporária com texto limpo para identificar duplicatas
+            for col in text_cols:
+                if col in df_cleaned.columns:
+                    df_cleaned[f'{col}_temp_clean'] = df_cleaned[col].apply(clean_review_text)
+            
+            # Remover duplicatas baseado em todas as colunas de texto
+            temp_cols = [f'{col}_temp_clean' for col in text_cols if col in df_cleaned.columns]
+            if temp_cols:
+                df_cleaned = df_cleaned.drop_duplicates(subset=temp_cols, keep='first')
+                # Remover colunas temporárias
+                df_cleaned = df_cleaned.drop(columns=temp_cols)
+                cleaning_report['removed_duplicates'] = before_count - len(df_cleaned)
+    
+    cleaning_report['cleaned_rows'] = len(df_cleaned)
+    
+    return df_cleaned, cleaning_report
+
 with tab_data_analysis:
-    st.markdown("## 🔬 Análise Avançada de Dataset")
-    st.markdown("Analise qualquer dataset CSV com detecção automática de colunas e insights avançados.")
+    st.markdown("## 🔬 Análise Exploratória de Dados (EDA)")
+    st.markdown("**Entregável 2:** EDA completa com limpeza, análise descritiva, wordclouds, n-grams, correlações e identificação de features para modelagem.")
+    
+    # Definir escopo do projeto
+    with st.expander("🎯 Escopo do Projeto HP Challenge", expanded=False):
+        st.markdown("""
+        ### 📋 Definição do Escopo do Projeto
+        
+        **🛍️ Segmento de Produtos:**
+        - Cartuchos de tinta HP (modelos 664, 662, 667, 954, GT, etc.)
+        - Produtos HP originais vs. suspeitos/piratas
+        - Foco em consumíveis de impressão
+        
+        **🌐 Abrangência de Sites:**
+        - Mercado Livre (principal marketplace brasileiro)
+        - Vendedores oficiais vs. não-oficiais
+        - Análise de múltiplos vendedores por produto
+        
+        **🎯 Objetivos da EDA:**
+        1. **Limpeza e Padronização** dos dados coletados
+        2. **Análise Descritiva** de preços, vendedores e avaliações
+        3. **Análise Textual** com wordclouds e n-grams dos títulos
+        4. **Correlações** entre variáveis numéricas
+        5. **Distribuição por Rótulos** (original vs. suspeito)
+        6. **Identificação de Features** para modelagem ML
+        
+        **📊 Metodologia CRISP-DM:**
+        - **Business Understanding:** Detectar produtos HP falsificados
+        - **Data Understanding:** EDA dos dados coletados (esta etapa)
+        - **Data Preparation:** Limpeza e feature engineering
+        - **Modeling:** Algoritmos de classificação
+        - **Evaluation:** Métricas de performance
+        - **Deployment:** Sistema web funcional
+        """)
+    
+    st.markdown("---")
     
     # Upload de arquivo CSV
     uploaded_file = st.file_uploader(
@@ -2589,16 +3042,125 @@ with tab_data_analysis:
             st.markdown("### 👀 Preview dos Dados")
             st.dataframe(df.head(10), use_container_width=True)
             
-            # Análises em abas
-            analysis_tab1, analysis_tab2, analysis_tab3, analysis_tab4 = st.tabs([
-                "💰 Análise de Preços",
-                "⭐ Análise de Reviews", 
-                "🏪 Análise de Vendedores",
-                "🔍 Detecção de Anomalias"
+            # Análises EDA em abas
+            eda_tab1, eda_tab2, eda_tab3, eda_tab4, eda_tab5, eda_tab6, eda_tab7 = st.tabs([
+                "🧹 Limpeza & Descritiva",
+                "💰 Distribuição de Preços",
+                "📝 Análise Textual (WordCloud/N-grams)", 
+                "📊 Correlações & Segmentação",
+                "🏷️ Distribuição por Rótulos",
+                "🔧 Features para Modelagem",
+                "🛠️ Limpeza de Reviews"
             ])
             
-            # TAB 1: Análise de Preços
-            with analysis_tab1:
+            # EDA TAB 1: Limpeza & Análise Descritiva
+            with eda_tab1:
+                st.markdown("#### 🧹 Limpeza da Base e Estatísticas Descritivas")
+                
+                # 1. Informações gerais do dataset
+                st.markdown("##### 📊 Informações Gerais")
+                col1, col2, col3, col4 = st.columns(4)
+                
+                with col1:
+                    st.metric("Total de Registros", len(df))
+                with col2:
+                    st.metric("Total de Colunas", len(df.columns))
+                with col3:
+                    missing_data = df.isnull().sum().sum()
+                    st.metric("Valores Ausentes", missing_data)
+                with col4:
+                    duplicate_rows = df.duplicated().sum()
+                    st.metric("Linhas Duplicadas", duplicate_rows)
+                
+                # 2. Análise de valores ausentes
+                st.markdown("##### 🔍 Análise de Valores Ausentes")
+                missing_analysis = df.isnull().sum()
+                missing_percent = (missing_analysis / len(df)) * 100
+                
+                missing_df = pd.DataFrame({
+                    'Coluna': missing_analysis.index,
+                    'Valores Ausentes': missing_analysis.values,
+                    'Percentual (%)': missing_percent.values.round(2)
+                })
+                missing_df = missing_df[missing_df['Valores Ausentes'] > 0].sort_values('Valores Ausentes', ascending=False)
+                
+                if len(missing_df) > 0:
+                    st.dataframe(missing_df, use_container_width=True)
+                    
+                    # Visualização de valores ausentes
+                    fig_missing = px.bar(
+                        missing_df, 
+                        x='Coluna', 
+                        y='Percentual (%)',
+                        title='Percentual de Valores Ausentes por Coluna'
+                    )
+                    fig_missing.update_xaxes(tickangle=45)
+                    st.plotly_chart(fig_missing, use_container_width=True)
+                else:
+                    st.success("✅ Nenhum valor ausente encontrado no dataset!")
+                
+                # 3. Tipos de dados
+                st.markdown("##### 🔢 Tipos de Dados")
+                dtypes_df = pd.DataFrame({
+                    'Coluna': df.dtypes.index,
+                    'Tipo': df.dtypes.values.astype(str),
+                    'Valores Únicos': [df[col].nunique() for col in df.columns],
+                    'Exemplo': [str(df[col].iloc[0]) if len(df) > 0 else 'N/A' for col in df.columns]
+                })
+                st.dataframe(dtypes_df, use_container_width=True)
+                
+                # 4. Estatísticas descritivas para colunas numéricas
+                numeric_columns = df.select_dtypes(include=[np.number]).columns.tolist()
+                if numeric_columns:
+                    st.markdown("##### 📈 Estatísticas Descritivas (Variáveis Numéricas)")
+                    st.dataframe(df[numeric_columns].describe().round(2), use_container_width=True)
+                
+                # 5. Top valores para colunas categóricas
+                categorical_columns = df.select_dtypes(include=['object']).columns.tolist()
+                if categorical_columns:
+                    st.markdown("##### 📋 Top Valores (Variáveis Categóricas)")
+                    
+                    for col in categorical_columns[:3]:  # Mostrar apenas as 3 primeiras
+                        with st.expander(f"Top valores em '{col}'", expanded=False):
+                            top_values = df[col].value_counts().head(10)
+                            if len(top_values) > 0:
+                                fig_top = px.bar(
+                                    x=top_values.values,
+                                    y=top_values.index,
+                                    orientation='h',
+                                    title=f'Top 10 valores em {col}'
+                                )
+                                st.plotly_chart(fig_top, use_container_width=True)
+                
+                # 6. Recomendações de limpeza
+                st.markdown("##### 💡 Recomendações de Limpeza")
+                
+                recommendations = []
+                
+                if duplicate_rows > 0:
+                    recommendations.append(f"🔄 **Duplicatas:** {duplicate_rows} linhas duplicadas encontradas - considere remover")
+                
+                if missing_data > 0:
+                    recommendations.append(f"❌ **Valores Ausentes:** {missing_data} valores ausentes - estratégias: imputação, remoção ou flag")
+                
+                # Verificar colunas com alta cardinalidade
+                high_cardinality = [col for col in categorical_columns if df[col].nunique() > len(df) * 0.8]
+                if high_cardinality:
+                    recommendations.append(f"🔢 **Alta Cardinalidade:** Colunas {high_cardinality} podem precisar de encoding especial")
+                
+                # Verificar colunas numéricas que podem ser categóricas
+                potential_categorical = [col for col in numeric_columns if df[col].nunique() < 10 and df[col].dtype in ['int64']]
+                if potential_categorical:
+                    recommendations.append(f"🏷️ **Possíveis Categóricas:** {potential_categorical} podem ser tratadas como categóricas")
+                
+                if not recommendations:
+                    recommendations.append("✅ **Dataset Limpo:** Nenhum problema crítico de qualidade detectado")
+                
+                for rec in recommendations:
+                    st.info(rec)
+            
+            # EDA TAB 2: Distribuição de Preços
+            with eda_tab2:
                 st.markdown("#### 💰 Distribuição de Preços")
                 
                 if column_mappings['price'] and 'PRICE_NUMERIC' in df_prepared.columns and df_prepared['PRICE_NUMERIC'].notna().any():
@@ -2666,9 +3228,415 @@ with tab_data_analysis:
                     if not column_mappings['price']:
                         st.info("💡 **Dica:** Verifique se o dataset possui uma coluna de preços ou ajuste a detecção manual acima.")
             
-            # TAB 2: Análise de Reviews
-            with analysis_tab2:
-                st.markdown("#### ⭐ Análise de Avaliações")
+            # EDA TAB 3: Análise Textual (WordCloud/N-grams)
+            with eda_tab3:
+                st.markdown("#### 📝 Análise Textual: WordClouds e N-grams")
+                
+                # Detectar colunas de reviews
+                review_columns = detect_review_columns(df)
+                text_review_cols = review_columns.get('review_text_columns', [])
+                
+                # Verificar se existem colunas de reviews
+                if text_review_cols:
+                    st.markdown("##### ☁️ WordCloud das Reviews por Produto")
+                    
+                    # Permitir seleção de produto
+                    title_col = column_mappings.get('title')
+                    if title_col and title_col in df.columns:
+                        st.markdown("**Selecione um produto para análise das reviews:**")
+                        
+                        # Detectar coluna de ID do produto (se disponível)
+                        id_col = None
+                        id_patterns = ['id', 'product_id', 'produto_id', 'mlb', 'sku', 'codigo']
+                        df_columns_lower = {col.lower(): col for col in df.columns}
+                        
+                        for pattern in id_patterns:
+                            matches = [col for col_lower, col in df_columns_lower.items() if pattern in col_lower]
+                            if matches:
+                                id_col = matches[0]
+                                break
+                        
+                        # Criar DataFrame com informações dos produtos únicos
+                        produtos_info = []
+                        for idx, row in df.iterrows():
+                            titulo = str(row[title_col]) if pd.notna(row[title_col]) else "Sem título"
+                            produto_id = str(row[id_col]) if id_col and pd.notna(row[id_col]) else "N/A"
+                            
+                            # Truncar título se muito longo
+                            titulo_truncado = titulo[:80] + "..." if len(titulo) > 80 else titulo
+                            
+                            # Criar label combinado
+                            if produto_id != "N/A":
+                                label = f"#{idx} | ID: {produto_id} | {titulo_truncado}"
+                            else:
+                                label = f"#{idx} | {titulo_truncado}"
+                            
+                            produtos_info.append({
+                                'index': idx,
+                                'label': label,
+                                'titulo': titulo,
+                                'id': produto_id
+                            })
+                        
+                        if len(produtos_info) > 0:
+                            # Selectbox para escolher o produto
+                            produto_selecionado_label = st.selectbox(
+                                "Produto:",
+                                options=[p['label'] for p in produtos_info],
+                                index=0,
+                                help="Selecione um produto para ver o WordCloud das suas reviews"
+                            )
+                            
+                            # Encontrar o produto selecionado
+                            produto_selecionado_info = next(p for p in produtos_info if p['label'] == produto_selecionado_label)
+                            produto_selecionado_idx = produto_selecionado_info['index']
+                            
+                            # Filtrar dados do produto selecionado (usar índice)
+                            produto_data = df.iloc[[produto_selecionado_idx]]
+                            
+                            if len(produto_data) > 0:
+                                # Mostrar informações do produto selecionado
+                                st.markdown("##### 📋 Informações do Produto Selecionado")
+                                
+                                col_info_prod1, col_info_prod2, col_info_prod3, col_info_prod4 = st.columns(4)
+                                
+                                with col_info_prod1:
+                                    st.metric("Índice no Dataset", f"#{produto_selecionado_idx}")
+                                with col_info_prod2:
+                                    if produto_selecionado_info['id'] != "N/A":
+                                        st.metric("ID do Produto", produto_selecionado_info['id'])
+                                    else:
+                                        st.metric("ID do Produto", "N/A")
+                                with col_info_prod3:
+                                    # Mostrar preço se disponível
+                                    price_col = column_mappings.get('price')
+                                    if price_col and price_col in produto_data.columns:
+                                        preco = produto_data[price_col].iloc[0]
+                                        st.metric("Preço", str(preco))
+                                    else:
+                                        st.metric("Preço", "N/A")
+                                with col_info_prod4:
+                                    # Mostrar vendedor se disponível
+                                    seller_col = column_mappings.get('seller')
+                                    if seller_col and seller_col in produto_data.columns:
+                                        vendedor = produto_data[seller_col].iloc[0]
+                                        st.metric("Vendedor", str(vendedor)[:20] + "..." if len(str(vendedor)) > 20 else str(vendedor))
+                                    else:
+                                        st.metric("Vendedor", "N/A")
+                                
+                                # Mostrar título completo
+                                st.markdown(f"**Título Completo:** {produto_selecionado_info['titulo']}")
+                                
+                                st.markdown("---")
+                                
+                                # Coletar todas as reviews do produto
+                                all_reviews = []
+                                for col in text_review_cols:
+                                    if col in produto_data.columns:
+                                        reviews = produto_data[col].dropna().astype(str).tolist()
+                                        all_reviews.extend([r for r in reviews if r != 'N/A' and r.strip()])
+                                
+                                if all_reviews:
+                                    # Informações sobre as reviews
+                                    col_info1, col_info2, col_info3 = st.columns(3)
+                                    with col_info1:
+                                        st.metric("Total de Reviews", len(all_reviews))
+                                    with col_info2:
+                                        avg_length = np.mean([len(r) for r in all_reviews])
+                                        st.metric("Comprimento Médio", f"{avg_length:.0f} chars")
+                                    with col_info3:
+                                        total_words = sum(len(r.split()) for r in all_reviews)
+                                        st.metric("Total de Palavras", total_words)
+                                    
+                                    # Gerar WordCloud das reviews
+                                    wordcloud_data = generate_wordcloud_data(all_reviews, max_words=150)
+                                    
+                                    if wordcloud_data:
+                                        # Converter WordCloud para imagem
+                                        fig_wc, ax = plt.subplots(figsize=(12, 6))
+                                        ax.imshow(wordcloud_data, interpolation='bilinear')
+                                        ax.axis('off')
+                                        # Título mais informativo
+                                        titulo_wordcloud = f'WordCloud das Reviews - #{produto_selecionado_idx}'
+                                        if produto_selecionado_info['id'] != "N/A":
+                                            titulo_wordcloud += f' | ID: {produto_selecionado_info["id"]}'
+                                        titulo_wordcloud += f' | {produto_selecionado_info["titulo"][:50]}...'
+                                        
+                                        ax.set_title(titulo_wordcloud, fontsize=12, fontweight='bold')
+                                        st.pyplot(fig_wc)
+                                        
+                                        # Mostrar palavras mais frequentes
+                                        word_freq = wordcloud_data.words_
+                                        if word_freq:
+                                            st.markdown("##### 📊 Top 20 Palavras Mais Frequentes nas Reviews")
+                                            top_words = list(word_freq.items())[:20]
+                                            
+                                            words_df = pd.DataFrame(top_words, columns=['Palavra', 'Frequência'])
+                                            
+                                            fig_words = px.bar(
+                                                words_df, 
+                                                x='Frequência', 
+                                                y='Palavra',
+                                                orientation='h',
+                                                title='Palavras Mais Frequentes nas Reviews do Produto Selecionado',
+                                                color='Frequência',
+                                                color_continuous_scale='viridis'
+                                            )
+                                            st.plotly_chart(fig_words, use_container_width=True)
+                                            
+                                            # Análise de sentimento básica das palavras
+                                            st.markdown("##### 😊 Análise de Sentimento das Palavras")
+                                            
+                                            palavras_positivas = ['bom', 'boa', 'excelente', 'ótimo', 'ótima', 'perfeito', 'perfeita', 
+                                                                'recomendo', 'satisfeito', 'satisfeita', 'qualidade', 'rápido', 'rápida']
+                                            palavras_negativas = ['ruim', 'péssimo', 'péssima', 'terrível', 'horrível', 'problema', 
+                                                                'defeito', 'quebrado', 'quebrada', 'não funciona', 'demorou']
+                                            
+                                            sentiment_counts = {'Positivas': 0, 'Negativas': 0, 'Neutras': 0}
+                                            
+                                            for palavra, freq in word_freq.items():
+                                                if any(pos in palavra.lower() for pos in palavras_positivas):
+                                                    sentiment_counts['Positivas'] += freq
+                                                elif any(neg in palavra.lower() for neg in palavras_negativas):
+                                                    sentiment_counts['Negativas'] += freq
+                                                else:
+                                                    sentiment_counts['Neutras'] += freq
+                                            
+                                            # Gráfico de pizza do sentimento
+                                            fig_sentiment = px.pie(
+                                                values=list(sentiment_counts.values()),
+                                                names=list(sentiment_counts.keys()),
+                                                title='Distribuição de Sentimento nas Palavras das Reviews',
+                                                color_discrete_map={
+                                                    'Positivas': '#2E8B57',
+                                                    'Negativas': '#DC143C', 
+                                                    'Neutras': '#708090'
+                                                }
+                                            )
+                                            st.plotly_chart(fig_sentiment, use_container_width=True)
+                                        
+                                    else:
+                                        st.warning("⚠️ Não foi possível gerar WordCloud - reviews insuficientes")
+                                else:
+                                    st.info("📝 Este produto não possui reviews de texto disponíveis")
+                            else:
+                                st.error("❌ Produto não encontrado no dataset")
+                        else:
+                            st.warning("⚠️ Nenhum produto encontrado no dataset")
+                    else:
+                        st.warning("⚠️ Coluna de título não detectada - não é possível selecionar produtos")
+                
+                else:
+                    st.warning("⚠️ Nenhuma coluna de review de texto detectada no dataset")
+                    st.info("""
+                    💡 **Para usar esta funcionalidade, o dataset precisa ter colunas de reviews como:**
+                    - Review 1 - Texto
+                    - Review 2 - Texto  
+                    - Review Text
+                    - Comentários
+                    - Avaliações
+                    """)
+            
+            # EDA TAB 4: Correlações & Segmentação
+            with eda_tab4:
+                st.markdown("#### 📊 Correlações entre Variáveis e Segmentação")
+                
+                # 1. Análise de Correlação
+                numeric_columns = df.select_dtypes(include=[np.number]).columns.tolist()
+                
+                if len(numeric_columns) >= 2:
+                    st.markdown("##### 🔗 Matriz de Correlação")
+                    
+                    # Calcular correlações
+                    correlation_matrix = perform_correlation_analysis(df, numeric_columns)
+                    
+                    if correlation_matrix is not None:
+                        # Heatmap de correlação
+                        fig_corr = px.imshow(
+                            correlation_matrix,
+                            text_auto=True,
+                            aspect="auto",
+                            title="Matriz de Correlação entre Variáveis Numéricas",
+                            color_continuous_scale='RdBu_r'
+                        )
+                        st.plotly_chart(fig_corr, use_container_width=True)
+                        
+                        # Identificar correlações mais fortes
+                        strong_correlations = []
+                        for i in range(len(correlation_matrix.columns)):
+                            for j in range(i+1, len(correlation_matrix.columns)):
+                                corr_value = correlation_matrix.iloc[i, j]
+                                if abs(corr_value) > 0.5:  # Correlação moderada a forte
+                                    strong_correlations.append({
+                                        'Variável 1': correlation_matrix.columns[i],
+                                        'Variável 2': correlation_matrix.columns[j],
+                                        'Correlação': round(corr_value, 3),
+                                        'Interpretação': 'Forte' if abs(corr_value) > 0.7 else 'Moderada'
+                                    })
+                        
+                        if strong_correlations:
+                            st.markdown("##### 🔍 Correlações Significativas (|r| > 0.5)")
+                            correlations_df = pd.DataFrame(strong_correlations)
+                            st.dataframe(correlations_df, use_container_width=True)
+                        else:
+                            st.info("ℹ️ Nenhuma correlação forte encontrada entre as variáveis numéricas")
+                
+                # 2. Segmentação de Preços vs Ratings (se disponível)
+                price_col = column_mappings.get('price')
+                rating_col = column_mappings.get('rating')
+                
+                if price_col and rating_col and 'PRICE_NUMERIC' in df_prepared.columns and 'RATING_NUMERIC' in df_prepared.columns:
+                    st.markdown("##### 🎯 Segmentação: Preço vs Rating")
+                    
+                    # Criar segmentos combinados
+                    segmentation_result = create_price_rating_segments(df_prepared, 'PRICE_NUMERIC', 'RATING_NUMERIC')
+                    
+                    if segmentation_result:
+                        contingency_table, df_segments = segmentation_result
+                        
+                        # Mostrar tabela de contingência
+                        st.markdown("**Tabela de Contingência: Segmentos de Preço vs Rating**")
+                        st.dataframe(contingency_table, use_container_width=True)
+                        
+                        # Heatmap da segmentação
+                        fig_segments = px.imshow(
+                            contingency_table,
+                            text_auto=True,
+                            aspect="auto",
+                            title="Segmentação: Preço vs Rating",
+                            labels=dict(x="Segmento de Rating", y="Segmento de Preço"),
+                            color_continuous_scale='Blues'
+                        )
+                        st.plotly_chart(fig_segments, use_container_width=True)
+                        
+                        # Scatter plot com segmentos
+                        fig_scatter_segments = px.scatter(
+                            df_segments,
+                            x='PRICE_NUMERIC',
+                            y='RATING_NUMERIC',
+                            color='price_segment',
+                            symbol='rating_segment',
+                            title='Distribuição de Produtos por Segmentos de Preço e Rating',
+                            labels={'PRICE_NUMERIC': 'Preço (R$)', 'RATING_NUMERIC': 'Rating Médio'}
+                        )
+                        st.plotly_chart(fig_scatter_segments, use_container_width=True)
+                        
+                        # Análise dos segmentos
+                        st.markdown("##### 📈 Análise dos Segmentos")
+                        
+                        segment_analysis = df_segments.groupby(['price_segment', 'rating_segment']).size().reset_index(name='count')
+                        segment_analysis['percentage'] = (segment_analysis['count'] / len(df_segments) * 100).round(2)
+                        
+                        # Identificar segmentos interessantes
+                        high_price_high_rating = segment_analysis[
+                            (segment_analysis['price_segment'] == 'Alto') & 
+                            (segment_analysis['rating_segment'] == 'Alto')
+                        ]
+                        
+                        low_price_high_rating = segment_analysis[
+                            (segment_analysis['price_segment'] == 'Baixo') & 
+                            (segment_analysis['rating_segment'] == 'Alto')
+                        ]
+                        
+                        insights = []
+                        
+                        if len(high_price_high_rating) > 0:
+                            count = high_price_high_rating['count'].iloc[0]
+                            pct = high_price_high_rating['percentage'].iloc[0]
+                            insights.append(f"🟢 **Premium Products:** {count} produtos ({pct}%) com preço alto e rating alto")
+                        
+                        if len(low_price_high_rating) > 0:
+                            count = low_price_high_rating['count'].iloc[0]
+                            pct = low_price_high_rating['percentage'].iloc[0]
+                            insights.append(f"🟡 **Value Products:** {count} produtos ({pct}%) com preço baixo e rating alto - possível oportunidade")
+                        
+                        for insight in insights:
+                            st.info(insight)
+                
+                # 3. Análise de Outliers
+                st.markdown("##### 🎯 Detecção de Outliers")
+                
+                outlier_results = {}
+                for col in numeric_columns:
+                    outliers = detect_outliers_iqr(df, col)
+                    if len(outliers) > 0:
+                        outlier_results[col] = len(outliers)
+                
+                if outlier_results:
+                    col_out1, col_out2 = st.columns(2)
+                    
+                    with col_out1:
+                        st.markdown("**Contagem de Outliers por Variável:**")
+                        outliers_df = pd.DataFrame(list(outlier_results.items()), 
+                                                 columns=['Variável', 'Outliers'])
+                        st.dataframe(outliers_df, use_container_width=True)
+                    
+                    with col_out2:
+                        # Gráfico de outliers
+                        fig_outliers = px.bar(
+                            outliers_df,
+                            x='Variável',
+                            y='Outliers',
+                            title='Quantidade de Outliers por Variável'
+                        )
+                        st.plotly_chart(fig_outliers, use_container_width=True)
+                    
+                    # Box plots para visualizar outliers
+                    if price_col and 'PRICE_NUMERIC' in df_prepared.columns:
+                        fig_box_price = px.box(
+                            df_prepared,
+                            y='PRICE_NUMERIC',
+                            title='Box Plot - Distribuição de Preços (com outliers)'
+                        )
+                        st.plotly_chart(fig_box_price, use_container_width=True)
+                else:
+                    st.success("✅ Nenhum outlier significativo detectado nas variáveis numéricas")
+                
+                # 4. Análise de Vendedores (se disponível)
+                seller_col = column_mappings.get('seller')
+                if seller_col and seller_col in df.columns:
+                    st.markdown("##### 🏪 Segmentação por Vendedores")
+                    
+                    # Top vendedores
+                    top_sellers = df[seller_col].value_counts().head(10)
+                    
+                    if len(top_sellers) > 0:
+                        # Análise de concentração de vendedores
+                        total_sellers = df[seller_col].nunique()
+                        top_5_concentration = (top_sellers.head(5).sum() / len(df)) * 100
+                        
+                        col_seller1, col_seller2, col_seller3 = st.columns(3)
+                        
+                        with col_seller1:
+                            st.metric("Total de Vendedores", total_sellers)
+                        with col_seller2:
+                            st.metric("Concentração Top 5", f"{top_5_concentration:.1f}%")
+                        with col_seller3:
+                            hhi = sum((count/len(df))**2 for count in top_sellers.head(10))
+                            st.metric("Índice HHI (Top 10)", f"{hhi:.3f}")
+                        
+                        # Gráfico de concentração
+                        fig_sellers_conc = px.bar(
+                            x=top_sellers.values,
+                            y=top_sellers.index,
+                            orientation='h',
+                            title='Top 10 Vendedores por Volume de Produtos'
+                        )
+                        st.plotly_chart(fig_sellers_conc, use_container_width=True)
+                        
+                        # Análise de preços por vendedor (se disponível)
+                        if price_col and 'PRICE_NUMERIC' in df_prepared.columns:
+                            seller_price_analysis = df_prepared.groupby(seller_col)['PRICE_NUMERIC'].agg(['mean', 'std', 'count']).round(2)
+                            seller_price_analysis = seller_price_analysis[seller_price_analysis['count'] >= 3].sort_values('mean')
+                            
+                            if len(seller_price_analysis) > 0:
+                                st.markdown("**Análise de Preços por Vendedor (min. 3 produtos):**")
+                                seller_price_analysis.columns = ['Preço Médio', 'Desvio Padrão', 'Qtd Produtos']
+                                st.dataframe(seller_price_analysis.head(10), use_container_width=True)
+                
+                else:
+                    st.warning("⚠️ Análise de correlação limitada - poucas variáveis numéricas disponíveis")
+                    st.info("💡 Para análise mais rica, inclua colunas numéricas como preço, rating, contagem de reviews, etc.")
                 
                 if column_mappings['rating'] and 'RATING_NUMERIC' in df_prepared.columns and df_prepared['RATING_NUMERIC'].notna().any():
                     valid_ratings = df_prepared['RATING_NUMERIC'].dropna()
@@ -2750,291 +3718,627 @@ with tab_data_analysis:
                     if not column_mappings['rating']:
                         st.info("💡 **Dica:** Verifique se o dataset possui uma coluna de avaliações ou ajuste a detecção manual acima.")
             
-            # TAB 3: Análise de Vendedores
-            with analysis_tab3:
-                st.markdown("#### 🏪 Análise de Vendedores")
+            # EDA TAB 5: Distribuição por Rótulos
+            with eda_tab5:
+                st.markdown("#### 🏷️ Distribuição por Rótulos e Análise de Classes")
                 
-                if column_mappings['seller']:
-                    seller_col = column_mappings['seller']
+                # Verificar se existe análise de rotulagem no session state
+                if hasattr(st.session_state, 'labeled_dataset') and st.session_state.labeled_dataset:
+                    dataset_rotulado = st.session_state.labeled_dataset
                     
-                    # Top vendedores por quantidade
-                    seller_counts = df_prepared[seller_col].value_counts().head(15)
+                    st.markdown("##### 📊 Distribuição dos Rótulos Heurísticos")
                     
-                    fig_sellers = px.bar(
-                        x=seller_counts.values,
-                        y=seller_counts.index,
-                        orientation='h',
-                        title='Top 15 Vendedores por Quantidade de Produtos'
+                    # Extrair rótulos
+                    labels = [item['rotulo_heuristico'] for item in dataset_rotulado]
+                    label_counts = pd.Series(labels).value_counts()
+                    
+                    # Métricas gerais
+                    col_label1, col_label2, col_label3, col_label4 = st.columns(4)
+                    
+                    with col_label1:
+                        st.metric("Total de Produtos", len(labels))
+                    with col_label2:
+                        original_count = label_counts.get('original', 0)
+                        st.metric("Produtos Originais", original_count)
+                    with col_label3:
+                        suspeito_count = label_counts.get('suspeito', 0)
+                        st.metric("Produtos Suspeitos", suspeito_count)
+                    with col_label4:
+                        if len(labels) > 0:
+                            suspeito_rate = (suspeito_count / len(labels)) * 100
+                            st.metric("Taxa de Suspeição", f"{suspeito_rate:.1f}%")
+                    
+                    # Gráfico de distribuição
+                    fig_labels = px.pie(
+                        values=label_counts.values,
+                        names=label_counts.index,
+                        title='Distribuição de Produtos por Rótulo',
+                        color_discrete_map={'original': '#2E8B57', 'suspeito': '#DC143C'}
                     )
-                    st.plotly_chart(fig_sellers, use_container_width=True)
+                    st.plotly_chart(fig_labels, use_container_width=True)
                     
-                    # Análise detalhada por vendedor (se dados disponíveis)
-                    analysis_possible = False
-                    agg_dict = {}
+                    # Análise detalhada por rótulo
+                    st.markdown("##### 🔍 Análise Detalhada por Rótulo")
                     
-                    if column_mappings['price'] and 'PRICE_NUMERIC' in df_prepared.columns:
-                        agg_dict['PRICE_NUMERIC'] = ['count', 'mean', 'median', 'std']
-                        analysis_possible = True
+                    # Preparar dados para análise
+                    analysis_data = []
+                    for item in dataset_rotulado:
+                        produto = item['produto_original']
+                        detalhes = item['detalhes_rotulagem']
+                        
+                        analysis_data.append({
+                            'rotulo': item['rotulo_heuristico'],
+                            'score_total': detalhes['score_total'],
+                            'score_titulo': detalhes['score_titulo'],
+                            'score_preco': detalhes['score_preco'],
+                            'vendedor_oficial': detalhes['vendedor_oficial'],
+                            'preco': extrair_preco_numerico(produto.get('PREÇO', 'N/A')),
+                            'vendedor': produto.get('VENDEDOR', 'N/A'),
+                            'titulo': produto.get('TITULO PRODUTO', 'N/A')
+                        })
                     
-                    if column_mappings['rating'] and 'RATING_NUMERIC' in df_prepared.columns:
-                        agg_dict['RATING_NUMERIC'] = 'mean'
-                        analysis_possible = True
+                    analysis_df = pd.DataFrame(analysis_data)
                     
-                    if column_mappings['review_count'] and 'REVIEW_COUNT_NUMERIC' in df_prepared.columns:
-                        agg_dict['REVIEW_COUNT_NUMERIC'] = 'sum'
-                        analysis_possible = True
-                    
-                    if analysis_possible:
-                        seller_analysis = df_prepared.groupby(seller_col).agg(agg_dict).round(2)
+                    # Estatísticas por rótulo
+                    if len(analysis_df) > 0:
+                        col_stats1, col_stats2 = st.columns(2)
                         
-                        # Flatten column names
-                        new_columns = []
-                        for col in seller_analysis.columns:
-                            if isinstance(col, tuple):
-                                if col[1] == 'count':
-                                    new_columns.append('Qtd_Produtos')
-                                elif col[1] == 'mean' and col[0] == 'PRICE_NUMERIC':
-                                    new_columns.append('Preço_Médio')
-                                elif col[1] == 'median':
-                                    new_columns.append('Preço_Mediano')
-                                elif col[1] == 'std':
-                                    new_columns.append('Preço_StdDev')
-                                elif col[1] == 'mean' and col[0] == 'RATING_NUMERIC':
-                                    new_columns.append('Avaliação_Média')
-                                elif col[1] == 'sum':
-                                    new_columns.append('Total_Reviews')
-                                else:
-                                    new_columns.append(f"{col[0]}_{col[1]}")
-                            else:
-                                if col == 'RATING_NUMERIC':
-                                    new_columns.append('Avaliação_Média')
-                                elif col == 'REVIEW_COUNT_NUMERIC':
-                                    new_columns.append('Total_Reviews')
-                                else:
-                                    new_columns.append(col)
+                        with col_stats1:
+                            st.markdown("**Estatísticas de Score por Rótulo:**")
+                            score_stats = analysis_df.groupby('rotulo')['score_total'].agg(['mean', 'std', 'min', 'max']).round(2)
+                            score_stats.columns = ['Média', 'Desvio Padrão', 'Mínimo', 'Máximo']
+                            st.dataframe(score_stats, use_container_width=True)
                         
-                        seller_analysis.columns = new_columns
+                        with col_stats2:
+                            st.markdown("**Distribuição de Vendedores Oficiais:**")
+                            vendor_stats = analysis_df.groupby('rotulo')['vendedor_oficial'].agg(['sum', 'count'])
+                            vendor_stats['percentual'] = (vendor_stats['sum'] / vendor_stats['count'] * 100).round(2)
+                            vendor_stats.columns = ['Oficiais', 'Total', 'Percentual (%)']
+                            st.dataframe(vendor_stats, use_container_width=True)
                         
-                        # Ordenar por quantidade de produtos se disponível
-                        if 'Qtd_Produtos' in seller_analysis.columns:
-                            seller_analysis = seller_analysis.sort_values('Qtd_Produtos', ascending=False).head(10)
-                        else:
-                            seller_analysis = seller_analysis.head(10)
+                        # Box plot dos scores por rótulo
+                        fig_scores = px.box(
+                            analysis_df,
+                            x='rotulo',
+                            y='score_total',
+                            title='Distribuição dos Scores Totais por Rótulo',
+                            color='rotulo',
+                            color_discrete_map={'original': '#2E8B57', 'suspeito': '#DC143C'}
+                        )
+                        st.plotly_chart(fig_scores, use_container_width=True)
                         
-                        st.markdown("**📊 Análise Detalhada dos Top 10 Vendedores**")
-                        st.dataframe(seller_analysis, use_container_width=True)
-                        
-                        # Vendedores suspeitos (preços muito baixos) se preço disponível
-                        if 'Preço_Médio' in seller_analysis.columns and 'PRICE_NUMERIC' in df_prepared.columns:
-                            price_threshold = df_prepared['PRICE_NUMERIC'].quantile(0.1)
-                            cheap_sellers = seller_analysis[
-                                seller_analysis['Preço_Médio'] < price_threshold
-                            ]
+                        # Análise de preços por rótulo (se disponível)
+                        prices_available = analysis_df['preco'].notna().sum() > 0
+                        if prices_available:
+                            fig_prices = px.box(
+                                analysis_df[analysis_df['preco'].notna()],
+                                x='rotulo',
+                                y='preco',
+                                title='Distribuição de Preços por Rótulo',
+                                color='rotulo',
+                                color_discrete_map={'original': '#2E8B57', 'suspeito': '#DC143C'}
+                            )
+                            st.plotly_chart(fig_prices, use_container_width=True)
                             
-                            if len(cheap_sellers) > 0:
-                                st.markdown("**⚠️ Vendedores com Preços Suspeitos (Muito Baixos)**")
-                                st.dataframe(cheap_sellers, use_container_width=True)
-                    else:
-                        st.info("💡 Para análise detalhada, são necessárias colunas de preço ou avaliação.")
+                            # Estatísticas de preço
+                            price_stats = analysis_df[analysis_df['preco'].notna()].groupby('rotulo')['preco'].agg(['mean', 'median', 'std']).round(2)
+                            price_stats.columns = ['Preço Médio', 'Preço Mediano', 'Desvio Padrão']
+                            st.markdown("**Estatísticas de Preço por Rótulo:**")
+                            st.dataframe(price_stats, use_container_width=True)
+                        
+                        # Top vendedores por rótulo
+                        st.markdown("##### 🏪 Top Vendedores por Rótulo")
+                        
+                        for rotulo in ['original', 'suspeito']:
+                            if rotulo in analysis_df['rotulo'].values:
+                                with st.expander(f"Top vendedores - {rotulo.title()}", expanded=False):
+                                    rotulo_data = analysis_df[analysis_df['rotulo'] == rotulo]
+                                    top_vendors = rotulo_data['vendedor'].value_counts().head(10)
+                                    
+                                    if len(top_vendors) > 0:
+                                        fig_vendors = px.bar(
+                                            x=top_vendors.values,
+                                            y=top_vendors.index,
+                                            orientation='h',
+                                            title=f'Top 10 Vendedores - Produtos {rotulo.title()}'
+                                        )
+                                        st.plotly_chart(fig_vendors, use_container_width=True)
+                        
+                        # Produtos mais suspeitos
+                        if 'suspeito' in analysis_df['rotulo'].values:
+                            st.markdown("##### 🚨 Produtos Mais Suspeitos")
+                            suspeitos = analysis_df[analysis_df['rotulo'] == 'suspeito'].nlargest(5, 'score_total')
+                            
+                            display_cols = ['titulo', 'score_total', 'vendedor']
+                            if prices_available:
+                                display_cols.append('preco')
+                            
+                            st.dataframe(suspeitos[display_cols], use_container_width=True)
                 
                 else:
-                    st.warning("⚠️ Dados de vendedor não disponíveis para análise")
-                    st.info("💡 **Dica:** Verifique se o dataset possui uma coluna de vendedores ou ajuste a detecção manual acima.")
+                    st.info("🔍 **Execute a rotulagem heurística** na aba 'Dataset Generator' para visualizar a distribuição por rótulos.")
+                    
+                    # Oferecer análise básica se dados estiverem disponíveis
+                    if 'current_products' in st.session_state and st.session_state.current_products:
+                        st.markdown("##### 💡 Análise Básica dos Dados Atuais")
+                        
+                        produtos = st.session_state.current_products
+                        
+                        # Análise de vendedores
+                        vendedores = [p.get('VENDEDOR', 'N/A') for p in produtos]
+                        vendedor_counts = pd.Series(vendedores).value_counts().head(10)
+                        
+                        fig_basic_vendors = px.bar(
+                            x=vendedor_counts.values,
+                            y=vendedor_counts.index,
+                            orientation='h',
+                            title='Top 10 Vendedores nos Dados Atuais'
+                        )
+                        st.plotly_chart(fig_basic_vendors, use_container_width=True)
+                        
+                        # Análise de preços básica
+                        precos = [extrair_preco_numerico(p.get('PREÇO', 'N/A')) for p in produtos]
+                        precos_validos = [p for p in precos if p is not None]
+                        
+                        if precos_validos:
+                            col_basic1, col_basic2, col_basic3 = st.columns(3)
+                            
+                            with col_basic1:
+                                st.metric("Preço Médio", f"R$ {np.mean(precos_validos):.2f}")
+                            with col_basic2:
+                                st.metric("Preço Mínimo", f"R$ {min(precos_validos):.2f}")
+                            with col_basic3:
+                                st.metric("Preço Máximo", f"R$ {max(precos_validos):.2f}")
             
-            # TAB 4: Detecção de Anomalias
-            with analysis_tab4:
-                st.markdown("#### 🔍 Detecção de Anomalias e Produtos Suspeitos")
+            # EDA TAB 6: Features para Modelagem
+            with eda_tab6:
+                st.markdown("#### 🔧 Identificação de Features para Modelagem ML")
                 
-                anomalies_found = []
+                st.markdown("##### 🎯 Features Identificadas para Classificação")
                 
-                # 1. Produtos com preços muito baixos e avaliações muito altas
-                if (column_mappings['price'] and 'PRICE_NUMERIC' in df_prepared.columns and 
-                    column_mappings['rating'] and 'RATING_NUMERIC' in df_prepared.columns):
-                    
-                    low_price_threshold = df_prepared['PRICE_NUMERIC'].quantile(0.1)
-                    high_rating_threshold = 4.5
-                    
-                    suspicious_products = df_prepared[
-                        (df_prepared['PRICE_NUMERIC'] <= low_price_threshold) & 
-                        (df_prepared['RATING_NUMERIC'] >= high_rating_threshold)
-                    ]
-                    
-                    if len(suspicious_products) > 0:
-                        anomalies_found.append("🚨 Produtos com preços baixos + avaliações altas")
-                        st.markdown("**🚨 Produtos Suspeitos: Preço Baixo + Avaliação Alta**")
-                        
-                        display_cols_anomaly1 = []
-                        if column_mappings['title']:
-                            display_cols_anomaly1.append(column_mappings['title'])
-                        if column_mappings['price']:
-                            display_cols_anomaly1.append(column_mappings['price'])
-                        if column_mappings['rating']:
-                            display_cols_anomaly1.append(column_mappings['rating'])
-                        if column_mappings['seller']:
-                            display_cols_anomaly1.append(column_mappings['seller'])
-                        
-                        if display_cols_anomaly1:
-                            suspicious_display = suspicious_products[display_cols_anomaly1].head(10)
-                            st.dataframe(suspicious_display, use_container_width=True)
+                # 1. Features Numéricas
+                st.markdown("##### 📊 Features Numéricas")
                 
-                # 2. Produtos com muitas avaliações mas preços muito baixos
-                if (column_mappings['review_count'] and 'REVIEW_COUNT_NUMERIC' in df_prepared.columns and 
-                    column_mappings['price'] and 'PRICE_NUMERIC' in df_prepared.columns):
-                    
-                    high_reviews_threshold = df_prepared['REVIEW_COUNT_NUMERIC'].quantile(0.9)
-                    low_price_threshold = df_prepared['PRICE_NUMERIC'].quantile(0.2)
-                    
-                    fake_popular = df_prepared[
-                        (df_prepared['REVIEW_COUNT_NUMERIC'] >= high_reviews_threshold) & 
-                        (df_prepared['PRICE_NUMERIC'] <= low_price_threshold)
-                    ]
-                    
-                    if len(fake_popular) > 0:
-                        anomalies_found.append("🚨 Produtos com muitas reviews + preços baixos")
-                        st.markdown("**🚨 Possível Popularidade Artificial**")
-                        
-                        display_cols_anomaly2 = []
-                        if column_mappings['title']:
-                            display_cols_anomaly2.append(column_mappings['title'])
-                        if column_mappings['price']:
-                            display_cols_anomaly2.append(column_mappings['price'])
-                        if column_mappings['review_count']:
-                            display_cols_anomaly2.append(column_mappings['review_count'])
-                        if column_mappings['seller']:
-                            display_cols_anomaly2.append(column_mappings['seller'])
-                        
-                        if display_cols_anomaly2:
-                            fake_display = fake_popular[display_cols_anomaly2].head(10)
-                            st.dataframe(fake_display, use_container_width=True)
+                numeric_features = []
+                feature_descriptions = {}
                 
-                # 3. Outliers de preço por categoria/marca
-                if (column_mappings['brand'] and column_mappings['price'] and 'PRICE_NUMERIC' in df_prepared.columns):
-                    brand_col = column_mappings['brand']
-                    brand_stats = df_prepared.groupby(brand_col)['PRICE_NUMERIC'].agg(['mean', 'std']).reset_index()
-                    
-                    outliers = []
-                    for _, row in df_prepared.iterrows():
-                        if pd.notna(row[brand_col]) and pd.notna(row['PRICE_NUMERIC']):
-                            brand_data = brand_stats[brand_stats[brand_col] == row[brand_col]]
-                            if len(brand_data) > 0:
-                                brand_mean = brand_data['mean'].iloc[0]
-                                brand_std = brand_data['std'].iloc[0]
-                                
-                                if pd.notna(brand_std) and brand_std > 0:
-                                    z_score = abs((row['PRICE_NUMERIC'] - brand_mean) / brand_std)
-                                    if z_score > 2:  # Outlier significativo
-                                        outliers.append(row)
-                    
-                    if outliers:
-                        anomalies_found.append("📊 Outliers de preço por marca")
-                        st.markdown("**📊 Outliers de Preço por Marca**")
-                        
-                        display_cols_anomaly3 = []
-                        if column_mappings['title']:
-                            display_cols_anomaly3.append(column_mappings['title'])
-                        if column_mappings['brand']:
-                            display_cols_anomaly3.append(column_mappings['brand'])
-                        if column_mappings['price']:
-                            display_cols_anomaly3.append(column_mappings['price'])
-                        if column_mappings['seller']:
-                            display_cols_anomaly3.append(column_mappings['seller'])
-                        
-                        if display_cols_anomaly3:
-                            outliers_df = pd.DataFrame(outliers)[display_cols_anomaly3].head(10)
-                            st.dataframe(outliers_df, use_container_width=True)
+                if column_mappings.get('price') and 'PRICE_NUMERIC' in df_prepared.columns:
+                    numeric_features.append('PRICE_NUMERIC')
+                    feature_descriptions['PRICE_NUMERIC'] = "Preço do produto (normalizado)"
                 
-                # 4. Análise de texto dos títulos
-                if column_mappings['title']:
-                    title_col = column_mappings['title']
-                    # Palavras suspeitas nos títulos
-                    suspicious_words = ['barato', 'promoção', 'oferta', 'desconto', 'liquidação', 'queima']
-                    suspicious_titles = df_prepared[df_prepared[title_col].str.lower().str.contains('|'.join(suspicious_words), na=False)]
-                    
-                    if len(suspicious_titles) > 0:
-                        anomalies_found.append("📝 Títulos com palavras suspeitas")
-                        st.markdown("**📝 Produtos com Títulos Suspeitos**")
-                        
-                        display_cols_anomaly4 = []
-                        if column_mappings['title']:
-                            display_cols_anomaly4.append(column_mappings['title'])
-                        if column_mappings['price']:
-                            display_cols_anomaly4.append(column_mappings['price'])
-                        if column_mappings['seller']:
-                            display_cols_anomaly4.append(column_mappings['seller'])
-                        
-                        if display_cols_anomaly4:
-                            suspicious_titles_display = suspicious_titles[display_cols_anomaly4].head(10)
-                            st.dataframe(suspicious_titles_display, use_container_width=True)
+                if column_mappings.get('rating') and 'RATING_NUMERIC' in df_prepared.columns:
+                    numeric_features.append('RATING_NUMERIC')
+                    feature_descriptions['RATING_NUMERIC'] = "Avaliação média do produto"
                 
-                # 5. Resumo de anomalias
-                if anomalies_found:
-                    st.markdown("### 📋 Resumo de Anomalias Detectadas")
-                    for anomaly in anomalies_found:
-                        st.write(f"• {anomaly}")
+                if column_mappings.get('review_count') and 'REVIEW_COUNT_NUMERIC' in df_prepared.columns:
+                    numeric_features.append('REVIEW_COUNT_NUMERIC')
+                    feature_descriptions['REVIEW_COUNT_NUMERIC'] = "Quantidade total de reviews"
+                
+                if numeric_features:
+                    numeric_df = pd.DataFrame({
+                        'Feature': numeric_features,
+                        'Descrição': [feature_descriptions[f] for f in numeric_features],
+                        'Tipo': ['Numérica'] * len(numeric_features),
+                        'Importância': ['Alta', 'Média', 'Média'][:len(numeric_features)]
+                    })
+                    st.dataframe(numeric_df, use_container_width=True)
                     
-                    # Métricas de resumo
-                    col_summary1, col_summary2, col_summary3 = st.columns(3)
-                    with col_summary1:
-                        st.metric("Tipos de Anomalias", len(anomalies_found))
-                    with col_summary2:
-                        total_records = len(df_prepared)
-                        st.metric("Total de Registros", total_records)
-                    with col_summary3:
-                        anomaly_rate = (len(anomalies_found) / total_records * 100) if total_records > 0 else 0
-                        st.metric("Taxa de Detecção", f"{anomaly_rate:.1f}%")
-                    
+                    # Estatísticas das features numéricas
+                    if len(numeric_features) > 0:
+                        st.markdown("**Estatísticas das Features Numéricas:**")
+                        st.dataframe(df_prepared[numeric_features].describe().round(3), use_container_width=True)
                 else:
-                    st.success("✅ Nenhuma anomalia significativa detectada no dataset!")
+                    st.warning("⚠️ Nenhuma feature numérica detectada")
+                
+                # 2. Features Categóricas
+                st.markdown("##### 📋 Features Categóricas")
+                
+                categorical_features = []
+                
+                if column_mappings.get('seller'):
+                    categorical_features.append(column_mappings['seller'])
+                    feature_descriptions[column_mappings['seller']] = "Vendedor do produto (encoding necessário)"
+                
+                if column_mappings.get('brand'):
+                    categorical_features.append(column_mappings['brand'])
+                    feature_descriptions[column_mappings['brand']] = "Marca do produto"
+                
+                if categorical_features:
+                    categorical_df = pd.DataFrame({
+                        'Feature': categorical_features,
+                        'Descrição': [feature_descriptions[f] for f in categorical_features],
+                        'Tipo': ['Categórica'] * len(categorical_features),
+                        'Cardinalidade': [df[f].nunique() for f in categorical_features],
+                        'Encoding Sugerido': ['Label/One-Hot', 'One-Hot'][:len(categorical_features)]
+                    })
+                    st.dataframe(categorical_df, use_container_width=True)
+                else:
+                    st.info("ℹ️ Nenhuma feature categórica detectada")
+                
+                # 3. Features Textuais (Engenharia de Features)
+                st.markdown("##### 📝 Features Textuais (Feature Engineering)")
+                
+                title_col = column_mappings.get('title')
+                if title_col:
+                    st.markdown("**Features derivadas do título do produto:**")
                     
-                    # Mostrar quais análises não puderam ser realizadas
-                    missing_analyses = []
-                    if not column_mappings['price']:
-                        missing_analyses.append("Análise de preços (coluna de preço não detectada)")
-                    if not column_mappings['rating']:
-                        missing_analyses.append("Análise de avaliações (coluna de rating não detectada)")
-                    if not column_mappings['review_count']:
-                        missing_analyses.append("Análise de contagem de reviews (coluna não detectada)")
-                    if not column_mappings['brand']:
-                        missing_analyses.append("Análise por marca (coluna de marca não detectada)")
-                    if not column_mappings['title']:
-                        missing_analyses.append("Análise de títulos (coluna de título não detectada)")
+                    # Calcular features textuais de exemplo
+                    sample_titles = df[title_col].head(100).tolist()  # Amostra para demonstração
                     
-                    if missing_analyses:
-                        st.info("ℹ️ **Análises não realizadas devido a dados insuficientes:**")
-                        for missing in missing_analyses:
-                            st.write(f"• {missing}")
-                        st.write("💡 Ajuste a detecção de colunas acima para incluir mais análises.")
+                    text_features = {
+                        'titulo_length': 'Comprimento do título (caracteres)',
+                        'titulo_word_count': 'Número de palavras no título',
+                        'has_suspicious_words': 'Presença de palavras suspeitas (flag binária)',
+                        'has_model_number': 'Presença de número de modelo HP (flag binária)',
+                        'has_color_keywords': 'Presença de palavras relacionadas a cor',
+                        'has_promotional_words': 'Presença de palavras promocionais',
+                        'title_uppercase_ratio': 'Proporção de caracteres maiúsculos',
+                        'title_special_chars': 'Quantidade de caracteres especiais'
+                    }
+                    
+                    text_features_df = pd.DataFrame({
+                        'Feature': list(text_features.keys()),
+                        'Descrição': list(text_features.values()),
+                        'Tipo': ['Numérica', 'Numérica', 'Binária', 'Binária', 'Binária', 'Binária', 'Numérica', 'Numérica'],
+                        'Importância': ['Baixa', 'Baixa', 'Alta', 'Alta', 'Média', 'Alta', 'Média', 'Baixa']
+                    })
+                    st.dataframe(text_features_df, use_container_width=True)
+                    
+                    # Demonstração de algumas features textuais
+                    if len(sample_titles) > 0:
+                        st.markdown("**Exemplo de Features Textuais (amostra):**")
+                        
+                        # Calcular features de exemplo
+                        sample_features = []
+                        for title in sample_titles[:5]:  # Apenas 5 exemplos
+                            if pd.notna(title):
+                                title_str = str(title)
+                                
+                                # Features calculadas
+                                length = len(title_str)
+                                word_count = len(title_str.split())
+                                has_suspicious = any(word in title_str.lower() for word in ['barato', 'promocao', 'oferta', 'liquidacao'])
+                                has_hp_model = any(model in title_str.upper() for model in ['664', '662', '667', '954', 'GT'])
+                                uppercase_ratio = sum(1 for c in title_str if c.isupper()) / len(title_str) if len(title_str) > 0 else 0
+                                
+                                sample_features.append({
+                                    'Título (truncado)': title_str[:50] + '...' if len(title_str) > 50 else title_str,
+                                    'Comprimento': length,
+                                    'Palavras': word_count,
+                                    'Suspeito': has_suspicious,
+                                    'Modelo HP': has_hp_model,
+                                    'Maiúsculas (%)': f"{uppercase_ratio:.2%}"
+                                })
+                        
+                        if sample_features:
+                            sample_df = pd.DataFrame(sample_features)
+                            st.dataframe(sample_df, use_container_width=True)
                 
-                # 6. Recomendações
-                st.markdown("### 💡 Recomendações")
+                # 4. Features de Engenharia Avançada
+                st.markdown("##### ⚙️ Features de Engenharia Avançada")
                 
-                # Recomendações dinâmicas baseadas nos dados disponíveis
-                recommendations = []
+                advanced_features = {
+                    'price_zscore': 'Z-score do preço (detecção de outliers)',
+                    'price_percentile': 'Percentil do preço no dataset',
+                    'vendor_reputation_score': 'Score de reputação do vendedor',
+                    'price_vs_market_avg': 'Razão preço/média do mercado por categoria',
+                    'review_density': 'Densidade de reviews (reviews/tempo no mercado)',
+                    'title_similarity_cluster': 'Cluster de similaridade de títulos',
+                    'price_rating_interaction': 'Interação preço × rating',
+                    'vendor_price_deviation': 'Desvio do preço em relação à média do vendedor'
+                }
                 
-                if column_mappings['price'] and column_mappings['rating']:
-                    recommendations.append("**Para produtos suspeitos (preço baixo + alta avaliação):**\n- Verifique a autenticidade dos vendedores\n- Compare preços com fontes oficiais\n- Analise reviews em detalhes")
+                advanced_df = pd.DataFrame({
+                    'Feature': list(advanced_features.keys()),
+                    'Descrição': list(advanced_features.values()),
+                    'Complexidade': ['Média', 'Baixa', 'Alta', 'Alta', 'Média', 'Alta', 'Baixa', 'Média'],
+                    'Potencial Discriminativo': ['Alto', 'Médio', 'Alto', 'Alto', 'Médio', 'Médio', 'Médio', 'Alto']
+                })
+                st.dataframe(advanced_df, use_container_width=True)
                 
-                if column_mappings['review_count']:
-                    recommendations.append("**Para produtos com muitas reviews:**\n- Verifique se as reviews são genuínas\n- Compare com a reputação do vendedor\n- Analise a distribuição temporal das reviews")
+                # 5. Resumo para Modelagem
+                st.markdown("##### 💡 Resumo para Modelagem ML")
                 
-                if column_mappings['brand']:
-                    recommendations.append("**Para outliers de preço por marca:**\n- Podem indicar produtos premium ou falsificados\n- Verifique especificações técnicas\n- Compare com preços oficiais da marca")
+                col_model1, col_model2 = st.columns(2)
                 
-                if column_mappings['title']:
-                    recommendations.append("**Para análise de títulos:**\n- Títulos com muitas palavras promocionais podem ser suspeitos\n- Verifique se o produto é realmente original\n- Analise a gramática e ortografia")
+                with col_model1:
+                    st.markdown("""
+                    **🔧 Pré-processamento:**
+                    - Normalizar features numéricas
+                    - Encoding de variáveis categóricas  
+                    - Tratar valores ausentes
+                    - Feature engineering textual
+                    """)
                 
-                if not recommendations:
-                    recommendations.append("**Para melhor análise:**\n- Inclua colunas de preço, avaliação, título e vendedor\n- Verifique a qualidade dos dados\n- Considere enriquecer o dataset com mais informações")
+                with col_model2:
+                    st.markdown("""
+                    **📈 Validação:**
+                    - Validação cruzada estratificada
+                    - Métricas: Precision, Recall, F1-Score
+                    - Análise de importância das features
+                    - Teste em holdout set
+                    """)
                 
-                for rec in recommendations:
-                    st.info(rec)
+                # 6. Algoritmos Recomendados
+                st.markdown("##### 🤖 Algoritmos Recomendados")
+                
+                algorithms_info = {
+                    "Random Forest": "✅ Bom para features mistas, interpretável, robusto",
+                    "XGBoost": "✅ Alto desempenho, handling automático de missing values",
+                    "Logistic Regression": "✅ Baseline rápido, interpretável, simples",
+                    "SVM": "✅ Eficaz para features textuais e high-dimensional"
+                }
+                
+                for algo, desc in algorithms_info.items():
+                    st.write(f"**{algo}:** {desc}")
+                
+                st.info("💡 **Recomendação:** Começar com Random Forest como baseline e comparar com XGBoost para otimização.")
+            
+            # EDA TAB 7: Limpeza de Reviews
+            with eda_tab7:
+                st.markdown("#### 🛠️ Limpeza e Processamento de Reviews")
+                
+                # Detectar colunas de reviews
+                review_columns = detect_review_columns(df)
+                
+                # Verificar se há colunas de reviews
+                total_review_cols = sum(len(cols) for cols in review_columns.values())
+                
+                if total_review_cols == 0:
+                    st.warning("⚠️ Nenhuma coluna de review detectada no dataset.")
+                    st.info("""
+                    💡 **Dica:** O sistema procura por colunas com padrões como:
+                    - Review X - Texto
+                    - Review X - Rating  
+                    - Review X - Data
+                    - Reviews Suspeitas
+                    - Amostra Reviews
+                    """)
+                else:
+                    # Mostrar resumo das colunas detectadas
+                    st.markdown("##### 🔍 Colunas de Reviews Detectadas")
+                    
+                    detection_summary = []
+                    for category, columns in review_columns.items():
+                        if columns:
+                            category_name = {
+                                'review_text_columns': 'Texto das Reviews',
+                                'review_rating_columns': 'Ratings das Reviews', 
+                                'review_date_columns': 'Datas das Reviews',
+                                'review_summary_columns': 'Resumos de Reviews',
+                                'suspicious_review_columns': 'Reviews Suspeitas',
+                                'individual_reviews': 'Reviews Individuais'
+                            }.get(category, category)
+                            
+                            detection_summary.append({
+                                'Categoria': category_name,
+                                'Quantidade': len(columns),
+                                'Colunas': ', '.join(columns[:3]) + ('...' if len(columns) > 3 else '')
+                            })
+                    
+                    if detection_summary:
+                        detection_df = pd.DataFrame(detection_summary)
+                        st.dataframe(detection_df, use_container_width=True)
+                    
+                    # Análise inicial das reviews
+                    st.markdown("##### 📊 Análise Inicial das Reviews")
+                    
+                    text_cols = review_columns.get('review_text_columns', [])
+                    rating_cols = review_columns.get('review_rating_columns', [])
+                    
+                    if text_cols:
+                        col1, col2, col3, col4 = st.columns(4)
+                        
+                        # Estatísticas das reviews de texto
+                        total_text_reviews = 0
+                        empty_text_reviews = 0
+                        
+                        for col in text_cols[:5]:  # Analisar até 5 colunas
+                            if col in df.columns:
+                                col_data = df[col].astype(str)
+                                total_text_reviews += len(col_data)
+                                empty_text_reviews += len(col_data[
+                                    (col_data.isna()) | 
+                                    (col_data == 'N/A') | 
+                                    (col_data == '') |
+                                    (col_data.str.strip() == '')
+                                ])
+                        
+                        with col1:
+                            st.metric("Total Reviews Texto", total_text_reviews)
+                        with col2:
+                            st.metric("Reviews Vazias", empty_text_reviews)
+                        with col3:
+                            valid_reviews = total_text_reviews - empty_text_reviews
+                            st.metric("Reviews Válidas", valid_reviews)
+                        with col4:
+                            if total_text_reviews > 0:
+                                completeness = (valid_reviews / total_text_reviews) * 100
+                                st.metric("Completude (%)", f"{completeness:.1f}%")
+                            else:
+                                st.metric("Completude (%)", "N/A")
+                    
+                    # Identificar duplicatas
+                    if text_cols:
+                        st.markdown("##### 🔄 Análise de Duplicatas")
+                        
+                        duplicates_df = identify_duplicate_reviews(df, text_cols[:3])  # Analisar até 3 colunas
+                        
+                        if len(duplicates_df) > 0:
+                            st.warning(f"⚠️ {len(duplicates_df)} reviews duplicadas encontradas!")
+                            
+                            with st.expander("👀 Ver Reviews Duplicadas", expanded=False):
+                                st.dataframe(duplicates_df, use_container_width=True)
+                        else:
+                            st.success("✅ Nenhuma review duplicada encontrada!")
+                    
+                    # Análise de ratings
+                    if rating_cols:
+                        st.markdown("##### ⭐ Análise de Ratings")
+                        
+                        valid_ratings = 0
+                        invalid_ratings = 0
+                        
+                        for col in rating_cols[:5]:  # Analisar até 5 colunas
+                            if col in df.columns:
+                                col_data = df[col]
+                                for rating in col_data:
+                                    if validate_review_rating(rating) is not None:
+                                        valid_ratings += 1
+                                    else:
+                                        invalid_ratings += 1
+                        
+                        col1, col2, col3 = st.columns(3)
+                        with col1:
+                            st.metric("Ratings Válidos", valid_ratings)
+                        with col2:
+                            st.metric("Ratings Inválidos", invalid_ratings)
+                        with col3:
+                            total_ratings = valid_ratings + invalid_ratings
+                            if total_ratings > 0:
+                                validity_pct = (valid_ratings / total_ratings) * 100
+                                st.metric("Validade (%)", f"{validity_pct:.1f}%")
+                            else:
+                                st.metric("Validade (%)", "N/A")
+                    
+                    # Opções de limpeza
+                    st.markdown("##### 🧹 Opções de Limpeza")
+                    
+                    col_clean1, col_clean2 = st.columns(2)
+                    
+                    with col_clean1:
+                        st.markdown("**🗑️ Remoção:**")
+                        remove_empty = st.checkbox("Remover reviews vazias", value=True, help="Remove reviews com texto vazio ou N/A")
+                        remove_duplicates = st.checkbox("Remover reviews duplicadas", value=True, help="Remove reviews com texto idêntico")
+                        
+                        st.markdown("**🔧 Normalização:**")
+                        clean_text = st.checkbox("Limpar texto das reviews", value=True, help="Remove caracteres especiais e normaliza texto")
+                        normalize_ratings = st.checkbox("Normalizar ratings (1-5)", value=True, help="Valida e converte ratings para escala 1-5")
+                    
+                    with col_clean2:
+                        st.markdown("**📅 Processamento de Datas:**")
+                        parse_dates = st.checkbox("Converter datas", value=True, help="Converte strings de data para formato datetime")
+                        
+                        st.markdown("**🎯 Filtros Avançados:**")
+                        min_rating = st.selectbox("Rating mínimo:", [None, 1, 2, 3, 4, 5], index=0, help="Manter apenas reviews com rating >= valor")
+                        max_rating = st.selectbox("Rating máximo:", [None, 1, 2, 3, 4, 5], index=0, help="Manter apenas reviews com rating <= valor")
+                        
+                        # Filtro por data
+                        date_filter = st.checkbox("Filtrar por período", help="Manter apenas reviews de um período específico")
+                        if date_filter:
+                            col_date1, col_date2 = st.columns(2)
+                            with col_date1:
+                                start_date = st.date_input("Data inicial:")
+                            with col_date2:
+                                end_date = st.date_input("Data final:")
+                    
+                    # Botão para aplicar limpeza
+                    if st.button("🚀 Aplicar Limpeza", type="primary", use_container_width=True):
+                        with st.spinner("🔄 Aplicando limpeza nas reviews..."):
+                            
+                            cleaning_options = {
+                                'remove_empty_reviews': remove_empty,
+                                'remove_duplicates': remove_duplicates,
+                                'clean_text': clean_text,
+                                'normalize_ratings': normalize_ratings,
+                                'parse_dates': parse_dates
+                            }
+                            
+                            # Aplicar limpeza
+                            df_cleaned, cleaning_report = clean_reviews_dataset(df, review_columns, cleaning_options)
+                            
+                            # Aplicar filtros adicionais
+                            if min_rating is not None or max_rating is not None:
+                                for col in rating_cols:
+                                    if col in df_cleaned.columns:
+                                        if min_rating is not None:
+                                            df_cleaned = df_cleaned[
+                                                (df_cleaned[col].isna()) | 
+                                                (pd.to_numeric(df_cleaned[col], errors='coerce') >= min_rating)
+                                            ]
+                                        if max_rating is not None:
+                                            df_cleaned = df_cleaned[
+                                                (df_cleaned[col].isna()) | 
+                                                (pd.to_numeric(df_cleaned[col], errors='coerce') <= max_rating)
+                                            ]
+                            
+                            # Mostrar relatório de limpeza
+                            st.success("✅ Limpeza concluída!")
+                            
+                            st.markdown("##### 📈 Relatório de Limpeza")
+                            
+                            report_col1, report_col2, report_col3, report_col4 = st.columns(4)
+                            
+                            with report_col1:
+                                st.metric("Registros Originais", cleaning_report['original_rows'])
+                            with report_col2:
+                                st.metric("Registros Limpos", cleaning_report['cleaned_rows'])
+                            with report_col3:
+                                removed = cleaning_report['original_rows'] - cleaning_report['cleaned_rows']
+                                st.metric("Registros Removidos", removed)
+                            with report_col4:
+                                if cleaning_report['original_rows'] > 0:
+                                    retention_pct = (cleaning_report['cleaned_rows'] / cleaning_report['original_rows']) * 100
+                                    st.metric("Retenção (%)", f"{retention_pct:.1f}%")
+                                else:
+                                    st.metric("Retenção (%)", "N/A")
+                            
+                            # Detalhes da limpeza
+                            details_col1, details_col2 = st.columns(2)
+                            
+                            with details_col1:
+                                st.markdown("**🔍 Detalhes da Limpeza:**")
+                                if cleaning_report['removed_empty'] > 0:
+                                    st.write(f"• Reviews vazias removidas: {cleaning_report['removed_empty']}")
+                                if cleaning_report['removed_duplicates'] > 0:
+                                    st.write(f"• Reviews duplicadas removidas: {cleaning_report['removed_duplicates']}")
+                                if cleaning_report['cleaned_text'] > 0:
+                                    st.write(f"• Colunas de texto limpas: {cleaning_report['cleaned_text']}")
+                            
+                            with details_col2:
+                                st.markdown("**📊 Processamento:**")
+                                if cleaning_report['normalized_ratings'] > 0:
+                                    st.write(f"• Ratings normalizados: {cleaning_report['normalized_ratings']}")
+                                if cleaning_report['parsed_dates'] > 0:
+                                    st.write(f"• Datas convertidas: {cleaning_report['parsed_dates']}")
+                            
+                            # Mostrar preview do dataset limpo
+                            st.markdown("##### 👀 Preview do Dataset Limpo")
+                            st.dataframe(df_cleaned.head(10), use_container_width=True)
+                            
+                            # Opção para download
+                            st.markdown("##### 💾 Download do Dataset Limpo")
+                            
+                            # Preparar CSV para download
+                            csv_buffer = io.StringIO()
+                            df_cleaned.to_csv(csv_buffer, index=False)
+                            csv_data = csv_buffer.getvalue()
+                            
+                            # Nome do arquivo
+                            original_name = uploaded_file.name if hasattr(uploaded_file, 'name') else str(uploaded_file)
+                            if original_name.endswith('.csv'):
+                                clean_filename = original_name.replace('.csv', '_limpo.csv')
+                            else:
+                                clean_filename = f"{original_name}_limpo.csv"
+                            
+                            st.download_button(
+                                label="📥 Baixar Dataset Limpo",
+                                data=csv_data,
+                                file_name=clean_filename,
+                                mime="text/csv",
+                                use_container_width=True
+                            )
+                            
+                            # Salvar no session state para usar em outras análises
+                            st.session_state.cleaned_dataset = df_cleaned
+                            st.info("💡 **Dica:** O dataset limpo foi salvo e pode ser usado nas outras abas de análise!")
         
         except Exception as e:
             st.error(f"❌ Erro ao analisar dataset: {str(e)}")
             st.exception(e)
     
     else:
-        st.info("📂 Carregue um dataset CSV para começar a análise.")
+        st.info("📂 Carregue um dataset CSV para começar a análise EDA.")
         
         # Mostrar formatos suportados
         st.markdown("### 📋 Formatos de Dataset Suportados")
@@ -3114,38 +4418,37 @@ with tab_data_analysis:
                         st.rerun()
         
         st.markdown("---")
-        st.markdown("### 🚀 Funcionalidades do Sistema")
+        st.markdown("### 🚀 Funcionalidades da EDA")
         
         feature_col1, feature_col2, feature_col3 = st.columns(3)
         
         with feature_col1:
             st.markdown("""
-            **🔍 Detecção Inteligente:**
-            - Reconhecimento automático de colunas
-            - Suporte a múltiplos encodings
-            - Conversão automática de tipos
-            - Limpeza de dados integrada
+            **🧹 Limpeza & Descritiva:**
+            - Detecção de valores ausentes
+            - Análise de tipos de dados
+            - Estatísticas descritivas
+            - Recomendações de limpeza
             """)
         
         with feature_col2:
             st.markdown("""
-            **📊 Análises Avançadas:**
-            - Distribuição de preços
-            - Análise de avaliações
-            - Perfil de vendedores
-            - Detecção de anomalias
+            **📝 Análise Textual:**
+            - WordClouds interativas
+            - N-grams (bigramas, trigramas)
+            - Análise de palavras suspeitas
+            - Features textuais para ML
             """)
         
         with feature_col3:
             st.markdown("""
-            **🎨 Visualizações:**
-            - Gráficos interativos
-            - Dashboards dinâmicos
-            - Tabelas responsivas
-            - Métricas em tempo real
+            **📊 Correlações & Features:**
+            - Matriz de correlação
+            - Segmentação avançada
+            - Identificação de features ML
+            - Cronograma CRISP-DM
             """)
 
 # Rodapé
-        st.markdown("---")
-st.markdown("**🏆 HP Challenge Sprint** - Sistema Inteligente de Detecção de Falsificações | Desenvolvido com Streamlit")
- 
+st.markdown("---")
+st.markdown("**🏆 HP Challenge Sprint** - Sistema Inteligente de Detecção de Falsificações | Desenvolvido com Streamlit") 

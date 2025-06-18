@@ -1,18 +1,18 @@
 Content-Type: text/html; charset=utf-8
-Date: Wed, 18 Jun 2025 16:20:35 GMT
+Date: Wed, 18 Jun 2025 17:24:26 GMT
 Server: Tengine
-Set-Cookie: _d2id=1fbc4a3f-3c8b-4556-bfd7-2cebc17601b1-n; SameSite=None; Secure; Path=/; Domain=.mercadolivre.com.br; Expires=Thu, 18 Jun 2026 16:20:34 GMT
-Set-Cookie: _csrf=UrHsIM-RWsZGOfrGE-DUr0Td; Path=/; HttpOnly; Secure; SameSite=None
-Set-Cookie: _csrf=B-s17U90Cj9qAOnsPtSD7ul-; Path=/; Secure; SameSite=None
+Set-Cookie: _d2id=12628375-635a-4fee-aaad-1c5e435dea03-n; SameSite=None; Secure; Path=/; Domain=.mercadolivre.com.br; Expires=Thu, 18 Jun 2026 17:24:25 GMT
+Set-Cookie: _csrf=1eyVStPGOGTW-W25mq7HMj7q; Path=/; HttpOnly; Secure; SameSite=None
+Set-Cookie: _csrf=RN_khq3V-CJdAgRsgl9R-mNM; Path=/; Secure; SameSite=None
 Set-Cookie: main_domain=; Domain=.mercadolivre.com.br; Path=/; Secure; SameSite=None
 Set-Cookie: main_attributes=; Domain=.mercadolivre.com.br; Path=/; Secure; SameSite=None
 Set-Cookie: categories=; Domain=.mercadolivre.com.br; Path=/; Secure; SameSite=None
 Set-Cookie: last_query=cartucho%20hp; Domain=.mercadolivre.com.br; Path=/; Secure; SameSite=None
 Set-Cookie: category=MLB9642; Domain=.mercadolivre.com.br; Path=/; Secure; SameSite=None
 Set-Cookie: backend_dejavu_info=j%3A%7B%7D; Domain=.mercadolivre.com.br; Path=/; Secure; SameSite=None
-Set-Cookie: compats-widgetSearch=; Max-Age=0; Domain=.mercadolivre.com.br; Path=/; Expires=Wed, 18 Jun 2025 16:20:35 GMT; Secure; SameSite=None
-Set-Cookie: _mldataSessionId=457fce04-bd16-4876-a188-ff1da3f0a76e; Max-Age=1800; Domain=lista.mercadolivre.com.br; Path=/; Expires=Wed, 18 Jun 2025 16:50:35 GMT; Secure; SameSite=None
-Set-Cookie: c_ui-navigation=6.6.130; Domain=lista.mercadolivre.com.br; Path=/; Expires=Fri, 18 Jul 2025 16:20:35 GMT; HttpOnly; Secure; SameSite=None
+Set-Cookie: compats-widgetSearch=; Max-Age=0; Domain=.mercadolivre.com.br; Path=/; Expires=Wed, 18 Jun 2025 17:24:26 GMT; Secure; SameSite=None
+Set-Cookie: _mldataSessionId=1a6ddefe-4bd5-48d0-b050-08bdcc89d5b1; Max-Age=1800; Domain=lista.mercadolivre.com.br; Path=/; Expires=Wed, 18 Jun 2025 17:54:26 GMT; Secure; SameSite=None
+Set-Cookie: c_ui-navigation=6.6.130; Domain=lista.mercadolivre.com.br; Path=/; Expires=Fri, 18 Jul 2025 17:24:26 GMT; HttpOnly; Secure; SameSite=None
 Expect-Ct: max-age=0
 Referrer-Policy: no-referrer-when-downgrade
 Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
@@ -23,21 +23,21 @@ X-Permitted-Cross-Domain-Policies: none
 X-Xss-Protection: 1; mode=block
 Accept-Ch: device-memory, dpr, viewport-width, rtt, downlink, ect, save-data
 Accept-Ch-Lifetime: 60
-Content-Security-Policy: script-src 'nonce-ZoCmbEf6+EOJonRFRoTd1g==' 'strict-dynamic' 'unsafe-eval' https: 'unsafe-inline' 'report-sample'; base-uri 'none'; report-uri https://events.mercadolibre.com/csp/reports?identifier=TanpBwb7twpQEVL_KyAU5DtkciZJw7vZ_EF667qTHuYI3B9yQFDCHmHVUcQ5ZAJx&policy_id=95&user_id=&request_id=1fbc4a3f-3c8b-4556-bfd7-2cebc17601b1; report-to csp-endpoint; object-src https://http2.mlstatic.com/ https://mlstaticquic-a.akamaihd.net/, script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: siteintercept.qualtrics.com *.siteintercept.qualtrics.com mercadolibre.com.ar *.mercadolibre.com.ar mercadolibre.com.mx *.mercadolibre.com.mx mercadolibre.cl *.mercadolibre.cl mercadolibre.com.co *.mercadolibre.com.co credithub.com.br *.credithub.com.br js-agent.newrelic.com *.js-agent.newrelic.com facebook.net *.facebook.net googletagmanager.com *.googletagmanager.com googleapis.com *.googleapis.com gstatic.com *.gstatic.com global-cache.online *.global-cache.online criteo.com *.criteo.com cloudflare.com *.cloudflare.com jsdelivr.net *.jsdelivr.net mercadolibre.com.ve *.mercadolibre.com.ve mercadolibre.com.pe *.mercadolibre.com.pe mercadolibre.com.uy *.mercadolibre.com.uy mercadolibre.com.ec *.mercadolibre.com.ec mercadopago.com *.mercadopago.com static.hotjar.com *.static.hotjar.com hotjar.com *.hotjar.com tiktok.com *.tiktok.com http2.mlstatic.com *.http2.mlstatic.com creativecdn.com *.creativecdn.com bing.com *.bing.com ads-twitter.com *.ads-twitter.com mercadolibre.com.bo *.mercadolibre.com.bo mercadolibre.com.pa *.mercadolibre.com.pa mercadolibre.com.sv *.mercadolibre.com.sv mercadolivre.com.br *.mercadolivre.com.br mercadolibre.com.do *.mercadolibre.com.do mercadolibre.com.hn *.mercadolibre.com.hn mercadolibre.com.ni *.mercadolibre.com.ni mercadolibre.com.py *.mercadolibre.com.py mercadolibre.co.cr *.mercadolibre.co.cr mercadolibre.com.gt *.mercadolibre.com.gt segreencolumn.com *.segreencolumn.com googlesyndication.com *.googlesyndication.com pinimg.com *.pinimg.com pinterest.com *.pinterest.com adtrafficquality.google *.adtrafficquality.google sc-static.net *.sc-static.net doubleclick.net *.doubleclick.net googletagservices.com *.googletagservices.com embluemail.com *.embluemail.com awswaf.com *.awswaf.com google.com *.google.com qualtrics.com *.qualtrics.com newrelic.com *.newrelic.com google-analytics.com *.google-analytics.com portalinmobiliario.com *.portalinmobiliario.com maps.googleapis.com *.maps.googleapis.com adsafeprotected.com *.adsafeprotected.com doubleverify.com *.doubleverify.com; report-uri https://events.mercadolibre.com/csp/reports?identifier=TanpBwb7twpQEVL_KyAU5DtkciZJw7vZ_EF667qTHuYI3B9yQFDCHmHVUcQ5ZAJx&policy_id=24276&user_id=&request_id=1fbc4a3f-3c8b-4556-bfd7-2cebc17601b1; report-to csp-endpoint
-Content-Security-Policy-Report-Only: report-uri https://events.mercadolibre.com/csp/reports?identifier=TanpBwb7twpQEVL_KyAU5DtkciZJw7vZ_EF667qTHuYI3B9yQFDCHmHVUcQ5ZAJx&policy_id=71&user_id=&request_id=1fbc4a3f-3c8b-4556-bfd7-2cebc17601b1; report-to csp-endpoint; frame-ancestors 'none'
-Reporting-Endpoints: csp-endpoint="https://events.mercadolibre.com/csp/v2/reports?identifier=TanpBwb7twpQEVL_KyAU5DtkciZJw7vZ_EF667qTHuYI3B9yQFDCHmHVUcQ5ZAJx&user_id=&request_id=1fbc4a3f-3c8b-4556-bfd7-2cebc17601b1",statics-endpoint="https://events.mercadolibre.com/csp/v2/statics?identifier=TanpBwb7twpQEVL_KyAU5DtkciZJw7vZ_EF667qTHuYI3B9yQFDCHmHVUcQ5ZAJx&user_id=&request_id=1fbc4a3f-3c8b-4556-bfd7-2cebc17601b1&policy_id=94"
+Content-Security-Policy: script-src 'nonce-LWmlj1HM9WiwKpE/r5NB7Q==' 'strict-dynamic' 'unsafe-eval' https: 'unsafe-inline' 'report-sample'; base-uri 'none'; report-uri https://events.mercadolibre.com/csp/reports?identifier=TanpBwb7twpQEVL_KyAU5DtkciZJw7vZ_EF667qTHuYI3B9yQFDCHmHVUcQ5ZAJx&policy_id=95&user_id=&request_id=12628375-635a-4fee-aaad-1c5e435dea03; report-to csp-endpoint; object-src https://http2.mlstatic.com/ https://mlstaticquic-a.akamaihd.net/, script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: siteintercept.qualtrics.com *.siteintercept.qualtrics.com mercadolibre.com.ar *.mercadolibre.com.ar mercadolibre.com.mx *.mercadolibre.com.mx mercadolibre.cl *.mercadolibre.cl mercadolibre.com.co *.mercadolibre.com.co credithub.com.br *.credithub.com.br js-agent.newrelic.com *.js-agent.newrelic.com facebook.net *.facebook.net googletagmanager.com *.googletagmanager.com googleapis.com *.googleapis.com gstatic.com *.gstatic.com global-cache.online *.global-cache.online criteo.com *.criteo.com cloudflare.com *.cloudflare.com jsdelivr.net *.jsdelivr.net mercadolibre.com.ve *.mercadolibre.com.ve mercadolibre.com.pe *.mercadolibre.com.pe mercadolibre.com.uy *.mercadolibre.com.uy mercadolibre.com.ec *.mercadolibre.com.ec mercadopago.com *.mercadopago.com static.hotjar.com *.static.hotjar.com hotjar.com *.hotjar.com tiktok.com *.tiktok.com http2.mlstatic.com *.http2.mlstatic.com creativecdn.com *.creativecdn.com bing.com *.bing.com ads-twitter.com *.ads-twitter.com mercadolibre.com.bo *.mercadolibre.com.bo mercadolibre.com.pa *.mercadolibre.com.pa mercadolibre.com.sv *.mercadolibre.com.sv mercadolivre.com.br *.mercadolivre.com.br mercadolibre.com.do *.mercadolibre.com.do mercadolibre.com.hn *.mercadolibre.com.hn mercadolibre.com.ni *.mercadolibre.com.ni mercadolibre.com.py *.mercadolibre.com.py mercadolibre.co.cr *.mercadolibre.co.cr mercadolibre.com.gt *.mercadolibre.com.gt segreencolumn.com *.segreencolumn.com googlesyndication.com *.googlesyndication.com pinimg.com *.pinimg.com pinterest.com *.pinterest.com adtrafficquality.google *.adtrafficquality.google sc-static.net *.sc-static.net doubleclick.net *.doubleclick.net googletagservices.com *.googletagservices.com embluemail.com *.embluemail.com awswaf.com *.awswaf.com google.com *.google.com qualtrics.com *.qualtrics.com newrelic.com *.newrelic.com google-analytics.com *.google-analytics.com portalinmobiliario.com *.portalinmobiliario.com maps.googleapis.com *.maps.googleapis.com adsafeprotected.com *.adsafeprotected.com doubleverify.com *.doubleverify.com; report-uri https://events.mercadolibre.com/csp/reports?identifier=TanpBwb7twpQEVL_KyAU5DtkciZJw7vZ_EF667qTHuYI3B9yQFDCHmHVUcQ5ZAJx&policy_id=24276&user_id=&request_id=12628375-635a-4fee-aaad-1c5e435dea03; report-to csp-endpoint
+Content-Security-Policy-Report-Only: report-uri https://events.mercadolibre.com/csp/reports?identifier=TanpBwb7twpQEVL_KyAU5DtkciZJw7vZ_EF667qTHuYI3B9yQFDCHmHVUcQ5ZAJx&policy_id=71&user_id=&request_id=12628375-635a-4fee-aaad-1c5e435dea03; report-to csp-endpoint; frame-ancestors 'none'
+Reporting-Endpoints: csp-endpoint="https://events.mercadolibre.com/csp/v2/reports?identifier=TanpBwb7twpQEVL_KyAU5DtkciZJw7vZ_EF667qTHuYI3B9yQFDCHmHVUcQ5ZAJx&user_id=&request_id=12628375-635a-4fee-aaad-1c5e435dea03",statics-endpoint="https://events.mercadolibre.com/csp/v2/statics?identifier=TanpBwb7twpQEVL_KyAU5DtkciZJw7vZ_EF667qTHuYI3B9yQFDCHmHVUcQ5ZAJx&user_id=&request_id=12628375-635a-4fee-aaad-1c5e435dea03&policy_id=94"
 Cache-Control: private, max-age=0, no-cache, no-store, must-revalidate
 X-Navigation-Version: layout-5.20.3
-Etag: W/"15d940-mQbuZTnw/t8cDD1Ux7uABYJk0QY"
+Etag: W/"161b74-lNhxNHya7p1KC2F5HIFJf7HAQQk"
 Vary: Accept-Encoding
 Content-Encoding: br
-X-Envoy-Upstream-Service-Time: 970
-X-Request-Id: 1fbc4a3f-3c8b-4556-bfd7-2cebc17601b1
-X-Request-Device-Id: 1fbc4a3f-3c8b-4556-bfd7-2cebc17601b1
-X-D2Id: 1fbc4a3f-3c8b-4556-bfd7-2cebc17601b1
+X-Envoy-Upstream-Service-Time: 883
+X-Request-Id: 12628375-635a-4fee-aaad-1c5e435dea03
+X-Request-Device-Id: 12628375-635a-4fee-aaad-1c5e435dea03
+X-D2Id: 12628375-635a-4fee-aaad-1c5e435dea03
 X-Is-Search-Bot: true
 X-Cache: Miss from cloudfront
-Via: 1.1 e40594d191a88dc4bce1cbdfa1173f2a.cloudfront.net (CloudFront)
+Via: 1.1 1904c7aff4976cd4798f07f5b45f7f70.cloudfront.net (CloudFront)
 X-Amz-Cf-Pop: GRU3-P1
 Alt-Svc: h3=":443"; ma=86400
-X-Amz-Cf-Id: iNCWppG-6jQt2AlM6cnEwgwHl89TkuEFbD8hmcwm2yBgSi7nq4IQrA==
+X-Amz-Cf-Id: yUILOVDs1cOpeuyx440LIGJq6vcFfKA9GsLJlsTc9nXKEQzQWFOyvg==
