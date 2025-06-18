@@ -819,10 +819,18 @@ class MercadoLivreProductDetailsSpider(scrapy.Spider):
         
         yield product_details
 
+# Importar as configurações de performance centralizadas
+from scrapy_performance_config import (
+    get_optimized_spider_settings, 
+    get_optimized_product_details_settings,
+    apply_settings_to_process
+)
+
 def _run_spider_process(query, extract_images, results_queue, sort_by='relevance', condition='all', max_items=None):
     """
     Internal function to run the spider in a separate process 
     and put results into a queue.
+    OTIMIZADO COM CONFIGURAÇÕES CENTRALIZADAS DE ALTA PERFORMANCE.
     """
     try:
         # On Windows, set the event loop policy to SelectorEventLoopPolicy for Twisted
@@ -834,11 +842,29 @@ def _run_spider_process(query, extract_images, results_queue, sort_by='relevance
 
         results_container = []
         settings = get_project_settings()
-        # No longer setting TWISTED_REACTOR here as it's manually installed
-        settings.set('REQUEST_FINGERPRINTER_IMPLEMENTATION', '2.7')
-        settings.set('TELNETCONSOLE_ENABLED', False)
-        settings.set('LOG_ENABLED', True)
-        settings.set('LOG_LEVEL', 'INFO')
+        
+        # ============================================================================
+        # APLICAR CONFIGURAÇÕES OTIMIZADAS CENTRALIZADAS
+        # ============================================================================
+        
+        # Obter configurações otimizadas baseadas no volume de dados
+        if max_items and max_items > 100:
+            # Para alto volume, usar configurações mais agressivas
+            from scrapy_performance_config import get_high_volume_settings
+            optimized_settings = get_high_volume_settings()
+        else:
+            # Para volume normal, usar configurações padrão otimizadas
+            optimized_settings = get_optimized_spider_settings()
+        
+        # Aplicar todas as configurações de uma vez
+        settings = apply_settings_to_process(optimized_settings, settings)
+        
+        # Log de performance para monitoramento
+        logging.info(f"🚀 Spider iniciado com configurações otimizadas:")
+        logging.info(f"   📊 CONCURRENT_REQUESTS: {settings.get('CONCURRENT_REQUESTS')}")
+        logging.info(f"   🌐 CONCURRENT_REQUESTS_PER_DOMAIN: {settings.get('CONCURRENT_REQUESTS_PER_DOMAIN')}")
+        logging.info(f"   ⏱️ DOWNLOAD_TIMEOUT: {settings.get('DOWNLOAD_TIMEOUT')}s")
+        logging.info(f"   💾 HTTPCACHE_ENABLED: {settings.get('HTTPCACHE_ENABLED')}")
         
         process = CrawlerProcess(settings)
         
@@ -860,6 +886,7 @@ def _run_spider_process(query, extract_images, results_queue, sort_by='relevance
 def run_spider(query, extract_images=True, sort_by='relevance', condition='all', max_items=None):
     """
     Executa o spider em um processo separado e retorna os resultados via uma Queue.
+    OTIMIZADO PARA ALTA PERFORMANCE.
     """
     results_queue = multiprocessing.Queue()
     
@@ -870,9 +897,18 @@ def run_spider(query, extract_images=True, sort_by='relevance', condition='all',
     scrapy_process.start()
     
     try:
-        result_data = results_queue.get(timeout=180)  # Increased timeout to 3 minutes for processing more items
+        # Timeout ajustado baseado no número de itens
+        base_timeout = 60  # 1 minuto base
+        if max_items:
+            # Timeout dinâmico: 60s base + 2s por item (máximo 300s)
+            dynamic_timeout = min(base_timeout + (max_items * 2), 300)
+        else:
+            dynamic_timeout = 180  # 3 minutos para busca sem limite
+            
+        result_data = results_queue.get(timeout=dynamic_timeout)
         results = result_data.get('results', [])
         urls_used = result_data.get('urls_used', [])
+        
     except multiprocessing.queues.Empty:
         logging.error(f"Scrapy process timed out for query: {query}")
         results = []
@@ -893,7 +929,8 @@ def run_spider(query, extract_images=True, sort_by='relevance', condition='all',
 def _run_product_details_spider_process(product_url, results_queue):
     """
     Internal function to run the product details spider in a separate process 
-    and put results into a queue.
+    and put results into a queue. 
+    OTIMIZADO COM CONFIGURAÇÕES CENTRALIZADAS DE ALTA PERFORMANCE.
     """
     try:
         # On Windows, set the event loop policy to SelectorEventLoopPolicy for Twisted
@@ -905,10 +942,19 @@ def _run_product_details_spider_process(product_url, results_queue):
 
         results_container = []
         settings = get_project_settings()
-        settings.set('REQUEST_FINGERPRINTER_IMPLEMENTATION', '2.7')
-        settings.set('TELNETCONSOLE_ENABLED', False)
-        settings.set('LOG_ENABLED', True)
-        settings.set('LOG_LEVEL', 'INFO')
+        
+        # ============================================================================
+        # APLICAR CONFIGURAÇÕES OTIMIZADAS PARA DETALHES DE PRODUTO
+        # ============================================================================
+        
+        optimized_settings = get_optimized_product_details_settings()
+        settings = apply_settings_to_process(optimized_settings, settings)
+        
+        # Log de performance específico para detalhes
+        logging.info(f"🔍 Product details spider iniciado com configurações otimizadas")
+        logging.info(f"   📊 CONCURRENT_REQUESTS: {settings.get('CONCURRENT_REQUESTS')}")
+        logging.info(f"   ⏱️ DOWNLOAD_TIMEOUT: {settings.get('DOWNLOAD_TIMEOUT')}s")
+        logging.info(f"   💾 HTTPCACHE_EXPIRATION: {settings.get('HTTPCACHE_EXPIRATION_SECS')}s")
         
         process = CrawlerProcess(settings)
         
@@ -928,6 +974,7 @@ def _run_product_details_spider_process(product_url, results_queue):
 def run_product_details_spider(product_url):
     """
     Executa o spider de detalhes do produto em um processo separado e retorna os resultados via uma Queue.
+    OTIMIZADO PARA ALTA PERFORMANCE.
     
     Args:
         product_url (str): URL do produto para extrair detalhes
@@ -948,7 +995,8 @@ def run_product_details_spider(product_url):
     scrapy_process.start()
     
     try:
-        result_data = results_queue.get(timeout=60)  # 1 minute timeout for product details
+        # Timeout otimizado para produto individual
+        result_data = results_queue.get(timeout=30)  # Reduzido de 60s para 30s
         details = result_data.get('details', None)
         success = result_data.get('success', False)
     except multiprocessing.queues.Empty:
@@ -960,7 +1008,7 @@ def run_product_details_spider(product_url):
         details = None
         success = False
 
-    scrapy_process.join(timeout=10)
+    scrapy_process.join(timeout=5)  # Reduzido de 10s para 5s
     if scrapy_process.is_alive():
         logging.warning(f"Product details Scrapy process for URL '{product_url}' did not terminate, attempting to kill.")
         scrapy_process.terminate()

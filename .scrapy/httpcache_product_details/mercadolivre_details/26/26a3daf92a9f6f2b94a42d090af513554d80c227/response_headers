@@ -1,0 +1,36 @@
+Content-Type: text/html; charset=utf-8
+Date: Wed, 18 Jun 2025 16:20:44 GMT
+X-Request-Device-Id: b09f99f9-ec73-4633-9bda-12b27fffedea
+X-D2Id: b09f99f9-ec73-4633-9bda-12b27fffedea
+Server: Tengine
+Set-Cookie: _d2id=b09f99f9-ec73-4633-9bda-12b27fffedea-n; SameSite=None; Secure; Path=/; Domain=.mercadolivre.com.br; Expires=Thu, 18 Jun 2026 16:20:44 GMT
+Set-Cookie: _csrf=Bw_bi6V51CSML3ZlgX04yP6b; Path=/; HttpOnly; Secure; SameSite=None
+Set-Cookie: in_app=true; Domain=.mercadolivre.com.br; Path=/; Expires=Thu, 19 Jun 2025 16:20:44 GMT; Secure; SameSite=None
+Set-Cookie: _mldataSessionId=a7654a3b-721d-4730-873f-26197c68d889; Max-Age=1800; Domain=mercadolivre.com.br; Path=/; Expires=Wed, 18 Jun 2025 16:50:44 GMT; Secure; SameSite=None
+Set-Cookie: navigation_items=MLB5356295280%7C18062025162044%7CMLB48643172%7CMLB48643170; Domain=.mercadolivre.com.br; Path=/; Secure; SameSite=None
+Set-Cookie: c_ui-navigation=6.6.130; Domain=www.mercadolivre.com.br; Path=/; Expires=Fri, 18 Jul 2025 16:20:44 GMT; HttpOnly; Secure; SameSite=None
+Expect-Ct: max-age=0
+Referrer-Policy: no-referrer-when-downgrade
+Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+X-Content-Type-Options: nosniff
+X-Dns-Prefetch-Control: on
+X-Download-Options: noopen
+X-Permitted-Cross-Domain-Policies: none
+X-Xss-Protection: 1; mode=block
+Accept-Ch: device-memory, dpr, viewport-width, rtt, downlink, ect, save-data
+Accept-Ch-Lifetime: 60
+Content-Security-Policy: script-src 'nonce-uIhvNJ81d2d++MIMGtb3fQ==' 'strict-dynamic' 'unsafe-eval' https: 'unsafe-inline' 'report-sample'; base-uri 'none'; report-uri https://events.mercadolibre.com/csp/reports?identifier=TREYtZnOLcNJJgNcDZd01MlND4R78icbwxx4_aYcB1zBrx_96jLND9V2dvWg&policy_id=95&user_id=&request_id=b09f99f9-ec73-4633-9bda-12b27fffedea; report-to csp-endpoint; object-src https://http2.mlstatic.com/ https://mlstaticquic-a.akamaihd.net/, script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: siteintercept.qualtrics.com *.siteintercept.qualtrics.com mercadolibre.com.ar *.mercadolibre.com.ar mercadolibre.com.mx *.mercadolibre.com.mx mercadolivre.com.br *.mercadolivre.com.br mercadolibre.cl *.mercadolibre.cl mercadolibre.com.co *.mercadolibre.com.co mercadopago.com *.mercadopago.com credithub.com.br *.credithub.com.br js-agent.newrelic.com *.js-agent.newrelic.com google-analytics.com *.google-analytics.com facebook.net *.facebook.net googletagmanager.com *.googletagmanager.com gstatic.com *.gstatic.com global-cache.online *.global-cache.online criteo.com *.criteo.com cloudflare.com *.cloudflare.com googleapis.com *.googleapis.com jsdelivr.net *.jsdelivr.net mercadolibre.com.ve *.mercadolibre.com.ve mercadolibre.com.pe *.mercadolibre.com.pe mercadolibre.com.uy *.mercadolibre.com.uy mercadolibre.com.ec *.mercadolibre.com.ec static.hotjar.com *.static.hotjar.com hotjar.com *.hotjar.com youtube.com *.youtube.com tiktok.com *.tiktok.com jquery.com *.jquery.com creativecdn.com *.creativecdn.com bing.com *.bing.com squidit.com.br *.squidit.com.br ads-twitter.com *.ads-twitter.com mercadolibre.com.bo *.mercadolibre.com.bo mercadolibre.com.pa *.mercadolibre.com.pa mercadolibre.com.sv *.mercadolibre.com.sv mercadolibre.com.do *.mercadolibre.com.do mercadolibre.com.hn *.mercadolibre.com.hn mercadolibre.com.ni *.mercadolibre.com.ni mercadolibre.com.py *.mercadolibre.com.py mercadolibre.co.cr *.mercadolibre.co.cr mercadolibre.com.gt *.mercadolibre.com.gt segreencolumn.com *.segreencolumn.com googlesyndication.com *.googlesyndication.com pinimg.com *.pinimg.com pinterest.com *.pinterest.com googleadservices.com *.googleadservices.com doubleclick.net *.doubleclick.net adtrafficquality.google *.adtrafficquality.google sc-static.net *.sc-static.net embluemail.com *.embluemail.com googletagservices.com *.googletagservices.com awswaf.com *.awswaf.com http2.mlstatic.com *.http2.mlstatic.com google.com *.google.com qualtrics.com *.qualtrics.com newrelic.com *.newrelic.com portalinmobiliario.com *.portalinmobiliario.com maps.googleapis.com *.maps.googleapis.com adsafeprotected.com *.adsafeprotected.com doubleverify.com *.doubleverify.com; report-uri https://events.mercadolibre.com/csp/reports?identifier=TREYtZnOLcNJJgNcDZd01MlND4R78icbwxx4_aYcB1zBrx_96jLND9V2dvWg&policy_id=24272&user_id=&request_id=b09f99f9-ec73-4633-9bda-12b27fffedea; report-to csp-endpoint
+Content-Security-Policy-Report-Only: report-uri https://events.mercadolibre.com/csp/reports?identifier=TREYtZnOLcNJJgNcDZd01MlND4R78icbwxx4_aYcB1zBrx_96jLND9V2dvWg&policy_id=71&user_id=&request_id=b09f99f9-ec73-4633-9bda-12b27fffedea; report-to csp-endpoint; frame-ancestors 'none'
+Reporting-Endpoints: csp-endpoint="https://events.mercadolibre.com/csp/v2/reports?identifier=TREYtZnOLcNJJgNcDZd01MlND4R78icbwxx4_aYcB1zBrx_96jLND9V2dvWg&user_id=&request_id=b09f99f9-ec73-4633-9bda-12b27fffedea",statics-endpoint="https://events.mercadolibre.com/csp/v2/statics?identifier=TREYtZnOLcNJJgNcDZd01MlND4R78icbwxx4_aYcB1zBrx_96jLND9V2dvWg&user_id=&request_id=b09f99f9-ec73-4633-9bda-12b27fffedea&policy_id=94"
+Cache-Control: private, max-age=0, no-cache, no-store, must-revalidate
+X-Navigation-Version: layout-5.20.3
+Etag: W/"8c0bd-ESMuq2mo07+ZFW9BMbsHGw9/cfQ"
+Vary: Accept-Encoding
+Content-Encoding: gzip
+X-Envoy-Upstream-Service-Time: 314
+X-Request-Id: b09f99f9-ec73-4633-9bda-12b27fffedea
+X-Cache: Miss from cloudfront
+Via: 1.1 80e150c3cd619899dc38fb20936dc086.cloudfront.net (CloudFront)
+X-Amz-Cf-Pop: GRU3-P1
+Alt-Svc: h3=":443"; ma=86400
+X-Amz-Cf-Id: i4sng8e_FHqpN0SFcC7QuZb_WtzfF3eRIsc2eRj_u81ZEgHLmuUkjw==
