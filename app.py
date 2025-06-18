@@ -1331,7 +1331,7 @@ with st.sidebar:
     
     st.markdown("---")
 
-    # Configurações de Reviews
+# Configurações de Reviews
     st.markdown("## ⭐ Reviews & Análise")
 
     # Configuração principal: Extrair reviews
@@ -1355,34 +1355,34 @@ with st.sidebar:
         st.session_state.max_reviews_to_fetch = max_reviews
         
         # Configuração avançada: Distribuição personalizada por estrelas
-        use_rating_percentages = st.checkbox(
-            "📊 Usar distribuição personalizada por estrelas",
-            value=st.session_state.get('use_rating_percentages', False),
+use_rating_percentages = st.checkbox(
+        "📊 Usar distribuição personalizada por estrelas",
+        value=st.session_state.get('use_rating_percentages', False),
             help="Coleta reviews específicas por rating em percentuais definidos"
-        )
+    )
         st.session_state.use_rating_percentages = use_rating_percentages
 
-        if use_rating_percentages:
-            st.markdown("**Distribuição por estrela:**")
-            review_percentages = {}
-            total_percentage = 0
-            
-            for star in [5, 4, 3, 2, 1]:
-                default_value = st.session_state.get(f'percentage_{star}_star', 
-                                                   {5: 40, 4: 30, 3: 10, 2: 10, 1: 10}[star])
-                percentage = st.slider(
-                    f"{star}⭐", 
-                    min_value=0,
-                    max_value=100,
-                    value=default_value,
-                    help=f"Percentual de reviews de {star} estrelas"
-                )
-                review_percentages[star] = percentage
-                total_percentage += percentage
+if use_rating_percentages:
+        st.markdown("**Distribuição por estrela:**")
+        review_percentages = {}
+        total_percentage = 0
+        
+        for star in [5, 4, 3, 2, 1]:
+            default_value = st.session_state.get(f'percentage_{star}_star', 
+                                               {5: 40, 4: 30, 3: 10, 2: 10, 1: 10}[star])
+            percentage = st.slider(
+                f"{star}⭐", 
+                min_value=0,
+                max_value=100,
+                value=default_value,
+                help=f"Percentual de reviews de {star} estrelas"
+            )
+            review_percentages[star] = percentage
+            total_percentage += percentage
                 st.session_state[f'percentage_{star}_star'] = percentage
-            
-            if total_percentage != 100:
-                st.warning(f"⚠️ Total: {total_percentage}% (recomendado: 100%)")
+        
+        if total_percentage != 100:
+            st.warning(f"⚠️ Total: {total_percentage}% (recomendado: 100%)")
             
             st.session_state.rating_percentages = review_percentages
     
@@ -1526,16 +1526,16 @@ with tab_busca:
             st.info("🔄 Dados encontrados no cache! Carregando instantaneamente...")
             search_results, urls_used = cached_data['results'], cached_data['urls_used']
         else:
-            with st.spinner(f"🔍 Buscando '{search_query}' no Mercado Livre..."):
+        with st.spinner(f"🔍 Buscando '{search_query}' no Mercado Livre..."):
                 search_results, urls_used = cached_run_spider(
-                    query=search_query,
-                    max_items=max_items, 
-                    sort_by=sort_value,
-                    condition=condition_value,
-                    extract_images=load_images
-                )
-        
-        if search_results:
+                query=search_query,
+                max_items=max_items, 
+                sort_by=sort_value,
+                condition=condition_value,
+                extract_images=load_images
+            )
+            
+            if search_results:
             # Enriquecer com dados detalhados se solicitado
             if st.session_state.get('load_detailed_data', False):
                 with st.spinner("🔍 Extraindo dados detalhados dos produtos..."):
@@ -1594,16 +1594,16 @@ with tab_busca:
                     status_text.empty()
                     st.success("✅ Dados detalhados extraídos com sucesso!")
             
-            st.session_state.current_products = search_results
-            # Limpar resultados antigos de outras análises
-            if 'falsification_results' in st.session_state:
-                del st.session_state.falsification_results
-            if 'labeled_dataset' in st.session_state:
-                del st.session_state.labeled_dataset
-        else:
-            st.error("❌ Não foi possível realizar a busca. Tente novamente.")
-            if 'current_products' in st.session_state:
-                del st.session_state.current_products
+                st.session_state.current_products = search_results
+                # Limpar resultados antigos de outras análises
+                if 'falsification_results' in st.session_state:
+                    del st.session_state.falsification_results
+                if 'labeled_dataset' in st.session_state:
+                    del st.session_state.labeled_dataset
+            else:
+                st.error("❌ Não foi possível realizar a busca. Tente novamente.")
+                if 'current_products' in st.session_state:
+                    del st.session_state.current_products
 
     # Exibir resultados da busca (se existirem no estado da sessão)
     if 'current_products' in st.session_state and st.session_state.current_products:
@@ -1852,16 +1852,16 @@ with tab_falsificacao:
             incluir_detalhes = st.checkbox("📋 Incluir Reviews Suspeitas Detalhadas", value=True,
                                           help="Mostra as reviews suspeitas encontradas")
     
-        # Botão para iniciar análise
+    # Botão para iniciar análise
         if st.button("🚀 Iniciar Análise de Falsificação", type="primary", use_container_width=True):
-            progress_bar = st.progress(0)
-            status_text = st.empty()
-            
-            def update_progress(current, total):
-                progress = current / total
-                progress_bar.progress(progress)
-                status_text.text(f"Analisando produto {current}/{total}...")
-            
+        progress_bar = st.progress(0)
+        status_text = st.empty()
+        
+        def update_progress(current, total):
+            progress = current / total
+            progress_bar.progress(progress)
+            status_text.text(f"Analisando produto {current}/{total}...")
+        
             with st.spinner("🔍 Analisando produtos para detecção de falsificação..."):
                 resultados = processar_deteccao_falsificacao(
                     produtos, 
@@ -1916,12 +1916,12 @@ with tab_falsificacao:
                 apenas_com_reviews = st.checkbox("Apenas com reviews suspeitas", 
                                                 help="Mostrar apenas produtos com reviews suspeitas encontradas")
     
-            # Aplicar filtros
+    # Aplicar filtros
             resultados_filtrados = resultados
-            
-            if filtro_risco != "Todos":
-                resultados_filtrados = [r for r in resultados_filtrados if r['classificacao'] == filtro_risco]
-            
+    
+    if filtro_risco != "Todos":
+        resultados_filtrados = [r for r in resultados_filtrados if r['classificacao'] == filtro_risco]
+    
             if min_prob > 0:
                 resultados_filtrados = [r for r in resultados_filtrados if r['probabilidade_total'] >= min_prob]
             
@@ -1931,9 +1931,9 @@ with tab_falsificacao:
             st.markdown(f"### 📋 Resultados Filtrados ({len(resultados_filtrados)} de {len(resultados)})")
             
             # Mostrar produtos
-            for i, resultado in enumerate(resultados_filtrados):
-                produto = resultado['produto']
-                
+    for i, resultado in enumerate(resultados_filtrados):
+        produto = resultado['produto']
+        
                 # Cor do expander baseada no risco
                 risco_cor = {"Alto Risco": "🔴", "Médio Risco": "🟡", "Baixo Risco": "🟢"}
                 cor = risco_cor.get(resultado['classificacao'], "⚪")
@@ -1954,36 +1954,36 @@ with tab_falsificacao:
                     
                     # Motivos da análise
                     if resultado['motivo_preco']:
-                        st.markdown("**💰 Análise de Preço:**")
-                        st.write(f"• {resultado['motivo_preco']}")
+                st.markdown("**💰 Análise de Preço:**")
+                st.write(f"• {resultado['motivo_preco']}")
+                
+                if resultado['probabilidade_reviews'] > 0:
+                    st.markdown("**💬 Análise de Reviews:**")
+                    st.write(f"• {resultado['motivo_reviews']}")
                     
-                    if resultado['probabilidade_reviews'] > 0:
-                        st.markdown("**💬 Análise de Reviews:**")
-                        st.write(f"• {resultado['motivo_reviews']}")
-                        
-                        # Mostrar reviews suspeitas se solicitado
-                        if incluir_detalhes and resultado.get('reviews_suspeitas'):
+                    # Mostrar reviews suspeitas se solicitado
+                    if incluir_detalhes and resultado.get('reviews_suspeitas'):
                             with st.expander(f"Ver {len(resultado['reviews_suspeitas'])} reviews suspeitas", expanded=True):
-                                for review in resultado['reviews_suspeitas']:
-                                    st.write(f"**Review #{review.get('numero_review', 'N/A')}** (⭐{review.get('rating', 'N/A')})")
-                                    st.write(f"**Texto:** {review.get('texto_completo', 'N/A')}")
-                                    st.write(f"**Palavras suspeitas:** {', '.join(review.get('palavras_suspeitas_encontradas', []))}")
-                                    st.markdown("---")
+                            for review in resultado['reviews_suspeitas']:
+                                st.write(f"**Review #{review.get('numero_review', 'N/A')}** (⭐{review.get('rating', 'N/A')})")
+                                st.write(f"**Texto:** {review.get('texto_completo', 'N/A')}")
+                                st.write(f"**Palavras suspeitas:** {', '.join(review.get('palavras_suspeitas_encontradas', []))}")
+                                st.markdown("---")
             
             # Download dos resultados
             st.markdown("### 📥 Download dos Resultados")
             
-            if st.button("📊 Baixar Relatório Completo (CSV)", use_container_width=True):
-                # Gerar CSV com resultados de falsificação
-                csv_data = generate_csv_data(
-                    produtos, 
-                    st.session_state.csv_fields_config, 
-                    resultados_falsificacao=resultados
-                )
-                df = pd.DataFrame(csv_data)
-                csv_string = df.to_csv(index=False).encode('utf-8')
-                
-                st.download_button(
+        if st.button("📊 Baixar Relatório Completo (CSV)", use_container_width=True):
+            # Gerar CSV com resultados de falsificação
+            csv_data = generate_csv_data(
+                produtos, 
+                st.session_state.csv_fields_config, 
+                resultados_falsificacao=resultados
+            )
+            df = pd.DataFrame(csv_data)
+            csv_string = df.to_csv(index=False).encode('utf-8')
+        
+        st.download_button(
                     label="⬇️ Download CSV Completo",
                     data=csv_string,
                     file_name=f"analise_falsificacao_{search_query.replace(' ', '_')}.csv",
@@ -2102,27 +2102,27 @@ with tab_dataset:
             
             # Seção de Dataset Heurístico
             st.markdown("#### 🏷️ Dataset com Rotulagem Heurística")
-            
-            # Informações sobre a rotulagem
+        
+        # Informações sobre a rotulagem
             with st.expander("📋 Critérios de Rotulagem Heurística", expanded=False):
-                st.markdown("""
-                **🟢 ORIGINAL:**
-                - Vendedor oficial/confiável
-                - Preço coerente com referências HP
-                - Título sem indicadores suspeitos
-                
-                **🔴 SUSPEITO/PIRATA:**
-                - Preço muito abaixo da referência (>40% desconto)
-                - Vendedor desconhecido
-                - Palavras suspeitas no título
-                - Erros de gramática/ortografia
-                """)
+            st.markdown("""
+            **🟢 ORIGINAL:**
+            - Vendedor oficial/confiável
+            - Preço coerente com referências HP
+            - Título sem indicadores suspeitos
             
-            if st.button("🚀 Gerar Dataset Rotulado", type="primary", use_container_width=True):
-                with st.spinner("🔍 Aplicando rotulagem heurística..."):
-                    dataset_rotulado = gerar_dataset_hp_challenge(produtos)
-                    st.session_state.labeled_dataset = dataset_rotulado
-                    st.success(f"✅ Dataset gerado! {len(dataset_rotulado)} produtos rotulados.")
+            **🔴 SUSPEITO/PIRATA:**
+            - Preço muito abaixo da referência (>40% desconto)
+            - Vendedor desconhecido
+            - Palavras suspeitas no título
+            - Erros de gramática/ortografia
+            """)
+        
+        if st.button("🚀 Gerar Dataset Rotulado", type="primary", use_container_width=True):
+            with st.spinner("🔍 Aplicando rotulagem heurística..."):
+                dataset_rotulado = gerar_dataset_hp_challenge(produtos)
+                st.session_state.labeled_dataset = dataset_rotulado
+                st.success(f"✅ Dataset gerado! {len(dataset_rotulado)} produtos rotulados.")
             
             # Seção de Export CSV
             st.markdown("#### 📥 Export CSV Personalizado")
@@ -2236,8 +2236,8 @@ with tab_dataset:
                     
                     dados_csv.append({
                         'titulo': produto.get('TITULO PRODUTO', 'N/A'),
-                        'preco': produto.get('PREÇO', 'N/A'),
-                        'vendedor': produto.get('VENDEDOR', 'N/A'),
+            'preco': produto.get('PREÇO', 'N/A'),
+            'vendedor': produto.get('VENDEDOR', 'N/A'),
                         'link': produto.get('LINK', 'N/A'),
                         'rotulo_heuristico': item['rotulo_heuristico'],
                         'score_total': detalhes['score_total'],
@@ -2346,7 +2346,7 @@ def extract_ngrams(texts, n=2, max_features=20):
     except ValueError as e:
         if "empty vocabulary" in str(e).lower():
             return []  # Retornar lista vazia silenciosamente para vocabulário vazio
-        else:
+    else:
             st.warning(f"⚠️ Erro ao extrair {n}-gramas: {str(e)}")
             return []
     except Exception as e:
@@ -3862,8 +3862,8 @@ with tab_data_analysis:
                     if 'current_products' in st.session_state and st.session_state.current_products:
                         st.markdown("##### 💡 Análise Básica dos Dados Atuais")
                         
-                        produtos = st.session_state.current_products
-                        
+        produtos = st.session_state.current_products
+        
                         # Análise de vendedores
                         vendedores = [p.get('VENDEDOR', 'N/A') for p in produtos]
                         vendedor_counts = pd.Series(vendedores).value_counts().head(10)
@@ -4450,5 +4450,6 @@ with tab_data_analysis:
             """)
 
 # Rodapé
-st.markdown("---")
-st.markdown("**🏆 HP Challenge Sprint** - Sistema Inteligente de Detecção de Falsificações | Desenvolvido com Streamlit") 
+        st.markdown("---")
+st.markdown("**🏆 HP Challenge Sprint** - Sistema Inteligente de Detecção de Falsificações | Desenvolvido com Streamlit")
+ 
