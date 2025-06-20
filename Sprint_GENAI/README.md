@@ -1,210 +1,140 @@
-# HP Cartridge Counterfeit Detection System
+# 🚀 Projeto de Detecção de Anúncios Falsificados de Cartuchos HP
 
-## Overview
+Este projeto implementa um pipeline de ponta a ponta para identificar anúncios potencialmente falsificados de cartuchos e suprimentos HP no Mercado Livre, utilizando raspagem de dados (web scraping) e classificação com Grandes Modelos de Linguagem (LLMs).
 
-This project implements an LLM-based classification system to detect counterfeit HP printer cartridge advertisements on Mercado Livre marketplace. The system achieves 85%+ accuracy in identifying suspicious listings, helping HP protect revenue and consumers from fraudulent products.
+## 🏛️ Arquitetura do Pipeline
 
-## Features
+O fluxo de trabalho é orquestrado em três etapas principais, automatizadas para uma execução simples e sequencial:
 
-- **Multi-Approach Classification**: Implements zero-shot, few-shot, and structured LLM approaches
-- **Comprehensive Evaluation**: Detailed metrics including precision, recall, F1-score, and ROC curves
-- **Business Intelligence**: Risk tier categorization and automated alerting recommendations
-- **Production Ready**: Modular design with error handling and logging
+1.  **Coleta de Links**: Busca ativa no Mercado Livre por anúncios relevantes de cartuchos HP com base em uma lista de modelos (ex: "cartucho hp 667").
+2.  **Extração Estruturada**: Visita cada link coletado, extrai o conteúdo textual da página e utiliza um LLM (GPT-4o) para converter os dados brutos em um formato estruturado (JSON), com campos como `titulo`, `preco`, `seller_name`, etc.
+3.  **Classificação Inteligente**: Alimenta os dados estruturados em um segundo LLM, que atua como um classificador. Este modelo avalia múltiplos fatores de risco (preço, reputação do vendedor, descrição) para determinar se o anúncio é `autêntico` ou `falsificado`, gerando relatórios detalhados.
 
-## Project Structure
+### 📜 Scripts Principais
 
-```
-.
-├── sprint2_llm_classifier.py    # Main classifier implementation
-├── generativa_sprint1.py        # Sprint 1 code (data extraction)
-├── config.json                  # Configuration file (API keys, thresholds)
-├── requirements.txt             # Python dependencies
-├── annotation_guidelines.md     # Generated annotation guidelines
-├── output/                      # Generated results directory
-│   ├── classification_results.csv
-│   ├── evaluation_metrics.json
-│   ├── high_risk_products.csv
-│   ├── executive_summary.md
-│   ├── confusion_matrix.png
-│   ├── roc_curves.png
-│   └── confidence_distribution.png
-└── classifier_log.txt          # Runtime logs
-```
+| Arquivo | Funcionalidade |
+| :--- | :--- |
+| **`run_pipeline.py`** |  orchestrador principal. **É o único script que você precisa executar** para rodar o pipeline completo. |
+| `generate_hp_links.py`| (Passo 1) Responsável por realizar buscas no Mercado Livre e coletar as URLs dos anúncios. |
+| `generativa_sprint1.py`| (Passo 2) Recebe uma lista de URLs, extrai e estrutura os dados de cada anúncio usando um LLM. |
+| `sprint2_llm_classifier copy.py`| (Passo 3) Recebe os dados estruturados, classifica os anúncios e gera os relatórios de análise. |
 
-## Setup
+---
 
-### 1. Install Dependencies
+## ⚙️ Configuração do Ambiente
+
+Siga os passos abaixo para preparar seu ambiente de execução.
+
+### 1. Pré-requisitos
+
+*   [Python 3.9+](https://www.python.org/downloads/)
+*   [Docker](https://www.docker.com/products/docker-desktop/) (para execução em contêiner)
+
+### 2. Instalação de Dependências
+
+Clone o repositório e, no diretório `Sprint_GENAI`, instale as bibliotecas Python necessárias:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2. Configure API Keys
+### 3. Chave da API OpenAI
 
-Edit `config.json` and add your API keys:
+O projeto utiliza a API da OpenAI para as tarefas de extração e classificação. Você precisa configurar sua chave de API como uma variável de ambiente.
 
-```json
-{
-    "openai_api_key": "sk-...",
-    "anthropic_api_key": "sk-ant-...",
-    "google_api_key": "AIza...",
-    "price_threshold": 0.4,
-    "min_photos": 3,
-    "min_description_length": 100
-}
+**Windows (PowerShell):**
+```powershell
+$env:OPENAI_API_KEY="sua_chave_aqui"
 ```
 
-### 3. Run the Classifier
-
+**Linux/macOS:**
 ```bash
-python sprint2_llm_classifier.py
+export OPENAI_API_KEY="sua_chave_aqui"
 ```
 
-## How It Works
+> **Nota**: Para que a chave persista, adicione o comando ao seu perfil de shell (ex: `.bashrc`, `.zshrc`, ou `profile.ps1`).
 
-### 1. Data Generation
-The system creates a synthetic dataset of 100 HP cartridge listings with:
-- 50% authentic products (authorized sellers, fair prices)
-- 50% counterfeit/suspicious products (unauthorized sellers, low prices)
-- Edge cases for robust testing
+---
 
-### 2. Classification Approaches
+## ▶️ Executando o Pipeline
 
-#### Zero-Shot Classification
-- Direct LLM analysis without examples
-- Detailed prompt engineering with specific criteria
-- Best for general pattern recognition
+Existem duas maneiras de executar o projeto: localmente ou via Docker.
 
-#### Few-Shot Classification
-- Includes 5 labeled examples in prompts
-- Improved context understanding
-- Better for nuanced cases
+### 🐳 Opção 1: Execução com Docker (Recomendado)
 
-#### Structured Classification
-- Combines rule-based analysis with LLM insights
-- Extracts specific risk factors
-- Highest accuracy and interpretability
+A forma mais simples e recomendada é utilizar Docker, que abstrai toda a configuração do ambiente.
 
-### 3. Risk Factors Analyzed
+1.  **Construa a Imagem Docker:**
+    No diretório raiz do projeto (`Sprints`), execute o comando abaixo. Isso irá construir a imagem com todas as dependências e scripts.
 
-- **Price Analysis**: Compares to MSRP (>40% discount flagged)
-- **Seller Verification**: Checks against authorized reseller list
-- **Description Quality**: Detects suspicious keywords
-- **Product Indicators**: Minimum photos, ratings, reviews
+    ```bash
+    docker build -t hp-fraud-detector -f Sprint_GENAI/Dockerfile .
+    ```
 
-### 4. Output Categories
+2.  **Execute o Contêiner:**
+    Após a construção, execute o contêiner. Lembre-se de passar sua chave da API OpenAI para dentro dele.
 
-- **High Priority** (>90% confidence): Immediate takedown recommended
-- **Medium Priority** (70-90%): Manual review within 24 hours
-- **Low Priority** (<70%): Add to monitoring list
-- **Requires Review**: Edge cases needing human inspection
+    ```bash
+    docker run --rm -e OPENAI_API_KEY=$env:OPENAI_API_KEY -v ./Sprint_GENAI/data:/app/data -v ./Sprint_GENAI/output:/app/output hp-fraud-detector
+    ```
+    *   `--rm`: Remove o contêiner após a execução.
+    *   `-e OPENAI_API_KEY=...`: Passa a variável de ambiente para o contêiner.
+    *   `-v`: Mapeia as pastas `data` e `output` locais para que os resultados sejam salvos na sua máquina.
 
-## Results Interpretation
+O pipeline completo será executado dentro do contêiner.
 
-### Metrics Dashboard
-- **Accuracy**: Overall correctness of predictions
-- **Precision**: Reliability when flagging counterfeits
-- **Recall**: Coverage of actual counterfeit products
-- **F1-Score**: Balanced performance metric
+### 💻 Opção 2: Execução Local
 
-### Business Impact
-- Estimated revenue protected
-- Detection rate trends
-- False positive risk assessment
+Se preferir não usar Docker, você pode executar o pipeline diretamente na sua máquina.
 
-## API Usage Examples
+1.  **Navegue até o Diretório:**
+    ```bash
+    cd Sprint_GENAI
+    ```
 
-### Classify a Single Product
+2.  **Execute o Script Orquestrador:**
+    Basta executar o script `run_pipeline.py`. Ele cuidará de chamar os outros scripts na ordem correta.
 
-```python
-from sprint2_llm_classifier import HPCartridgeClassifier, LLMClassifierEngine
+    ```bash
+    python run_pipeline.py
+    ```
 
-# Initialize
-classifier = HPCartridgeClassifier()
-api_keys = {"openai": "your-key"}
-engine = LLMClassifierEngine(api_keys)
+    Opcionalmente, você pode executar cada passo manualmente se quiser depurar ou analisar uma etapa específica. O orquestrador automatiza exatamente o fluxo abaixo:
+    
+    ```bash
+    # 1. Coletar links
+    python generate_hp_links.py
 
-# Product data
-product = {
-    "titulo": "Cartucho HP 667 Preto",
-    "preco": 45.00,
-    "seller_name": "Unknown_Seller",
-    # ... other fields
-}
+    # 2. Extrair dados (usando o arquivo de links gerado)
+    #    (O nome do arquivo .txt muda a cada execução)
+    python generativa_sprint1.py data/hp_cartridge_urls_20240618_163000.txt
 
-# Classify
-result = engine.classify_structured(product, classifier)
-print(f"Classification: {result.classification}")
-print(f"Confidence: {result.confidence:.2%}")
-print(f"Risk Factors: {result.risk_factors}")
-```
+    # 3. Classificar os anúncios
+    python "sprint2_llm_classifier copy.py"
+    ```
 
-### Batch Processing
+---
 
-```python
-# Process multiple products
-products = load_products_from_mercadolivre()
-results = []
+## 📊 Análise dos Resultados
 
-for product in products:
-    result = engine.classify_structured(product, classifier)
-    results.append({
-        "product_id": product["id"],
-        "classification": result.classification,
-        "confidence": result.confidence
-    })
+Após a execução do pipeline, os resultados são salvos em duas pastas principais dentro de `Sprint_GENAI/`:
 
-# Save results
-pd.DataFrame(results).to_csv("batch_results.csv")
-```
+### 📁 `data/`
+Contém os dados brutos e intermediários do processo.
 
-## Performance Optimization
+*   `hp_cartridge_urls_*.txt`: A lista de URLs coletadas do Mercado Livre.
+*   `hp_cartridge_links_*.json`: As mesmas URLs com metadados adicionais.
+*   **`extracted_ads.json`**: **Arquivo chave.** Contém os dados estruturados de todos os anúncios, extraídos pelo Sprint 1. É o input principal para o classificador.
+*   `extracted_ads.csv`: O mesmo que o JSON, mas em formato CSV.
 
-1. **Parallel Processing**: Use multiprocessing for batch classification
-2. **Caching**: Store LLM responses for similar products
-3. **Model Selection**: Use lighter models (GPT-3.5) for initial screening
-4. **Batch API Calls**: Group multiple products per API request
+### 📁 `output/`
+Contém os relatórios finais e a análise de classificação.
 
-## Troubleshooting
-
-### Common Issues
-
-1. **API Rate Limits**
-   - Solution: Implement exponential backoff
-   - Use caching for repeated queries
-
-2. **Low Accuracy**
-   - Check annotation quality
-   - Increase few-shot examples
-   - Fine-tune confidence thresholds
-
-3. **High False Positives**
-   - Review authorized seller list
-   - Adjust price thresholds for sales periods
-   - Add exception rules for promotions
-
-## Future Enhancements
-
-1. **Image Analysis**: Add computer vision for packaging verification
-2. **Multi-language Support**: Handle Spanish and English listings
-3. **Real-time Monitoring**: Webhook integration with Mercado Livre
-4. **Active Learning**: Continuous improvement from human feedback
-5. **Dashboard**: Web interface for monitoring and analytics
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/enhancement`)
-3. Commit changes (`git commit -am 'Add new feature'`)
-4. Push to branch (`git push origin feature/enhancement`)
-5. Create Pull Request
-
-## License
-
-This project is proprietary to HP Inc. All rights reserved.
-
-## Contact
-
-For questions or support:
-- Technical: ml-team@hp.com
-- Business: brand-protection@hp.com 
+*   `classification_results.csv`: O resultado detalhado da classificação para cada anúncio, incluindo a classe (`authentic`/`counterfeit`), a confiança do modelo e os fatores de risco identificados.
+*   `evaluation_metrics.json`: Métricas de performance do classificador (Acurácia, Precisão, etc.).
+*   `high_risk_products.csv`: Uma lista filtrada apenas com os anúncios classificados como falsificados com alta confiança, prontos para ação.
+*   `executive_summary.md`: Um resumo executivo em Markdown com os principais KPIs de negócio, como a quantidade de anúncios suspeitos encontrados e a potencial receita protegida.
+*   `confusion_matrix.png`: Gráfico visual da matriz de confusão.
+*   `roc_curves.png`: Gráfico da curva ROC para avaliar a performance do classificador.
+*   `confidence_distribution.png`: Histograma mostrando a distribuição das confianças das previsões.
+*   `prompt_templates.txt`: Cópia exata dos prompts usados, para fins de auditoria e depuração. 

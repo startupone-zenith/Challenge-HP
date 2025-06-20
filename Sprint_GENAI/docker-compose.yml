@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  app:
+    # Constrói a imagem a partir do Dockerfile no diretório atual
+    build: .
+    
+    # Nome do container para fácil identificação
+    container_name: hp_cartridge_classifier
+    
+    # Carrega as variáveis de ambiente do arquivo .env
+    # O professor precisará criar um arquivo .env a partir do .env.example
+    env_file:
+      - .env
+      
+    # Monta os volumes para que os dados e os resultados persistam no host
+    # e possam ser facilmente inspecionados.
+    volumes:
+      - ./data:/app/data
+      - ./output:/app/output
+      - ./classifier_log.txt:/app/classifier_log.txt
+      
+    # O comando que será executado ao iniciar o container.
+    # Ele chama nosso script orquestrador para rodar todo o pipeline.
+    command: python run_pipeline.py
+    
+    # Mantém o stdin aberto e aloca um pseudo-TTY,
+    # o que melhora a exibição dos logs no terminal.
+    tty: true
+    stdin_open: true 

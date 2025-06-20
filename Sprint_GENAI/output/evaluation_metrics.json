@@ -1,20 +1,20 @@
 {
   "zero_shot": {
-    "accuracy": 0.8888888888888888,
+    "accuracy": 1.0,
     "precision": 1.0,
-    "recall": 0.8888888888888888,
-    "f1": 0.9411764705882353,
+    "recall": 1.0,
+    "f1": 1.0,
     "confusion_matrix": [
       [
-        8,
-        1
+        9,
+        0
       ],
       [
         0,
         0
       ]
     ],
-    "classification_report": "              precision    recall  f1-score   support\n\n Counterfeit       1.00      0.89      0.94         9\n   Authentic       0.00      0.00      0.00         0\n\n    accuracy                           0.89         9\n   macro avg       0.50      0.44      0.47         9\nweighted avg       1.00      0.89      0.94         9\n"
+    "classification_report": "              precision    recall  f1-score   support\n\n Counterfeit       1.00      1.00      1.00         9\n   Authentic       0.00      0.00      0.00         0\n\n    accuracy                           1.00         9\n   macro avg       0.50      0.50      0.50         9\nweighted avg       1.00      1.00      1.00         9\n"
   },
   "few_shot": {
     "accuracy": 1.0,

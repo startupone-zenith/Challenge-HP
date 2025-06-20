@@ -1,0 +1,33 @@
+# Ignorar arquivos e diretórios específicos do Docker e do Python
+
+# Docker
+.dockerignore
+Dockerfile
+docker-compose.yml
+
+# Ambiente Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+
+# Arquivos de log e de ambiente local
+*.log
+.env
+
+# Diretórios de saída e de dados (serão montados como volumes)
+output/
+data/
+
+# IDEs e editores
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Git
+.git
+.gitignore 

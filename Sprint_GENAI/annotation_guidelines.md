@@ -1,35 +1,35 @@
 
-# HP Cartridge Classification Annotation Guidelines
+# Diretrizes de Anotação para Classificação de Cartuchos HP
 
-## Overview
-Classify each HP cartridge listing as either **AUTHENTIC** or **COUNTERFEIT/SUSPICIOUS**.
+## Visão Geral
+Classifique cada anúncio de cartucho HP como **AUTÊNTICO** ou **FALSIFICADO/SUSPEITO**.
 
-## Classification Criteria
+## Critérios de Classificação
 
-### AUTHENTIC (Label: 1)
-- Price within 40% of MSRP
-- Sold by authorized resellers (HP Store, Kalunga, etc.)
-- Contains "original", "genuíno" keywords
-- Has 3+ high-quality photos
-- Seller has platinum/gold reputation
-- 50+ positive reviews
+### AUTÊNTICO (Rótulo: 1)
+- Preço dentro de 40% do MSRP
+- Vendido por revendedores autorizados (HP Store, Kalunga, etc.)
+- Contém palavras-chave "original", "genuíno"
+- Possui 3+ fotos de alta qualidade
+- Vendedor com reputação platina/ouro
+- 50+ avaliações positivas
 
-### COUNTERFEIT/SUSPICIOUS (Label: 0)
-- Price >40% below MSRP
-- Contains "compatível", "similar", "genérico"
-- New/unknown seller
-- Few photos (<3) or low quality
-- No mention of warranty/guarantee
-- Suspicious descriptions
+### FALSIFICADO/SUSPEITO (Rótulo: 0)
+- Preço >40% abaixo do MSRP
+- Contém "compatível", "similar", "genérico"
+- Vendedor novo/desconhecido
+- Poucas fotos (<3) ou de baixa qualidade
+- Nenhuma menção de garantia
+- Descrições suspeitas
 
-## Edge Cases
-- Authorized sellers with deep discounts: Usually AUTHENTIC
-- Refurbished from authorized sellers: AUTHENTIC
-- "Original" in title but suspicious price: Requires careful review
+## Casos de Borda
+- Revendedores autorizados com grandes descontos: Geralmente AUTÊNTICO
+- Remanufaturados de vendedores autorizados: AUTÊNTICO
+- "Original" no título, mas preço suspeito: Requer análise cuidadosa
 
-## Annotation Process
-1. Review all product attributes
-2. Check price against MSRP
-3. Verify seller reputation
-4. Analyze description quality
-5. Assign confidence score (0.0-1.0)
+## Processo de Anotação
+1. Revise todos os atributos do produto
+2. Verifique o preço em relação ao MSRP
+3. Verifique a reputação do vendedor
+4. Analise a qualidade da descrição
+5. Atribua um score de confiança (0.0-1.0)

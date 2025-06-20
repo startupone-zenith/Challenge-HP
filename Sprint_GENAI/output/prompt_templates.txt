@@ -1,82 +1,82 @@
-=== PROMPT TEMPLATES USED ===
+=== TEMPLATES DE PROMPT USADOS ===
 
 --- ZERO_SHOT ---
-You are an expert in identifying counterfeit products on e-commerce platforms.
+Você é um especialista em identificar produtos falsificados em plataformas de e-commerce.
 
-Analyze the following HP printer cartridge listing and classify it as either AUTHENTIC or COUNTERFEIT.
+Analise o seguinte anúncio de cartucho de impressora HP e classifique-o como AUTÊNTICO ou FALSIFICADO.
 
-Product Information:
-- Title: {titulo}
-- Brand: {marca}
-- Model: {modelo}
-- Price: R$ {preco}
-- Color: {cor}
-- Description: {qualidade_descricao}
-- Number of Reviews: {quantidade_reviews}
-- Rating: {avaliacao}
-- Number of Photos: {quantidade_fotos}
-- Seller: {seller_name}
-- Seller Reputation: {seller_reputation}
+Informações do Produto:
+- Título: {titulo}
+- Marca: {marca}
+- Modelo: {modelo}
+- Preço: R$ {preco}
+- Cor: {cor}
+- Descrição: {qualidade_descricao}
+- Número de Avaliações: {quantidade_reviews}
+- Avaliação: {avaliacao}
+- Número de Fotos: {quantidade_fotos}
+- Vendedor: {seller_name}
+- Reputação do Vendedor: {seller_reputation}
 
-Consider these factors:
-1. Price compared to typical market price (HP 667 black MSRP: R$ 89.90)
-2. Seller authorization status
-3. Description quality and keywords
-4. Number and quality indicators
+Considere estes fatores:
+1. Preço comparado ao preço de mercado típico (MSRP do HP 667 preto: R$ 89.90)
+2. Status de autorização do vendedor
+3. Qualidade da descrição e palavras-chave
+4. Indicadores de número e qualidade
 
-Provide your classification and reasoning in JSON format:
+Forneça sua classificação e raciocínio em formato JSON:
 {{
     "classification": "authentic" or "counterfeit",
     "confidence": 0.0-1.0,
-    "reasoning": "explanation",
-    "risk_factors": ["factor1", "factor2"]
+    "reasoning": "explicação",
+    "risk_factors": ["fator1", "fator2"]
 }}
 
 --- FEW_SHOT ---
-You are an expert in identifying counterfeit products on e-commerce platforms.
+Você é um especialista em identificar produtos falsificados em plataformas de e-commerce.
 
-Here are examples of authentic and counterfeit HP cartridge listings:
+Aqui estão exemplos de anúncios de cartuchos HP autênticos e falsificados:
 
-AUTHENTIC EXAMPLE:
-- Title: "Cartucho HP 667 Preto Original"
-- Price: R$ 85.00 (5% below MSRP)
-- Seller: "HP Store Oficial"
-- Description: Contains "original", "genuíno", warranty info
-- Photos: 6 high-quality images
-- Classification: AUTHENTIC
+EXEMPLO AUTÊNTICO:
+- Título: "Cartucho HP 667 Preto Original"
+- Preço: R$ 85.00 (5% abaixo do MSRP)
+- Vendedor: "HP Store Oficial"
+- Descrição: Contém "original", "genuíno", informações de garantia
+- Fotos: 6 imagens de alta qualidade
+- Classificação: AUTÊNTICO
 
-COUNTERFEIT EXAMPLE:
-- Title: "Cartucho Compatível HP 667"
-- Price: R$ 35.00 (61% below MSRP)
-- Seller: "Vendedor_4521"
-- Description: Contains "compatível", "similar"
-- Photos: 2 low-quality images
-- Classification: COUNTERFEIT
+EXEMPLO FALSIFICADO:
+- Título: "Cartucho Compatível HP 667"
+- Preço: R$ 35.00 (61% abaixo do MSRP)
+- Vendedor: "Vendedor_4521"
+- Descrição: Contém "compatível", "similar"
+- Fotos: 2 imagens de baixa qualidade
+- Classificação: FALSIFICADO
 
-Now analyze this listing:
+Agora analise este anúncio:
 {product_info}
 
-Provide classification in JSON format.
+Forneça a classificação em formato JSON.
 
 --- STRUCTURED ---
-Analyze the HP cartridge listing using these specific criteria:
+Analise o anúncio do cartucho HP usando estes critérios específicos:
 
-PRICE ANALYSIS:
-- MSRP for {modelo} {cor}: R$ {msrp}
-- Listed price: R$ {preco}
-- Discount: {discount_percentage}%
-- Price risk level: {price_risk}
+ANÁLISE DE PREÇO:
+- MSRP para {modelo} {cor}: R$ {msrp}
+- Preço listado: R$ {preco}
+- Desconto: {discount_percentage}%
+- Nível de risco do preço: {price_risk}
 
-SELLER ANALYSIS:
-- Seller: {seller_name}
-- Authorized: {is_authorized}
-- Reputation: {seller_reputation}
-- Reviews: {quantidade_reviews}
+ANÁLISE DO VENDEDOR:
+- Vendedor: {seller_name}
+- Autorizado: {is_authorized}
+- Reputação: {seller_reputation}
+- Avaliações: {quantidade_reviews}
 
-PRODUCT INDICATORS:
-- Suspicious keywords found: {suspicious_keywords}
-- Photo count: {quantidade_fotos} (minimum 3 expected)
-- Description length: {desc_length} characters
+INDICADORES DO PRODUTO:
+- Palavras-chave suspeitas encontradas: {suspicious_keywords}
+- Contagem de fotos: {quantidade_fotos} (mínimo de 3 esperado)
+- Comprimento da descrição: {desc_length} caracteres
 
-Based on this structured analysis, classify as AUTHENTIC or COUNTERFEIT.
+Com base nesta análise estruturada, classifique como AUTÊNTICO ou FALSIFICADO.
 
