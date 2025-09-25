@@ -1,0 +1,757 @@
+{% extends "base.html" %}
+
+{% block title %}Análise Exploratória - HP Challenge Sprint{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="bi bi-graph-up"></i> Análise Exploratória (EDA)</h2>
+        <p class="text-muted">Explore dados coletados com visualizações interativas e estatísticas avançadas</p>
+    </div>
+</div>
+
+<!-- Analysis Tabs -->
+<div class="row">
+    <div class="col-12">
+        <ul class="nav nav-tabs" id="analysisTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" 
+                        type="button" role="tab">
+                    <i class="bi bi-bar-chart"></i> Visão Geral
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="price-tab" data-bs-toggle="tab" data-bs-target="#price" 
+                        type="button" role="tab">
+                    <i class="bi bi-currency-dollar"></i> Análise de Preços
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="vendors-tab" data-bs-toggle="tab" data-bs-target="#vendors" 
+                        type="button" role="tab">
+                    <i class="bi bi-shop"></i> Vendedores
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" 
+                        type="button" role="tab">
+                    <i class="bi bi-star"></i> Reviews
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="text-tab" data-bs-toggle="tab" data-bs-target="#text" 
+                        type="button" role="tab">
+                    <i class="bi bi-chat-text"></i> Análise de Texto
+                </button>
+            </li>
+        </ul>
+        
+        <div class="tab-content" id="analysisTabContent">
+            <!-- Overview Tab -->
+            <div class="tab-pane fade show active" id="overview" role="tabpanel">
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            <h5><i class="bi bi-info-circle"></i> Visão Geral dos Dados</h5>
+                            <p>Esta seção apresenta estatísticas descritivas e visualizações gerais dos produtos coletados.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Summary Statistics -->
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="card text-center stats-card">
+                            <div class="card-body">
+                                <i class="bi bi-box display-4 text-primary"></i>
+                                <h3 class="mt-2" id="totalProducts">-</h3>
+                                <p class="mb-0">Produtos Total</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center stats-card">
+                            <div class="card-body">
+                                <i class="bi bi-currency-dollar display-4 text-success"></i>
+                                <h3 class="mt-2" id="avgPrice">-</h3>
+                                <p class="mb-0">Preço Médio</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center stats-card">
+                            <div class="card-body">
+                                <i class="bi bi-people display-4 text-info"></i>
+                                <h3 class="mt-2" id="totalVendors">-</h3>
+                                <p class="mb-0">Vendedores Únicos</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center stats-card">
+                            <div class="card-body">
+                                <i class="bi bi-star display-4 text-warning"></i>
+                                <h3 class="mt-2" id="avgRating">-</h3>
+                                <p class="mb-0">Rating Médio</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Charts -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6><i class="bi bi-pie-chart"></i> Distribuição por Classificação</h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="classificationChart" style="height: 300px;">
+                                    <div class="d-flex align-items-center justify-content-center h-100">
+                                        <div class="text-center text-muted">
+                                            <i class="bi bi-graph-up display-4"></i>
+                                            <p class="mt-2">Execute uma análise de falsificação primeiro</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6><i class="bi bi-bar-chart"></i> Distribuição de Preços</h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="priceDistChart" style="height: 300px;">
+                                    <div class="d-flex align-items-center justify-content-center h-100">
+                                        <div class="text-center text-muted">
+                                            <i class="bi bi-bar-chart display-4"></i>
+                                            <p class="mt-2">Carregue dados de produtos primeiro</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Price Analysis Tab -->
+            <div class="tab-pane fade" id="price" role="tabpanel">
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="alert alert-primary">
+                            <h5><i class="bi bi-currency-dollar"></i> Análise de Preços</h5>
+                            <p>Análise detalhada dos preços dos produtos, incluindo outliers e padrões suspeitos.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6><i class="bi bi-graph-up"></i> Boxplot de Preços</h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="priceBoxplot" style="height: 300px;">
+                                    <div class="d-flex align-items-center justify-content-center h-100 text-muted">
+                                        <div class="text-center">
+                                            <i class="bi bi-box display-4"></i>
+                                            <p class="mt-2">Dados de preços em carregamento...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6><i class="bi bi-scatter"></i> Preço vs Rating</h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="priceRatingScatter" style="height: 300px;">
+                                    <div class="d-flex align-items-center justify-content-center h-100 text-muted">
+                                        <div class="text-center">
+                                            <i class="bi bi-scatter display-4"></i>
+                                            <p class="mt-2">Correlação preço-rating em carregamento...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Price Statistics -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6><i class="bi bi-calculator"></i> Estatísticas de Preços</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row" id="priceStats">
+                                    <div class="col-md-2 text-center">
+                                        <h6>Mínimo</h6>
+                                        <p class="text-success" id="minPrice">-</p>
+                                    </div>
+                                    <div class="col-md-2 text-center">
+                                        <h6>Máximo</h6>
+                                        <p class="text-danger" id="maxPrice">-</p>
+                                    </div>
+                                    <div class="col-md-2 text-center">
+                                        <h6>Mediana</h6>
+                                        <p class="text-info" id="medianPrice">-</p>
+                                    </div>
+                                    <div class="col-md-2 text-center">
+                                        <h6>Desvio Padrão</h6>
+                                        <p class="text-warning" id="stdPrice">-</p>
+                                    </div>
+                                    <div class="col-md-2 text-center">
+                                        <h6>Q1</h6>
+                                        <p class="text-primary" id="q1Price">-</p>
+                                    </div>
+                                    <div class="col-md-2 text-center">
+                                        <h6>Q3</h6>
+                                        <p class="text-primary" id="q3Price">-</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Vendors Tab -->
+            <div class="tab-pane fade" id="vendors" role="tabpanel">
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="alert alert-success">
+                            <h5><i class="bi bi-shop"></i> Análise de Vendedores</h5>
+                            <p>Análise dos vendedores, incluindo distribuição de produtos e padrões de preços.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6><i class="bi bi-bar-chart-steps"></i> Top 10 Vendedores</h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="topVendorsChart" style="height: 400px;">
+                                    <div class="d-flex align-items-center justify-content-center h-100 text-muted">
+                                        <div class="text-center">
+                                            <i class="bi bi-people display-4"></i>
+                                            <p class="mt-2">Carregando dados de vendedores...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6><i class="bi bi-list-ol"></i> Ranking de Vendedores</h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="vendorRanking">
+                                    <div class="text-center text-muted">
+                                        <i class="bi bi-trophy display-4"></i>
+                                        <p class="mt-2">Carregando ranking...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Reviews Tab -->
+            <div class="tab-pane fade" id="reviews" role="tabpanel">
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="alert alert-warning">
+                            <h5><i class="bi bi-star"></i> Análise de Reviews</h5>
+                            <p>Análise das avaliações dos produtos, incluindo distribuição de ratings e padrões.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6><i class="bi bi-star-fill"></i> Distribuição de Ratings</h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="ratingsDistChart" style="height: 300px;">
+                                    <div class="d-flex align-items-center justify-content-center h-100 text-muted">
+                                        <div class="text-center">
+                                            <i class="bi bi-star display-4"></i>
+                                            <p class="mt-2">Carregando distribuição de ratings...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6><i class="bi bi-chat-dots"></i> Reviews vs Preço</h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="reviewsPriceChart" style="height: 300px;">
+                                    <div class="d-flex align-items-center justify-content-center h-100 text-muted">
+                                        <div class="text-center">
+                                            <i class="bi bi-graph-up display-4"></i>
+                                            <p class="mt-2">Correlação reviews-preço em carregamento...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Text Analysis Tab -->
+            <div class="tab-pane fade" id="text" role="tabpanel">
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            <h5><i class="bi bi-chat-text"></i> Análise de Texto</h5>
+                            <p>Análise dos títulos dos produtos, incluindo palavras mais frequentes e padrões.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6><i class="bi bi-cloud"></i> Nuvem de Palavras</h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="wordCloudChart" style="height: 400px;">
+                                    <div class="d-flex align-items-center justify-content-center h-100 text-muted">
+                                        <div class="text-center">
+                                            <i class="bi bi-cloud display-4"></i>
+                                            <p class="mt-2">Gerando nuvem de palavras...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6><i class="bi bi-list-ul"></i> Palavras Mais Frequentes</h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="topWordsChart" style="height: 400px;">
+                                    <div class="text-center text-muted">
+                                        <i class="bi bi-type display-4"></i>
+                                        <p class="mt-2">Analisando texto...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Load Data Button -->
+<div class="row mt-4">
+    <div class="col-12 text-center">
+        <button class="btn btn-primary btn-lg" onclick="loadAnalysisData()">
+            <i class="bi bi-refresh"></i> Carregar Dados para Análise
+        </button>
+        
+        <button class="btn btn-success btn-lg ms-2" onclick="exportAnalysis()">
+            <i class="bi bi-download"></i> Exportar Análise
+        </button>
+    </div>
+</div>
+
+<!-- No Data Alert -->
+<div id="noDataForAnalysis" class="no-results" style="display: none;">
+    <i class="bi bi-graph-up display-1 text-info"></i>
+    <h3 class="mt-3">Nenhum dado para análise</h3>
+    <p class="text-muted">Execute uma busca e análise de falsificação primeiro</p>
+    <div class="mt-3">
+        <a href="{{ url_for('busca') }}" class="btn btn-primary me-2">
+            <i class="bi bi-search"></i> Buscar Produtos
+        </a>
+        <a href="{{ url_for('falsificacao') }}" class="btn btn-danger">
+            <i class="bi bi-exclamation-triangle"></i> Analisar Falsificação
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stats-card {
+        transition: transform 0.2s;
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .nav-tabs .nav-link {
+        border-radius: 0;
+    }
+    
+    .tab-content {
+        border: 1px solid #dee2e6;
+        border-top: none;
+        padding: 20px;
+        background-color: #fff;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Include Plotly.js for charts -->
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+<script>
+    let analysisData = null;
+    
+    function loadAnalysisData() {
+        // For now, we'll simulate loading data
+        // In a real implementation, this would fetch from the Flask session
+        
+        showAlert('Carregando dados para análise...', 'info');
+        
+        // Simulate data loading
+        setTimeout(() => {
+            analysisData = generateMockAnalysisData();
+            updateAnalysisCharts();
+            showAlert('Dados carregados com sucesso!', 'success');
+        }, 2000);
+    }
+    
+    function generateMockAnalysisData() {
+        // Generate mock data for analysis
+        const products = [];
+        const classifications = ['SUSPEITO', 'PROVÁVEL ORIGINAL', 'INCERTO'];
+        const vendors = ['HP Store', 'TintasBaratas', 'OfficeMax', 'CartuchoFácil', 'PrintShop'];
+        
+        for (let i = 0; i < 50; i++) {
+            products.push({
+                id: i + 1,
+                title: `Produto HP ${i + 1}`,
+                price: Math.random() * 200 + 10,
+                vendor: vendors[Math.floor(Math.random() * vendors.length)],
+                rating: Math.random() * 2 + 3, // 3-5 stars
+                total_reviews: Math.floor(Math.random() * 500),
+                classification: classifications[Math.floor(Math.random() * classifications.length)],
+                probability: Math.random() * 100
+            });
+        }
+        
+        return products;
+    }
+    
+    function updateAnalysisCharts() {
+        if (!analysisData) return;
+        
+        updateOverviewStats();
+        updateClassificationChart();
+        updatePriceDistribution();
+        updatePriceBoxplot();
+        updateVendorsChart();
+        updateRatingsChart();
+        updateWordCloud();
+    }
+    
+    function updateOverviewStats() {
+        const totalProducts = analysisData.length;
+        const avgPrice = analysisData.reduce((sum, p) => sum + p.price, 0) / totalProducts;
+        const uniqueVendors = new Set(analysisData.map(p => p.vendor)).size;
+        const avgRating = analysisData.reduce((sum, p) => sum + p.rating, 0) / totalProducts;
+        
+        document.getElementById('totalProducts').textContent = totalProducts;
+        document.getElementById('avgPrice').textContent = `R$ ${avgPrice.toFixed(2)}`;
+        document.getElementById('totalVendors').textContent = uniqueVendors;
+        document.getElementById('avgRating').textContent = avgRating.toFixed(1);
+    }
+    
+    function updateClassificationChart() {
+        const classifications = {};
+        analysisData.forEach(p => {
+            classifications[p.classification] = (classifications[p.classification] || 0) + 1;
+        });
+        
+        const data = [{
+            values: Object.values(classifications),
+            labels: Object.keys(classifications),
+            type: 'pie',
+            marker: {
+                colors: ['#dc3545', '#28a745', '#ffc107']
+            }
+        }];
+        
+        const layout = {
+            showlegend: true,
+            margin: { t: 0, b: 0, l: 0, r: 0 }
+        };
+        
+        Plotly.newPlot('classificationChart', data, layout, {responsive: true});
+    }
+    
+    function updatePriceDistribution() {
+        const prices = analysisData.map(p => p.price);
+        
+        const data = [{
+            x: prices,
+            type: 'histogram',
+            nbinsx: 20,
+            marker: { color: '#007bff' }
+        }];
+        
+        const layout = {
+            xaxis: { title: 'Preço (R$)' },
+            yaxis: { title: 'Frequência' },
+            margin: { t: 20, b: 40, l: 40, r: 20 }
+        };
+        
+        Plotly.newPlot('priceDistChart', data, layout, {responsive: true});
+    }
+    
+    function updatePriceBoxplot() {
+        const prices = analysisData.map(p => p.price);
+        
+        const data = [{
+            y: prices,
+            type: 'box',
+            name: 'Preços',
+            marker: { color: '#28a745' }
+        }];
+        
+        const layout = {
+            yaxis: { title: 'Preço (R$)' },
+            margin: { t: 20, b: 40, l: 40, r: 20 }
+        };
+        
+        Plotly.newPlot('priceBoxplot', data, layout, {responsive: true});
+        
+        // Update price statistics
+        const sortedPrices = prices.sort((a, b) => a - b);
+        const min = Math.min(...prices);
+        const max = Math.max(...prices);
+        const median = sortedPrices[Math.floor(sortedPrices.length / 2)];
+        const q1 = sortedPrices[Math.floor(sortedPrices.length * 0.25)];
+        const q3 = sortedPrices[Math.floor(sortedPrices.length * 0.75)];
+        const mean = prices.reduce((sum, p) => sum + p, 0) / prices.length;
+        const variance = prices.reduce((sum, p) => sum + Math.pow(p - mean, 2), 0) / prices.length;
+        const std = Math.sqrt(variance);
+        
+        document.getElementById('minPrice').textContent = `R$ ${min.toFixed(2)}`;
+        document.getElementById('maxPrice').textContent = `R$ ${max.toFixed(2)}`;
+        document.getElementById('medianPrice').textContent = `R$ ${median.toFixed(2)}`;
+        document.getElementById('stdPrice').textContent = `R$ ${std.toFixed(2)}`;
+        document.getElementById('q1Price').textContent = `R$ ${q1.toFixed(2)}`;
+        document.getElementById('q3Price').textContent = `R$ ${q3.toFixed(2)}`;
+    }
+    
+    function updateVendorsChart() {
+        const vendorCounts = {};
+        analysisData.forEach(p => {
+            vendorCounts[p.vendor] = (vendorCounts[p.vendor] || 0) + 1;
+        });
+        
+        const sortedVendors = Object.entries(vendorCounts)
+            .sort(([,a], [,b]) => b - a)
+            .slice(0, 10);
+        
+        const data = [{
+            x: sortedVendors.map(([vendor, count]) => count),
+            y: sortedVendors.map(([vendor, count]) => vendor),
+            type: 'bar',
+            orientation: 'h',
+            marker: { color: '#17a2b8' }
+        }];
+        
+        const layout = {
+            xaxis: { title: 'Número de Produtos' },
+            margin: { t: 20, b: 40, l: 100, r: 20 }
+        };
+        
+        Plotly.newPlot('topVendorsChart', data, layout, {responsive: true});
+        
+        // Update vendor ranking
+        const rankingHtml = sortedVendors.map(([vendor, count], index) => 
+            `<div class="d-flex justify-content-between align-items-center mb-2">
+                <span><strong>${index + 1}.</strong> ${vendor}</span>
+                <span class="badge bg-primary">${count}</span>
+            </div>`
+        ).join('');
+        
+        document.getElementById('vendorRanking').innerHTML = rankingHtml;
+    }
+    
+    function updateRatingsChart() {
+        const ratings = analysisData.map(p => Math.floor(p.rating));
+        const ratingCounts = {};
+        
+        for (let i = 1; i <= 5; i++) {
+            ratingCounts[i] = ratings.filter(r => r === i).length;
+        }
+        
+        const data = [{
+            x: Object.keys(ratingCounts),
+            y: Object.values(ratingCounts),
+            type: 'bar',
+            marker: { color: '#ffc107' }
+        }];
+        
+        const layout = {
+            xaxis: { title: 'Rating (Estrelas)' },
+            yaxis: { title: 'Número de Produtos' },
+            margin: { t: 20, b: 40, l: 40, r: 20 }
+        };
+        
+        Plotly.newPlot('ratingsDistChart', data, layout, {responsive: true});
+        
+        // Price vs Reviews scatter
+        const priceReviewData = [{
+            x: analysisData.map(p => p.price),
+            y: analysisData.map(p => p.total_reviews),
+            mode: 'markers',
+            type: 'scatter',
+            marker: { 
+                color: analysisData.map(p => p.rating),
+                colorscale: 'Viridis',
+                showscale: true,
+                colorbar: { title: 'Rating' }
+            }
+        }];
+        
+        const priceReviewLayout = {
+            xaxis: { title: 'Preço (R$)' },
+            yaxis: { title: 'Número de Reviews' },
+            margin: { t: 20, b: 40, l: 40, r: 60 }
+        };
+        
+        Plotly.newPlot('reviewsPriceChart', priceReviewData, priceReviewLayout, {responsive: true});
+    }
+    
+    function updateWordCloud() {
+        // Simulate word cloud data
+        const words = ['HP', 'Cartucho', 'Original', 'Tinta', '664', '122', 'Preto', 'Colorido', 
+                      'Compatível', 'Alto', 'Rendimento', 'Impressora', 'DeskJet', 'OfficeJet'];
+        
+        const wordFreq = words.map(word => ({
+            text: word,
+            freq: Math.floor(Math.random() * 50) + 10
+        }));
+        
+        // For demo purposes, show a simple bar chart of top words
+        const data = [{
+            x: wordFreq.slice(0, 10).map(w => w.freq),
+            y: wordFreq.slice(0, 10).map(w => w.text),
+            type: 'bar',
+            orientation: 'h',
+            marker: { color: '#6f42c1' }
+        }];
+        
+        const layout = {
+            xaxis: { title: 'Frequência' },
+            margin: { t: 20, b: 40, l: 80, r: 20 }
+        };
+        
+        Plotly.newPlot('topWordsChart', data, layout, {responsive: true});
+        
+        // Show word cloud placeholder
+        document.getElementById('wordCloudChart').innerHTML = `
+            <div class="d-flex align-items-center justify-content-center h-100">
+                <div class="text-center">
+                    <i class="bi bi-cloud display-1 text-primary"></i>
+                    <h4 class="mt-3">Nuvem de Palavras</h4>
+                    <p class="text-muted">Palavras mais frequentes nos títulos dos produtos</p>
+                    <div class="d-flex flex-wrap justify-content-center">
+                        ${wordFreq.map(w => 
+                            `<span class="badge bg-primary m-1" style="font-size: ${Math.max(10, w.freq/3)}px">${w.text}</span>`
+                        ).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    function exportAnalysis() {
+        if (!analysisData) {
+            showAlert('Carregue os dados primeiro!', 'warning');
+            return;
+        }
+        
+        // Create analysis report
+        let report = "HP Challenge Sprint - Relatório de Análise Exploratória\n";
+        report += "=" + "=".repeat(50) + "\n\n";
+        report += `Data: ${new Date().toLocaleDateString()}\n`;
+        report += `Total de produtos analisados: ${analysisData.length}\n\n`;
+        
+        // Statistics
+        const avgPrice = analysisData.reduce((sum, p) => sum + p.price, 0) / analysisData.length;
+        const avgRating = analysisData.reduce((sum, p) => sum + p.rating, 0) / analysisData.length;
+        const uniqueVendors = new Set(analysisData.map(p => p.vendor)).size;
+        
+        report += "ESTATÍSTICAS GERAIS:\n";
+        report += `-Preço médio: R$ ${avgPrice.toFixed(2)}\n`;
+        report += `-Rating médio: ${avgRating.toFixed(1)}\n`;
+        report += `-Vendedores únicos: ${uniqueVendors}\n\n`;
+        
+        // Classifications
+        const classifications = {};
+        analysisData.forEach(p => {
+            classifications[p.classification] = (classifications[p.classification] || 0) + 1;
+        });
+        
+        report += "DISTRIBUIÇÃO POR CLASSIFICAÇÃO:\n";
+        Object.entries(classifications).forEach(([cls, count]) => {
+            const percent = ((count / analysisData.length) * 100).toFixed(1);
+            report += `-${cls}: ${count} (${percent}%)\n`;
+        });
+        
+        // Download report
+        const blob = new Blob([report], { type: 'text/plain' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `analise_exploratoria_${new Date().toISOString().split('T')[0]}.txt`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        
+        showAlert('Relatório de análise exportado com sucesso!', 'success');
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-load data if available
+        // In a real implementation, check if data exists in session
+        console.log('Análise exploratória carregada. Clique em "Carregar Dados" para começar.');
+    });
+</script>
+{% endblock %}
+

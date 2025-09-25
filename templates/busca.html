@@ -1,0 +1,437 @@
+{% extends "base.html" %}
+
+{% block title %}Busca & Coleta - HP Challenge Sprint{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="bi bi-search"></i> Busca e Coleta de Dados</h2>
+        <p class="text-muted">Configure e execute buscas no Mercado Livre para coletar dados de produtos HP</p>
+    </div>
+</div>
+
+<!-- Search Configuration -->
+<div class="row">
+    <div class="col-12">
+        <div class="card search-config">
+            <div class="card-header">
+                <h5><i class="bi bi-gear"></i> Configurações de Busca</h5>
+            </div>
+            <div class="card-body">
+                <form id="searchForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="searchQuery" class="form-label">
+                                    <i class="bi bi-search"></i> Termo de busca
+                                </label>
+                                <input type="text" class="form-control" id="searchQuery" value="cartucho hp" 
+                                       placeholder="Digite o produto para buscar">
+                                <div class="form-text">Produto para buscar no Mercado Livre</div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="maxItems" class="form-label">
+                                    <i class="bi bi-list-ol"></i> Máximo de itens
+                                </label>
+                                <input type="number" class="form-control" id="maxItems" value="20" 
+                                       min="1" max="10000" step="10">
+                                <div class="form-text">Quantidade máxima de produtos</div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="sortBy" class="form-label">
+                                    <i class="bi bi-sort-down"></i> Ordenar por
+                                </label>
+                                <select class="form-select" id="sortBy">
+                                    <option value="relevance">Relevância</option>
+                                    <option value="price_asc">Menor Preço</option>
+                                    <option value="price_desc">Maior Preço</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="condition" class="form-label">
+                                    <i class="bi bi-box"></i> Condição
+                                </label>
+                                <select class="form-select" id="condition">
+                                    <option value="all">Todos</option>
+                                    <option value="new">Novo</option>
+                                    <option value="used">Usado</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <div class="form-check mt-4">
+                                    <input class="form-check-input" type="checkbox" id="loadImages" checked>
+                                    <label class="form-check-label" for="loadImages">
+                                        <i class="bi bi-image"></i> Carregar imagens
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <div class="form-check mt-4">
+                                    <input class="form-check-input" type="checkbox" id="loadDetailedData">
+                                    <label class="form-check-label" for="loadDetailedData">
+                                        <i class="bi bi-info-circle"></i> Extrair dados detalhados
+                                    </label>
+                                </div>
+                                <div class="form-text">Extrai descrição e características (mais lento)</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Detailed Data Options -->
+                    <div id="detailedOptions" class="row" style="display: none;">
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                <h6><i class="bi bi-info-circle"></i> Opções de Dados Detalhados:</h6>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="includeDescription" checked>
+                                            <label class="form-check-label" for="includeDescription">
+                                                <i class="bi bi-file-text"></i> Descrição
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="includeMainChars" checked>
+                                            <label class="form-check-label" for="includeMainChars">
+                                                <i class="bi bi-star"></i> Características Principais
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="includeOtherChars">
+                                            <label class="form-check-label" for="includeOtherChars">
+                                                <i class="bi bi-list"></i> Outras Características
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="includeReviewStats" checked>
+                                            <label class="form-check-label" for="includeReviewStats">
+                                                <i class="bi bi-star-fill"></i> Estatísticas de Reviews
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-rocket"></i> Iniciar Busca
+                            </button>
+                            
+                            <button type="button" class="btn btn-secondary ms-2" onclick="resetForm()">
+                                <i class="bi bi-arrow-clockwise"></i> Resetar
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Indicator -->
+<div id="loadingIndicator" class="row loading-spinner">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Carregando...</span>
+                </div>
+                <h5 class="mt-3">Buscando produtos...</h5>
+                <p class="text-muted" id="loadingStatus">Iniciando busca no Mercado Livre...</p>
+                
+                <div class="progress mt-3" id="progressContainer" style="display: none;">
+                    <div class="progress-bar" role="progressbar" id="progressBar" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Results Section -->
+<div id="resultsSection" class="row results-container" style="display: none;">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5><i class="bi bi-list"></i> Resultados da Busca</h5>
+                <div>
+                    <span class="badge bg-primary" id="resultsCount">0 produtos encontrados</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Results Summary -->
+                <div id="resultsSummary" class="row mb-4">
+                    <!-- Summary will be populated by JavaScript -->
+                </div>
+                
+                <!-- Products Grid -->
+                <div id="productsGrid" class="row">
+                    <!-- Products will be populated by JavaScript -->
+                </div>
+                
+                <!-- Next Steps -->
+                <div id="nextSteps" class="row mt-4" style="display: none;">
+                    <div class="col-12">
+                        <div class="alert alert-success">
+                            <h6><i class="bi bi-check-circle"></i> Busca Concluída!</h6>
+                            <p>Dados coletados com sucesso. Escolha uma das opções abaixo:</p>
+                            
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <a href="{{ url_for('falsificacao') }}" class="btn btn-danger btn-sm w-100">
+                                        <i class="bi bi-exclamation-triangle"></i> Detectar Falsificação
+                                    </a>
+                                </div>
+                                <div class="col-md-4">
+                                    <a href="{{ url_for('dataset') }}" class="btn btn-success btn-sm w-100">
+                                        <i class="bi bi-table"></i> Gerar Dataset
+                                    </a>
+                                </div>
+                                <div class="col-md-4">
+                                    <a href="{{ url_for('analise') }}" class="btn btn-info btn-sm w-100">
+                                        <i class="bi bi-graph-up"></i> Análise Exploratória
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- No Results -->
+<div id="noResults" class="no-results" style="display: none;">
+    <i class="bi bi-search display-1 text-muted"></i>
+    <h3 class="mt-3">Nenhum produto encontrado</h3>
+    <p class="text-muted">Tente ajustar os termos de busca ou filtros</p>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Search form handling
+    document.getElementById('searchForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        executeSearch();
+    });
+    
+    // Toggle detailed options
+    document.getElementById('loadDetailedData').addEventListener('change', function() {
+        const detailedOptions = document.getElementById('detailedOptions');
+        if (this.checked) {
+            detailedOptions.style.display = 'block';
+        } else {
+            detailedOptions.style.display = 'none';
+        }
+    });
+    
+    function executeSearch() {
+        // Show loading
+        showLoading('loadingIndicator');
+        hideResults();
+        
+        // Collect form data
+        const formData = {
+            query: document.getElementById('searchQuery').value,
+            max_items: parseInt(document.getElementById('maxItems').value),
+            sort_by: document.getElementById('sortBy').value,
+            condition: document.getElementById('condition').value,
+            load_images: document.getElementById('loadImages').checked,
+            load_detailed_data: document.getElementById('loadDetailedData').checked
+        };
+        
+        // Add detailed data options if enabled
+        if (formData.load_detailed_data) {
+            formData.include_description = document.getElementById('includeDescription').checked;
+            formData.include_main_chars = document.getElementById('includeMainChars').checked;
+            formData.include_other_chars = document.getElementById('includeOtherChars').checked;
+            formData.include_review_stats = document.getElementById('includeReviewStats').checked;
+        }
+        
+        updateLoadingStatus('Enviando requisição...');
+        
+        // Execute search
+        fetch('/api/buscar', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideLoading('loadingIndicator');
+            
+            if (data.success) {
+                displayResults(data.results, data.urls_used);
+                showAlert('Busca concluída com sucesso!', 'success');
+            } else {
+                showAlert('Erro na busca: ' + data.error, 'danger');
+                showNoResults();
+            }
+        })
+        .catch(error => {
+            hideLoading('loadingIndicator');
+            console.error('Erro na busca:', error);
+            showAlert('Erro na conexão: ' + error.message, 'danger');
+            showNoResults();
+        });
+    }
+    
+    function displayResults(products, urlsUsed) {
+        const resultsSection = document.getElementById('resultsSection');
+        const resultsCount = document.getElementById('resultsCount');
+        const resultsSummary = document.getElementById('resultsSummary');
+        const productsGrid = document.getElementById('productsGrid');
+        const nextSteps = document.getElementById('nextSteps');
+        
+        // Update count
+        resultsCount.textContent = `${products.length} produtos encontrados`;
+        
+        // Create summary
+        const avgPrice = products.reduce((sum, p) => {
+            const price = parseFloat(p['PRECO']?.replace(/[R$\s,]/g, '').replace(',', '.')) || 0;
+            return sum + price;
+        }, 0) / products.length;
+        
+        resultsSummary.innerHTML = `
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h4 class="text-primary">${products.length}</h4>
+                        <p class="mb-0">Produtos</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h4 class="text-success">R$ ${avgPrice.toFixed(2)}</h4>
+                        <p class="mb-0">Preço Médio</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h4 class="text-info">${urlsUsed ? urlsUsed.length : 0}</h4>
+                        <p class="mb-0">URLs Processadas</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h4 class="text-warning">${products.filter(p => p['IMAGEM'] && p['IMAGEM'] !== 'N/A').length}</h4>
+                        <p class="mb-0">Com Imagens</p>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Create products grid
+        productsGrid.innerHTML = '';
+        products.forEach((product, index) => {
+            const productCard = createProductCard(product, index);
+            productsGrid.appendChild(productCard);
+        });
+        
+        // Show results and next steps
+        resultsSection.style.display = 'block';
+        nextSteps.style.display = 'block';
+    }
+    
+    function createProductCard(product, index) {
+        const div = document.createElement('div');
+        div.className = 'col-md-6 col-lg-4 mb-4';
+        
+        const imageHtml = product['IMAGEM'] && product['IMAGEM'] !== 'N/A' 
+            ? `<img src="${product['IMAGEM']}" class="card-img-top product-image" alt="Produto">`
+            : `<div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 200px;">
+                 <i class="bi bi-image display-4 text-muted"></i>
+               </div>`;
+        
+        div.innerHTML = `
+            <div class="card product-card h-100">
+                ${imageHtml}
+                <div class="card-body">
+                    <h6 class="card-title">${product['TITULO PRODUTO'] || 'Sem título'}</h6>
+                    <p class="card-text">
+                        <strong class="text-success">${product['PRECO'] || 'N/A'}</strong><br>
+                        <small class="text-muted">Vendedor: ${product['VENDEDOR'] || 'N/A'}</small>
+                    </p>
+                    
+                    ${product['RATING'] ? `
+                        <div class="mb-2">
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <span class="small">${product['RATING']} (${product['TOTAL_REVIEWS'] || 0} reviews)</span>
+                        </div>
+                    ` : ''}
+                    
+                    <div class="d-grid gap-2">
+                        <a href="${product['LINK']}" target="_blank" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-eye"></i> Ver no ML
+                        </a>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        return div;
+    }
+    
+    function updateLoadingStatus(status) {
+        const statusElement = document.getElementById('loadingStatus');
+        if (statusElement) {
+            statusElement.textContent = status;
+        }
+    }
+    
+    function hideResults() {
+        document.getElementById('resultsSection').style.display = 'none';
+        document.getElementById('noResults').style.display = 'none';
+    }
+    
+    function showNoResults() {
+        document.getElementById('noResults').style.display = 'block';
+    }
+    
+    function resetForm() {
+        document.getElementById('searchForm').reset();
+        document.getElementById('searchQuery').value = 'cartucho hp';
+        document.getElementById('maxItems').value = '20';
+        document.getElementById('loadImages').checked = true;
+        document.getElementById('loadDetailedData').checked = false;
+        document.getElementById('detailedOptions').style.display = 'none';
+        hideResults();
+    }
+</script>
+{% endblock %}
+

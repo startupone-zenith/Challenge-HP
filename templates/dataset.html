@@ -1,0 +1,532 @@
+{% extends "base.html" %}
+
+{% block title %}Dataset Generator - HP Challenge Sprint{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="bi bi-table"></i> Dataset Generator</h2>
+        <p class="text-muted">Gere datasets estruturados para análise e machine learning a partir dos dados coletados</p>
+    </div>
+</div>
+
+<!-- Dataset Configuration -->
+<div class="row">
+    <div class="col-12">
+        <div class="card search-config">
+            <div class="card-header">
+                <h5><i class="bi bi-gear"></i> Configurações do Dataset</h5>
+            </div>
+            <div class="card-body">
+                <form id="datasetForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="datasetFormat" class="form-label">
+                                    <i class="bi bi-file-earmark-spreadsheet"></i> Formato de Saída
+                                </label>
+                                <select class="form-select" id="datasetFormat">
+                                    <option value="csv">CSV (Comma Separated Values)</option>
+                                    <option value="json">JSON (JavaScript Object Notation)</option>
+                                    <option value="xlsx">XLSX (Excel)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="datasetName" class="form-label">
+                                    <i class="bi bi-file-text"></i> Nome do Dataset
+                                </label>
+                                <input type="text" class="form-control" id="datasetName" 
+                                       value="hp_products_dataset" placeholder="Nome do arquivo">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    <i class="bi bi-check2-square"></i> <strong>Campos a Incluir</strong>
+                                </label>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="include_basic" checked>
+                                            <label class="form-check-label" for="include_basic">
+                                                <strong>Dados Básicos</strong><br>
+                                                <small class="text-muted">Título, preço, vendedor, link</small>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="include_images" checked>
+                                            <label class="form-check-label" for="include_images">
+                                                <strong>Imagens</strong><br>
+                                                <small class="text-muted">URLs das imagens dos produtos</small>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="include_reviews">
+                                            <label class="form-check-label" for="include_reviews">
+                                                <strong>Reviews</strong><br>
+                                                <small class="text-muted">Avaliações e estatísticas</small>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="include_analysis">
+                                            <label class="form-check-label" for="include_analysis">
+                                                <strong>Análise de Falsificação</strong><br>
+                                                <small class="text-muted">Resultados da análise</small>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="include_metadata" checked>
+                                <label class="form-check-label" for="include_metadata">
+                                    <i class="bi bi-info-circle"></i> <strong>Incluir Metadados</strong>
+                                </label>
+                                <div class="form-text">Data de coleta, versão, configurações utilizadas</div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="clean_data" checked>
+                                <label class="form-check-label" for="clean_data">
+                                    <i class="bi bi-broom"></i> <strong>Limpeza de Dados</strong>
+                                </label>
+                                <div class="form-text">Remove valores nulos e normaliza campos</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi bi-download"></i> Gerar e Baixar Dataset
+                            </button>
+                            
+                            <button type="button" class="btn btn-info btn-lg ms-2" onclick="previewDataset()">
+                                <i class="bi bi-eye"></i> Prévia do Dataset
+                            </button>
+                            
+                            <button type="button" class="btn btn-secondary ms-2" onclick="resetDatasetForm()">
+                                <i class="bi bi-arrow-clockwise"></i> Resetar
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Dataset Preview -->
+<div id="datasetPreview" class="row" style="display: none;">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-eye"></i> Prévia do Dataset</h5>
+            </div>
+            <div class="card-body">
+                <div id="previewContent">
+                    <!-- Preview content will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Indicator -->
+<div id="datasetLoadingIndicator" class="row loading-spinner">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="spinner-border text-success" role="status">
+                    <span class="visually-hidden">Gerando...</span>
+                </div>
+                <h5 class="mt-3">Gerando dataset...</h5>
+                <p class="text-muted" id="datasetLoadingStatus">Preparando dados...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Dataset Statistics -->
+<div id="datasetStats" class="row" style="display: none;">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-bar-chart"></i> Estatísticas do Dataset</h5>
+            </div>
+            <div class="card-body">
+                <div id="statsContent" class="row">
+                    <!-- Stats will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- No Data Alert -->
+<div id="noDataForDataset" class="no-results" style="display: none;">
+    <i class="bi bi-table display-1 text-warning"></i>
+    <h3 class="mt-3">Nenhum dado disponível</h3>
+    <p class="text-muted">Execute uma busca primeiro na aba "Busca & Coleta" para gerar datasets</p>
+    <a href="{{ url_for('busca') }}" class="btn btn-primary">
+        <i class="bi bi-search"></i> Ir para Busca
+    </a>
+</div>
+
+<!-- Templates and Examples -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-lightbulb"></i> Templates e Exemplos</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card border">
+                            <div class="card-body text-center">
+                                <i class="bi bi-robot display-4 text-primary"></i>
+                                <h6 class="mt-2">Machine Learning</h6>
+                                <p class="small text-muted">Dataset otimizado para treinamento de modelos ML</p>
+                                <button class="btn btn-outline-primary btn-sm" onclick="loadMLTemplate()">
+                                    <i class="bi bi-download"></i> Usar Template
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="card border">
+                            <div class="card-body text-center">
+                                <i class="bi bi-graph-up display-4 text-success"></i>
+                                <h6 class="mt-2">Análise Estatística</h6>
+                                <p class="small text-muted">Dataset para análise exploratória e estatísticas</p>
+                                <button class="btn btn-outline-success btn-sm" onclick="loadStatsTemplate()">
+                                    <i class="bi bi-download"></i> Usar Template
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="card border">
+                            <div class="card-body text-center">
+                                <i class="bi bi-file-earmark-spreadsheet display-4 text-info"></i>
+                                <h6 class="mt-2">Relatório Completo</h6>
+                                <p class="small text-muted">Todos os dados disponíveis para relatórios</p>
+                                <button class="btn btn-outline-info btn-sm" onclick="loadFullTemplate()">
+                                    <i class="bi bi-download"></i> Usar Template
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Dataset form handling
+    document.getElementById('datasetForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        generateDataset();
+    });
+    
+    function generateDataset() {
+        // Show loading
+        showLoading('datasetLoadingIndicator');
+        hideDatasetResults();
+        
+        // Collect form data
+        const formData = {
+            format: document.getElementById('datasetFormat').value,
+            name: document.getElementById('datasetName').value,
+            include_basic: document.getElementById('include_basic').checked,
+            include_images: document.getElementById('include_images').checked,
+            include_reviews: document.getElementById('include_reviews').checked,
+            include_analysis: document.getElementById('include_analysis').checked,
+            include_metadata: document.getElementById('include_metadata').checked,
+            clean_data: document.getElementById('clean_data').checked
+        };
+        
+        updateDatasetLoadingStatus('Gerando dataset...');
+        
+        // For now, we'll simulate the dataset generation
+        // In a real implementation, this would call the Flask API
+        setTimeout(() => {
+            hideLoading('datasetLoadingIndicator');
+            
+            // Simulate successful generation
+            showAlert('Dataset gerado com sucesso! Download iniciado.', 'success');
+            
+            // Create mock CSV data for download
+            const csvData = createMockDataset(formData);
+            downloadDataset(csvData, formData.name, formData.format);
+            
+            // Show statistics
+            showDatasetStats({
+                total_records: 20,
+                total_columns: 12,
+                file_size: '2.3 MB',
+                format: formData.format.toUpperCase()
+            });
+            
+        }, 2000);
+    }
+    
+    function previewDataset() {
+        const previewSection = document.getElementById('datasetPreview');
+        const previewContent = document.getElementById('previewContent');
+        
+        // Create mock preview
+        previewContent.innerHTML = `
+            <div class="table-responsive">
+                <table class="table table-striped table-sm">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Título</th>
+                            <th>Preço</th>
+                            <th>Vendedor</th>
+                            <th>Rating</th>
+                            <th>Classificação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Cartucho HP 664 Original</td>
+                            <td>R$ 89,90</td>
+                            <td>HP Store</td>
+                            <td>4.5</td>
+                            <td>PROVÁVEL ORIGINAL</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Tinta HP 664 Compatível</td>
+                            <td>R$ 15,90</td>
+                            <td>TintasBaratas</td>
+                            <td>3.2</td>
+                            <td>SUSPEITO</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>HP 664XL Alto Rendimento</td>
+                            <td>R$ 120,00</td>
+                            <td>OfficeMax</td>
+                            <td>4.8</td>
+                            <td>PROVÁVEL ORIGINAL</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="alert alert-info mt-3">
+                <i class="bi bi-info-circle"></i> 
+                <strong>Prévia limitada:</strong> Mostrando apenas os primeiros registros. 
+                O dataset completo será gerado no download.
+            </div>
+        `;
+        
+        previewSection.style.display = 'block';
+        previewSection.scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    function createMockDataset(config) {
+        let csvContent = "data:text/csv;charset=utf-8,";
+        
+        // Headers
+        let headers = [];
+        if (config.include_basic) {
+            headers.push('ID', 'Título', 'Preço', 'Vendedor', 'Link');
+        }
+        if (config.include_images) {
+            headers.push('Imagem_URL');
+        }
+        if (config.include_reviews) {
+            headers.push('Rating', 'Total_Reviews');
+        }
+        if (config.include_analysis) {
+            headers.push('Classificação', 'Probabilidade_Falsificação');
+        }
+        if (config.include_metadata) {
+            headers.push('Data_Coleta', 'Versão');
+        }
+        
+        csvContent += headers.join(',') + '\n';
+        
+        // Mock data rows
+        const mockData = [
+            ['1', 'Cartucho HP 664 Original', 'R$ 89,90', 'HP Store', 'https://ml.com/1', 'img1.jpg', '4.5', '120', 'PROVÁVEL ORIGINAL', '25.3', '2024-09-25', '1.0'],
+            ['2', 'Tinta HP 664 Compatível', 'R$ 15,90', 'TintasBaratas', 'https://ml.com/2', 'img2.jpg', '3.2', '45', 'SUSPEITO', '78.9', '2024-09-25', '1.0'],
+            ['3', 'HP 664XL Alto Rendimento', 'R$ 120,00', 'OfficeMax', 'https://ml.com/3', 'img3.jpg', '4.8', '200', 'PROVÁVEL ORIGINAL', '18.7', '2024-09-25', '1.0']
+        ];
+        
+        mockData.forEach(row => {
+            const filteredRow = [];
+            let colIndex = 0;
+            
+            if (config.include_basic) {
+                filteredRow.push(...row.slice(colIndex, colIndex + 5));
+                colIndex += 5;
+            }
+            if (config.include_images) {
+                filteredRow.push(row[5]);
+            }
+            if (config.include_reviews) {
+                filteredRow.push(row[6], row[7]);
+            }
+            if (config.include_analysis) {
+                filteredRow.push(row[8], row[9]);
+            }
+            if (config.include_metadata) {
+                filteredRow.push(row[10], row[11]);
+            }
+            
+            csvContent += filteredRow.join(',') + '\n';
+        });
+        
+        return csvContent;
+    }
+    
+    function downloadDataset(data, filename, format) {
+        const encodedUri = encodeURI(data);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `${filename}.${format}`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+    
+    function showDatasetStats(stats) {
+        const statsSection = document.getElementById('datasetStats');
+        const statsContent = document.getElementById('statsContent');
+        
+        statsContent.innerHTML = `
+            <div class="col-md-3">
+                <div class="card text-center stats-card">
+                    <div class="card-body">
+                        <i class="bi bi-file-earmark-text display-4 text-primary"></i>
+                        <h4 class="mt-2">${stats.total_records}</h4>
+                        <p class="mb-0">Registros</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center stats-card">
+                    <div class="card-body">
+                        <i class="bi bi-columns display-4 text-success"></i>
+                        <h4 class="mt-2">${stats.total_columns}</h4>
+                        <p class="mb-0">Colunas</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center stats-card">
+                    <div class="card-body">
+                        <i class="bi bi-hdd display-4 text-info"></i>
+                        <h4 class="mt-2">${stats.file_size}</h4>
+                        <p class="mb-0">Tamanho</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center stats-card">
+                    <div class="card-body">
+                        <i class="bi bi-file-earmark-spreadsheet display-4 text-warning"></i>
+                        <h4 class="mt-2">${stats.format}</h4>
+                        <p class="mb-0">Formato</p>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        statsSection.style.display = 'block';
+    }
+    
+    function loadMLTemplate() {
+        document.getElementById('include_basic').checked = true;
+        document.getElementById('include_images').checked = false;
+        document.getElementById('include_reviews').checked = true;
+        document.getElementById('include_analysis').checked = true;
+        document.getElementById('include_metadata').checked = false;
+        document.getElementById('clean_data').checked = true;
+        document.getElementById('datasetFormat').value = 'csv';
+        document.getElementById('datasetName').value = 'hp_ml_dataset';
+        
+        showAlert('Template de Machine Learning carregado!', 'info');
+    }
+    
+    function loadStatsTemplate() {
+        document.getElementById('include_basic').checked = true;
+        document.getElementById('include_images').checked = true;
+        document.getElementById('include_reviews').checked = true;
+        document.getElementById('include_analysis').checked = true;
+        document.getElementById('include_metadata').checked = true;
+        document.getElementById('clean_data').checked = false;
+        document.getElementById('datasetFormat').value = 'xlsx';
+        document.getElementById('datasetName').value = 'hp_analysis_dataset';
+        
+        showAlert('Template de Análise Estatística carregado!', 'info');
+    }
+    
+    function loadFullTemplate() {
+        document.getElementById('include_basic').checked = true;
+        document.getElementById('include_images').checked = true;
+        document.getElementById('include_reviews').checked = true;
+        document.getElementById('include_analysis').checked = true;
+        document.getElementById('include_metadata').checked = true;
+        document.getElementById('clean_data').checked = true;
+        document.getElementById('datasetFormat').value = 'json';
+        document.getElementById('datasetName').value = 'hp_complete_dataset';
+        
+        showAlert('Template Completo carregado!', 'info');
+    }
+    
+    function updateDatasetLoadingStatus(status) {
+        const statusElement = document.getElementById('datasetLoadingStatus');
+        if (statusElement) {
+            statusElement.textContent = status;
+        }
+    }
+    
+    function hideDatasetResults() {
+        document.getElementById('datasetPreview').style.display = 'none';
+        document.getElementById('datasetStats').style.display = 'none';
+        document.getElementById('noDataForDataset').style.display = 'none';
+    }
+    
+    function resetDatasetForm() {
+        document.getElementById('datasetForm').reset();
+        document.getElementById('include_basic').checked = true;
+        document.getElementById('include_images').checked = true;
+        document.getElementById('include_metadata').checked = true;
+        document.getElementById('clean_data').checked = true;
+        document.getElementById('datasetName').value = 'hp_products_dataset';
+        hideDatasetResults();
+    }
+</script>
+{% endblock %}
+

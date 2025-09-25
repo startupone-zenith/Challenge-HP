@@ -1,13 +1,14 @@
 Content-Type: text/html; charset=utf-8
-Date: Wed, 18 Jun 2025 21:28:41 GMT
-X-Request-Device-Id: 48538034-5a3e-4c29-9900-3bea001587e1
-X-D2Id: 48538034-5a3e-4c29-9900-3bea001587e1
+Date: Thu, 25 Sep 2025 22:26:40 GMT
+X-Request-Device-Id: 78c8f7a6-fb9f-447f-8abc-52e2bec95e76
+X-D2Id: 78c8f7a6-fb9f-447f-8abc-52e2bec95e76
 Server: Tengine
-Set-Cookie: _d2id=48538034-5a3e-4c29-9900-3bea001587e1-n; SameSite=None; Secure; Path=/; Domain=.mercadolivre.com.br; Expires=Thu, 18 Jun 2026 21:28:41 GMT
-Set-Cookie: _csrf=XPAuv--ZiML6R7UD3_fLZdeg; Path=/; HttpOnly; Secure; SameSite=None
-Set-Cookie: _mldataSessionId=541ccfcb-7a55-4470-9aba-273e77623134; Max-Age=1800; Domain=mercadolivre.com.br; Path=/; Expires=Wed, 18 Jun 2025 21:58:41 GMT; Secure; SameSite=None
-Set-Cookie: navigation_items=MLB5120098024%7C18062025212841%7CMLB41877220%7CMLB41877218; Domain=.mercadolivre.com.br; Path=/; Secure; SameSite=None
-Set-Cookie: c_ui-navigation=6.6.130; Domain=www.mercadolivre.com.br; Path=/; Expires=Fri, 18 Jul 2025 21:28:41 GMT; HttpOnly; Secure; SameSite=None
+Set-Cookie: _d2id=78c8f7a6-fb9f-447f-8abc-52e2bec95e76-n; SameSite=None; Secure; Path=/; Domain=.mercadolivre.com.br; Expires=Fri, 25 Sep 2026 22:26:40 GMT
+Set-Cookie: _csrf=6DBzXP_TDDors2NR685EuDDs; Path=/; HttpOnly; Secure; SameSite=None
+Set-Cookie: in_app=true; Domain=.mercadolivre.com.br; Path=/; Expires=Fri, 26 Sep 2025 22:26:40 GMT; Secure; SameSite=None
+Set-Cookie: navigation_items=MLB4197608459%7C25092025222640%7CMLB41877220%7CMLB41877218; Domain=.mercadolivre.com.br; Path=/; Secure; SameSite=None
+Set-Cookie: _mldataSessionId=88c9c794-7711-468a-b24f-190f78ce4b73; Max-Age=1800; Domain=mercadolivre.com.br; Path=/; Expires=Thu, 25 Sep 2025 22:56:40 GMT; Secure
+Set-Cookie: c_ui-navigation=6.6.150; Domain=www.mercadolivre.com.br; Path=/; Expires=Sat, 25 Oct 2025 22:26:40 GMT; HttpOnly; Secure; SameSite=None
 Expect-Ct: max-age=0
 Referrer-Policy: no-referrer-when-downgrade
 Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
@@ -18,18 +19,18 @@ X-Permitted-Cross-Domain-Policies: none
 X-Xss-Protection: 1; mode=block
 Accept-Ch: device-memory, dpr, viewport-width, rtt, downlink, ect, save-data
 Accept-Ch-Lifetime: 60
-Content-Security-Policy: script-src 'nonce-yxJzTjdl67HHlSI9PgSs7g==' 'strict-dynamic' 'unsafe-eval' https: 'unsafe-inline' 'report-sample'; base-uri 'none'; report-uri https://events.mercadolibre.com/csp/reports?identifier=TREYtZnOLcNJJgNcDZd01MlND4R78icbwxx4_aYcB1zBrx_96jLND9V2dvWg&policy_id=95&user_id=&request_id=48538034-5a3e-4c29-9900-3bea001587e1; report-to csp-endpoint; object-src https://http2.mlstatic.com/ https://mlstaticquic-a.akamaihd.net/, script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: siteintercept.qualtrics.com *.siteintercept.qualtrics.com mercadolibre.com.ar *.mercadolibre.com.ar mercadolibre.com.mx *.mercadolibre.com.mx mercadolivre.com.br *.mercadolivre.com.br mercadolibre.cl *.mercadolibre.cl mercadolibre.com.co *.mercadolibre.com.co mercadopago.com *.mercadopago.com credithub.com.br *.credithub.com.br js-agent.newrelic.com *.js-agent.newrelic.com google-analytics.com *.google-analytics.com facebook.net *.facebook.net googletagmanager.com *.googletagmanager.com gstatic.com *.gstatic.com global-cache.online *.global-cache.online criteo.com *.criteo.com cloudflare.com *.cloudflare.com googleapis.com *.googleapis.com jsdelivr.net *.jsdelivr.net mercadolibre.com.ve *.mercadolibre.com.ve mercadolibre.com.pe *.mercadolibre.com.pe mercadolibre.com.uy *.mercadolibre.com.uy mercadolibre.com.ec *.mercadolibre.com.ec static.hotjar.com *.static.hotjar.com hotjar.com *.hotjar.com youtube.com *.youtube.com tiktok.com *.tiktok.com jquery.com *.jquery.com creativecdn.com *.creativecdn.com bing.com *.bing.com squidit.com.br *.squidit.com.br ads-twitter.com *.ads-twitter.com mercadolibre.com.bo *.mercadolibre.com.bo mercadolibre.com.pa *.mercadolibre.com.pa mercadolibre.com.sv *.mercadolibre.com.sv mercadolibre.com.do *.mercadolibre.com.do mercadolibre.com.hn *.mercadolibre.com.hn mercadolibre.com.ni *.mercadolibre.com.ni mercadolibre.com.py *.mercadolibre.com.py mercadolibre.co.cr *.mercadolibre.co.cr mercadolibre.com.gt *.mercadolibre.com.gt segreencolumn.com *.segreencolumn.com googlesyndication.com *.googlesyndication.com pinimg.com *.pinimg.com pinterest.com *.pinterest.com googleadservices.com *.googleadservices.com doubleclick.net *.doubleclick.net adtrafficquality.google *.adtrafficquality.google sc-static.net *.sc-static.net embluemail.com *.embluemail.com googletagservices.com *.googletagservices.com awswaf.com *.awswaf.com http2.mlstatic.com *.http2.mlstatic.com google.com *.google.com qualtrics.com *.qualtrics.com newrelic.com *.newrelic.com portalinmobiliario.com *.portalinmobiliario.com maps.googleapis.com *.maps.googleapis.com adsafeprotected.com *.adsafeprotected.com doubleverify.com *.doubleverify.com; report-uri https://events.mercadolibre.com/csp/reports?identifier=TREYtZnOLcNJJgNcDZd01MlND4R78icbwxx4_aYcB1zBrx_96jLND9V2dvWg&policy_id=24272&user_id=&request_id=48538034-5a3e-4c29-9900-3bea001587e1; report-to csp-endpoint
-Content-Security-Policy-Report-Only: report-uri https://events.mercadolibre.com/csp/reports?identifier=TREYtZnOLcNJJgNcDZd01MlND4R78icbwxx4_aYcB1zBrx_96jLND9V2dvWg&policy_id=71&user_id=&request_id=48538034-5a3e-4c29-9900-3bea001587e1; report-to csp-endpoint; frame-ancestors 'none'
-Reporting-Endpoints: csp-endpoint="https://events.mercadolibre.com/csp/v2/reports?identifier=TREYtZnOLcNJJgNcDZd01MlND4R78icbwxx4_aYcB1zBrx_96jLND9V2dvWg&user_id=&request_id=48538034-5a3e-4c29-9900-3bea001587e1",statics-endpoint="https://events.mercadolibre.com/csp/v2/statics?identifier=TREYtZnOLcNJJgNcDZd01MlND4R78icbwxx4_aYcB1zBrx_96jLND9V2dvWg&user_id=&request_id=48538034-5a3e-4c29-9900-3bea001587e1&policy_id=94"
+Content-Security-Policy: script-src 'nonce-LmOi7N8XKDIJLO3S3tSNHQ==' 'strict-dynamic' 'unsafe-eval' https: 'unsafe-inline' 'report-sample'; base-uri 'none'; report-uri https://events.mercadolibre.com/csp/reports?identifier=TREYtZnOLcNJJgNcDZd01MlND4R78icbwxx4_aYcB1zBrx_96jLND9V2dvWg&policy_id=95&user_id=&request_id=78c8f7a6-fb9f-447f-8abc-52e2bec95e76; report-to csp-endpoint; object-src https://http2.mlstatic.com/ https://mlstaticquic-a.akamaihd.net/, script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: siteintercept.qualtrics.com *.siteintercept.qualtrics.com mercadolibre.com.ar *.mercadolibre.com.ar mercadolibre.com.mx *.mercadolibre.com.mx mercadolivre.com.br *.mercadolivre.com.br mercadolibre.cl *.mercadolibre.cl mercadolibre.com.co *.mercadolibre.com.co mercadopago.com *.mercadopago.com credithub.com.br *.credithub.com.br js-agent.newrelic.com *.js-agent.newrelic.com google-analytics.com *.google-analytics.com facebook.net *.facebook.net googletagmanager.com *.googletagmanager.com gstatic.com *.gstatic.com global-cache.online *.global-cache.online criteo.com *.criteo.com cloudflare.com *.cloudflare.com googleapis.com *.googleapis.com jsdelivr.net *.jsdelivr.net mercadolibre.com.ve *.mercadolibre.com.ve mercadolibre.com.pe *.mercadolibre.com.pe mercadolibre.com.uy *.mercadolibre.com.uy mercadolibre.com.ec *.mercadolibre.com.ec static.hotjar.com *.static.hotjar.com hotjar.com *.hotjar.com youtube.com *.youtube.com tiktok.com *.tiktok.com jquery.com *.jquery.com creativecdn.com *.creativecdn.com bing.com *.bing.com squidit.com.br *.squidit.com.br ads-twitter.com *.ads-twitter.com mercadolibre.com.bo *.mercadolibre.com.bo mercadolibre.com.pa *.mercadolibre.com.pa mercadolibre.com.sv *.mercadolibre.com.sv mercadolibre.com.do *.mercadolibre.com.do mercadolibre.com.hn *.mercadolibre.com.hn mercadolibre.com.ni *.mercadolibre.com.ni mercadolibre.com.py *.mercadolibre.com.py mercadolibre.co.cr *.mercadolibre.co.cr mercadolibre.com.gt *.mercadolibre.com.gt segreencolumn.com *.segreencolumn.com googlesyndication.com *.googlesyndication.com pinimg.com *.pinimg.com pinterest.com *.pinterest.com googleadservices.com *.googleadservices.com doubleclick.net *.doubleclick.net adtrafficquality.google *.adtrafficquality.google sc-static.net *.sc-static.net embluemail.com *.embluemail.com googletagservices.com *.googletagservices.com awswaf.com *.awswaf.com http2.mlstatic.com *.http2.mlstatic.com google.com *.google.com qualtrics.com *.qualtrics.com newrelic.com *.newrelic.com portalinmobiliario.com *.portalinmobiliario.com maps.googleapis.com *.maps.googleapis.com adsafeprotected.com *.adsafeprotected.com doubleverify.com *.doubleverify.com; report-uri https://events.mercadolibre.com/csp/reports?identifier=TREYtZnOLcNJJgNcDZd01MlND4R78icbwxx4_aYcB1zBrx_96jLND9V2dvWg&policy_id=24272&user_id=&request_id=78c8f7a6-fb9f-447f-8abc-52e2bec95e76; report-to csp-endpoint
+Content-Security-Policy-Report-Only: report-uri https://events.mercadolibre.com/csp/reports?identifier=TREYtZnOLcNJJgNcDZd01MlND4R78icbwxx4_aYcB1zBrx_96jLND9V2dvWg&policy_id=71&user_id=&request_id=78c8f7a6-fb9f-447f-8abc-52e2bec95e76; report-to csp-endpoint; frame-ancestors 'none'
+Reporting-Endpoints: csp-endpoint="https://events.mercadolibre.com/csp/v2/reports?identifier=TREYtZnOLcNJJgNcDZd01MlND4R78icbwxx4_aYcB1zBrx_96jLND9V2dvWg&user_id=&request_id=78c8f7a6-fb9f-447f-8abc-52e2bec95e76",statics-endpoint="https://events.mercadolibre.com/csp/v2/statics?identifier=TREYtZnOLcNJJgNcDZd01MlND4R78icbwxx4_aYcB1zBrx_96jLND9V2dvWg&user_id=&request_id=78c8f7a6-fb9f-447f-8abc-52e2bec95e76&policy_id=94"
 Cache-Control: private, max-age=0, no-cache, no-store, must-revalidate
-X-Navigation-Version: layout-5.20.3
-Etag: W/"89390-9EaRoEnEplHVZUrg8IGOeIItnas"
+X-Navigation-Version: layout-5.21.0
+Etag: W/"9086f-RYvZq8Hu5ZhJot7fJiiDQrFn9sQ"
 Vary: Accept-Encoding
 Content-Encoding: gzip
-X-Envoy-Upstream-Service-Time: 299
-X-Request-Id: 48538034-5a3e-4c29-9900-3bea001587e1
+X-Envoy-Upstream-Service-Time: 268
+X-Request-Id: 78c8f7a6-fb9f-447f-8abc-52e2bec95e76
 X-Cache: Miss from cloudfront
-Via: 1.1 95827c3bc7798e08d0599e18d188d6ac.cloudfront.net (CloudFront)
-X-Amz-Cf-Pop: GRU1-P3
+Via: 1.1 80222344e348af4233c673a0e3474374.cloudfront.net (CloudFront)
+X-Amz-Cf-Pop: GRU3-P6
 Alt-Svc: h3=":443"; ma=86400
-X-Amz-Cf-Id: ugjcKvQfZIWaF2t3buINu4ZMLZVqi97YRZZdHW2bts_in0HFqxoDCQ==
+X-Amz-Cf-Id: wOZ7t_paXoPwJLGJXXwPcCWrH9py10Lr4FuAsRD_8ADoUJ8f-FF5_Q==

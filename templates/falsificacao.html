@@ -1,0 +1,527 @@
+{% extends "base.html" %}
+
+{% block title %}Detecção de Falsificação - HP Challenge Sprint{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="bi bi-exclamation-triangle"></i> Detecção de Falsificação</h2>
+        <p class="text-muted">Analise produtos coletados para identificar possíveis falsificações usando algoritmos inteligentes</p>
+    </div>
+</div>
+
+<!-- Analysis Configuration -->
+<div class="row">
+    <div class="col-12">
+        <div class="card search-config">
+            <div class="card-header">
+                <h5><i class="bi bi-gear"></i> Configurações de Análise</h5>
+            </div>
+            <div class="card-body">
+                <form id="analysisForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="analyzeReviews">
+                                <label class="form-check-label" for="analyzeReviews">
+                                    <i class="bi bi-star"></i> <strong>Analisar Reviews</strong>
+                                </label>
+                                <div class="form-text">Inclui análise de padrões suspeitos em reviews (mais lento)</div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="detailedAnalysis" checked>
+                                <label class="form-check-label" for="detailedAnalysis">
+                                    <i class="bi bi-search"></i> <strong>Análise Detalhada</strong>
+                                </label>
+                                <div class="form-text">Análise completa de preços, vendedores e títulos</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                <h6><i class="bi bi-info-circle"></i> Critérios de Análise:</h6>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <strong>Preços (40%)</strong><br>
+                                        <small>Detecção de preços suspeitos</small>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <strong>Vendedor (30%)</strong><br>
+                                        <small>Verificação de autorização</small>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <strong>Título (20%)</strong><br>
+                                        <small>Análise de termos suspeitos</small>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <strong>Reviews (10%)</strong><br>
+                                        <small>Padrões em avaliações</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-danger btn-lg">
+                                <i class="bi bi-shield-exclamation"></i> Iniciar Análise de Falsificação
+                            </button>
+                            
+                            <button type="button" class="btn btn-secondary ms-2" onclick="resetAnalysisForm()">
+                                <i class="bi bi-arrow-clockwise"></i> Resetar
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Indicator -->
+<div id="analysisLoadingIndicator" class="row loading-spinner">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="spinner-border text-danger" role="status">
+                    <span class="visually-hidden">Analisando...</span>
+                </div>
+                <h5 class="mt-3">Analisando produtos...</h5>
+                <p class="text-muted" id="analysisLoadingStatus">Iniciando análise de falsificação...</p>
+                
+                <div class="progress mt-3" id="analysisProgressContainer">
+                    <div class="progress-bar bg-danger" role="progressbar" id="analysisProgressBar" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Results Section -->
+<div id="analysisResultsSection" class="row results-container" style="display: none;">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5><i class="bi bi-shield-exclamation"></i> Resultados da Análise</h5>
+                <div>
+                    <button class="btn btn-success btn-sm" onclick="downloadReport()">
+                        <i class="bi bi-download"></i> Baixar Relatório
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Analysis Statistics -->
+                <div id="analysisStats" class="row mb-4">
+                    <!-- Stats will be populated by JavaScript -->
+                </div>
+                
+                <!-- Filters -->
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <select class="form-select" id="filterClassification" onchange="filterResults()">
+                            <option value="">Todos os produtos</option>
+                            <option value="SUSPEITO">Apenas Suspeitos</option>
+                            <option value="PROVÁVEL ORIGINAL">Apenas Originais</option>
+                            <option value="INCERTO">Apenas Incertos</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <select class="form-select" id="sortResults" onchange="sortResults()">
+                            <option value="probability_desc">Maior Probabilidade</option>
+                            <option value="probability_asc">Menor Probabilidade</option>
+                            <option value="price_desc">Maior Preço</option>
+                            <option value="price_asc">Menor Preço</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="searchProducts" placeholder="Buscar produtos..." onkeyup="searchProducts()">
+                    </div>
+                </div>
+                
+                <!-- Products Analysis Grid -->
+                <div id="analysisProductsGrid" class="row">
+                    <!-- Products will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- No Data Alert -->
+<div id="noDataAlert" class="no-results" style="display: none;">
+    <i class="bi bi-exclamation-triangle display-1 text-warning"></i>
+    <h3 class="mt-3">Nenhum produto para analisar</h3>
+    <p class="text-muted">Execute uma busca primeiro na aba "Busca & Coleta"</p>
+    <a href="{{ url_for('busca') }}" class="btn btn-primary">
+        <i class="bi bi-search"></i> Ir para Busca
+    </a>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let analysisResults = [];
+    let filteredResults = [];
+    
+    // Analysis form handling
+    document.getElementById('analysisForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        executeAnalysis();
+    });
+    
+    function executeAnalysis() {
+        // Show loading
+        showLoading('analysisLoadingIndicator');
+        hideAnalysisResults();
+        
+        // Collect form data
+        const formData = {
+            analisar_reviews: document.getElementById('analyzeReviews').checked,
+            analise_detalhada: document.getElementById('detailedAnalysis').checked
+        };
+        
+        updateAnalysisLoadingStatus('Iniciando análise...');
+        
+        // Execute analysis
+        fetch('/api/analisar_falsificacao', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideLoading('analysisLoadingIndicator');
+            
+            if (data.success) {
+                analysisResults = data.resultados;
+                filteredResults = [...analysisResults];
+                displayAnalysisResults(data.resultados, data.estatisticas);
+                showAlert('Análise concluída com sucesso!', 'success');
+            } else {
+                if (data.error.includes('Nenhum produto encontrado')) {
+                    showNoDataAlert();
+                } else {
+                    showAlert('Erro na análise: ' + data.error, 'danger');
+                }
+            }
+        })
+        .catch(error => {
+            hideLoading('analysisLoadingIndicator');
+            console.error('Erro na análise:', error);
+            showAlert('Erro na conexão: ' + error.message, 'danger');
+        });
+    }
+    
+    function displayAnalysisResults(results, stats) {
+        const resultsSection = document.getElementById('analysisResultsSection');
+        const analysisStats = document.getElementById('analysisStats');
+        const productsGrid = document.getElementById('analysisProductsGrid');
+        
+        // Create statistics
+        analysisStats.innerHTML = `
+            <div class="col-md-3">
+                <div class="card text-center stats-card bg-light">
+                    <div class="card-body">
+                        <h3 class="text-primary">${stats.total_produtos}</h3>
+                        <p class="mb-0">Total Produtos</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center stats-card bg-danger text-white">
+                    <div class="card-body">
+                        <h3>${stats.suspeitos}</h3>
+                        <p class="mb-0">Suspeitos</p>
+                        <small>(${stats.percentual_suspeitos.toFixed(1)}%)</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center stats-card bg-success text-white">
+                    <div class="card-body">
+                        <h3>${stats.originais}</h3>
+                        <p class="mb-0">Prováveis Originais</p>
+                        <small>(${((stats.originais / stats.total_produtos) * 100).toFixed(1)}%)</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center stats-card bg-warning text-dark">
+                    <div class="card-body">
+                        <h3>${stats.incertos}</h3>
+                        <p class="mb-0">Incertos</p>
+                        <small>(${((stats.incertos / stats.total_produtos) * 100).toFixed(1)}%)</small>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Create products grid
+        renderProductsGrid(results);
+        
+        // Show results
+        resultsSection.style.display = 'block';
+    }
+    
+    function renderProductsGrid(results) {
+        const productsGrid = document.getElementById('analysisProductsGrid');
+        productsGrid.innerHTML = '';
+        
+        results.forEach((result, index) => {
+            const productCard = createAnalysisProductCard(result, index);
+            productsGrid.appendChild(productCard);
+        });
+    }
+    
+    function createAnalysisProductCard(result, index) {
+        const div = document.createElement('div');
+        div.className = 'col-md-6 col-lg-4 mb-4';
+        
+        const product = result.produto;
+        const classification = result.classificacao;
+        
+        // Determine card color based on classification
+        let cardClass = 'product-card';
+        let badgeClass = 'bg-secondary';
+        let iconClass = 'bi-question-circle';
+        
+        if (classification === 'SUSPEITO') {
+            cardClass += ' suspicious';
+            badgeClass = 'bg-danger';
+            iconClass = 'bi-exclamation-triangle';
+        } else if (classification === 'PROVÁVEL ORIGINAL') {
+            cardClass += ' original';
+            badgeClass = 'bg-success';
+            iconClass = 'bi-check-circle';
+        } else if (classification === 'INCERTO') {
+            cardClass += ' uncertain';
+            badgeClass = 'bg-warning text-dark';
+            iconClass = 'bi-question-circle';
+        }
+        
+        const imageHtml = product['IMAGEM'] && product['IMAGEM'] !== 'N/A' 
+            ? `<img src="${product['IMAGEM']}" class="card-img-top product-image" alt="Produto">`
+            : `<div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 200px;">
+                 <i class="bi bi-image display-4 text-muted"></i>
+               </div>`;
+        
+        div.innerHTML = `
+            <div class="card ${cardClass} h-100">
+                ${imageHtml}
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge ${badgeClass}">
+                            <i class="${iconClass}"></i> ${classification}
+                        </span>
+                        <span class="badge bg-primary">${result.probabilidade_total.toFixed(1)}%</span>
+                    </div>
+                    
+                    <h6 class="card-title">${product['TITULO PRODUTO'] || 'Sem título'}</h6>
+                    <p class="card-text">
+                        <strong class="text-success">${product['PRECO'] || 'N/A'}</strong><br>
+                        <small class="text-muted">Vendedor: ${product['VENDEDOR'] || 'N/A'}</small>
+                    </p>
+                    
+                    <!-- Analysis Details -->
+                    <div class="analysis-details">
+                        <small class="text-muted">
+                            <strong>Análise:</strong><br>
+                            Preço: ${result.prob_preco?.toFixed(1) || 'N/A'}% | 
+                            Vendedor: ${result.prob_vendedor?.toFixed(1) || 'N/A'}%<br>
+                            Título: ${result.prob_titulo?.toFixed(1) || 'N/A'}% | 
+                            Reviews: ${result.prob_reviews?.toFixed(1) || 'N/A'}%
+                        </small>
+                    </div>
+                    
+                    <div class="d-grid gap-2 mt-3">
+                        <button class="btn btn-outline-info btn-sm" onclick="showProductDetails(${index})">
+                            <i class="bi bi-info-circle"></i> Ver Detalhes
+                        </button>
+                        <a href="${product['LINK']}" target="_blank" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-eye"></i> Ver no ML
+                        </a>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        return div;
+    }
+    
+    function filterResults() {
+        const filter = document.getElementById('filterClassification').value;
+        
+        if (filter === '') {
+            filteredResults = [...analysisResults];
+        } else {
+            filteredResults = analysisResults.filter(result => result.classificacao === filter);
+        }
+        
+        renderProductsGrid(filteredResults);
+    }
+    
+    function sortResults() {
+        const sortBy = document.getElementById('sortResults').value;
+        
+        filteredResults.sort((a, b) => {
+            switch (sortBy) {
+                case 'probability_desc':
+                    return b.probabilidade_total - a.probabilidade_total;
+                case 'probability_asc':
+                    return a.probabilidade_total - b.probabilidade_total;
+                case 'price_desc':
+                    const priceA = parseFloat(a.produto['PRECO']?.replace(/[R$\s,]/g, '').replace(',', '.')) || 0;
+                    const priceB = parseFloat(b.produto['PRECO']?.replace(/[R$\s,]/g, '').replace(',', '.')) || 0;
+                    return priceB - priceA;
+                case 'price_asc':
+                    const priceA2 = parseFloat(a.produto['PRECO']?.replace(/[R$\s,]/g, '').replace(',', '.')) || 0;
+                    const priceB2 = parseFloat(b.produto['PRECO']?.replace(/[R$\s,]/g, '').replace(',', '.')) || 0;
+                    return priceA2 - priceB2;
+                default:
+                    return 0;
+            }
+        });
+        
+        renderProductsGrid(filteredResults);
+    }
+    
+    function searchProducts() {
+        const searchTerm = document.getElementById('searchProducts').value.toLowerCase();
+        
+        if (searchTerm === '') {
+            filteredResults = [...analysisResults];
+        } else {
+            filteredResults = analysisResults.filter(result => 
+                result.produto['TITULO PRODUTO']?.toLowerCase().includes(searchTerm) ||
+                result.produto['VENDEDOR']?.toLowerCase().includes(searchTerm) ||
+                result.classificacao.toLowerCase().includes(searchTerm)
+            );
+        }
+        
+        renderProductsGrid(filteredResults);
+    }
+    
+    function showProductDetails(index) {
+        const result = filteredResults[index];
+        const product = result.produto;
+        
+        const modal = new bootstrap.Modal(document.createElement('div'));
+        modal._element.innerHTML = `
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="bi bi-info-circle"></i> Detalhes da Análise
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                ${product['IMAGEM'] && product['IMAGEM'] !== 'N/A' 
+                                    ? `<img src="${product['IMAGEM']}" class="img-fluid" alt="Produto">`
+                                    : `<div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                         <i class="bi bi-image display-4 text-muted"></i>
+                                       </div>`
+                                }
+                            </div>
+                            <div class="col-md-8">
+                                <h6>${product['TITULO PRODUTO'] || 'Sem título'}</h6>
+                                <p><strong>Preço:</strong> ${product['PRECO'] || 'N/A'}</p>
+                                <p><strong>Vendedor:</strong> ${product['VENDEDOR'] || 'N/A'}</p>
+                                <p><strong>Classificação:</strong> 
+                                   <span class="badge ${result.classificacao === 'SUSPEITO' ? 'bg-danger' : 
+                                                       result.classificacao === 'PROVÁVEL ORIGINAL' ? 'bg-success' : 'bg-warning text-dark'}">
+                                       ${result.classificacao}
+                                   </span>
+                                </p>
+                                <p><strong>Probabilidade Total:</strong> ${result.probabilidade_total.toFixed(1)}%</p>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <h6>Análise Detalhada:</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Análise de Preço:</strong> ${result.prob_preco?.toFixed(1) || 'N/A'}%</p>
+                                <p><strong>Análise de Vendedor:</strong> ${result.prob_vendedor?.toFixed(1) || 'N/A'}%</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Análise de Título:</strong> ${result.prob_titulo?.toFixed(1) || 'N/A'}%</p>
+                                <p><strong>Análise de Reviews:</strong> ${result.prob_reviews?.toFixed(1) || 'N/A'}%</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <a href="${product['LINK']}" target="_blank" class="btn btn-primary">
+                            <i class="bi bi-eye"></i> Ver no Mercado Livre
+                        </a>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal._element);
+        modal.show();
+        
+        modal._element.addEventListener('hidden.bs.modal', function () {
+            document.body.removeChild(modal._element);
+        });
+    }
+    
+    function downloadReport() {
+        // Create CSV data
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "Título,Preço,Vendedor,Classificação,Probabilidade Total,Prob Preço,Prob Vendedor,Prob Título,Prob Reviews,Link\n";
+        
+        analysisResults.forEach(result => {
+            const product = result.produto;
+            csvContent += `"${product['TITULO PRODUTO'] || 'N/A'}","${product['PRECO'] || 'N/A'}","${product['VENDEDOR'] || 'N/A'}","${result.classificacao}","${result.probabilidade_total.toFixed(1)}%","${result.prob_preco?.toFixed(1) || 'N/A'}%","${result.prob_vendedor?.toFixed(1) || 'N/A'}%","${result.prob_titulo?.toFixed(1) || 'N/A'}%","${result.prob_reviews?.toFixed(1) || 'N/A'}%","${product['LINK'] || 'N/A'}"\n`;
+        });
+        
+        // Download file
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `analise_falsificacao_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        showAlert('Relatório baixado com sucesso!', 'success');
+    }
+    
+    function updateAnalysisLoadingStatus(status) {
+        const statusElement = document.getElementById('analysisLoadingStatus');
+        if (statusElement) {
+            statusElement.textContent = status;
+        }
+    }
+    
+    function hideAnalysisResults() {
+        document.getElementById('analysisResultsSection').style.display = 'none';
+        document.getElementById('noDataAlert').style.display = 'none';
+    }
+    
+    function showNoDataAlert() {
+        document.getElementById('noDataAlert').style.display = 'block';
+    }
+    
+    function resetAnalysisForm() {
+        document.getElementById('analysisForm').reset();
+        document.getElementById('detailedAnalysis').checked = true;
+        hideAnalysisResults();
+    }
+</script>
+{% endblock %}
+

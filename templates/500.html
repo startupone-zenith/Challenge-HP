@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% set show_sidebar = false %}
+
+{% block title %}Erro interno - HP Challenge Sprint{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <div class="error-page">
+                <i class="bi bi-exclamation-octagon display-1 text-danger"></i>
+                <h1 class="display-4 mt-4">500</h1>
+                <h2 class="mb-4">Erro interno do servidor</h2>
+                <p class="lead text-muted">
+                    Desculpe, ocorreu um erro interno no servidor.
+                </p>
+                <p class="text-muted">
+                    Nossa equipe foi notificada e está trabalhando para resolver o problema.
+                </p>
+                
+                <div class="alert alert-info mt-4">
+                    <h6><i class="bi bi-info-circle"></i> O que você pode fazer:</h6>
+                    <ul class="list-unstyled mb-0">
+                        <li>• Aguarde alguns minutos e tente novamente</li>
+                        <li>• Verifique se os dados estão corretos</li>
+                        <li>• Limpe o cache do navegador</li>
+                        <li>• Entre em contato com o suporte se o problema persistir</li>
+                    </ul>
+                </div>
+                
+                <div class="mt-4">
+                    <a href="{{ url_for('index') }}" class="btn btn-primary me-2">
+                        <i class="bi bi-house"></i> Página Inicial
+                    </a>
+                    <button class="btn btn-outline-secondary" onclick="window.location.reload()">
+                        <i class="bi bi-arrow-clockwise"></i> Tentar Novamente
+                    </button>
+                </div>
+                
+                <div class="mt-4">
+                    <h5>Funcionalidades Disponíveis:</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <a href="{{ url_for('busca') }}" class="btn btn-outline-primary w-100">
+                                <i class="bi bi-search"></i> Busca & Coleta
+                            </a>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <a href="{{ url_for('falsificacao') }}" class="btn btn-outline-danger w-100">
+                                <i class="bi bi-exclamation-triangle"></i> Detecção
+                            </a>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <a href="{{ url_for('dataset') }}" class="btn btn-outline-success w-100">
+                                <i class="bi bi-table"></i> Dataset
+                            </a>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <a href="{{ url_for('analise') }}" class="btn btn-outline-info w-100">
+                                <i class="bi bi-graph-up"></i> Análise
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <small class="text-muted">
+                        <i class="bi bi-clock"></i> 
+                        Erro reportado em {{ moment().format('DD/MM/YYYY HH:mm') }}
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .error-page {
+        padding: 60px 0;
+    }
+    
+    .btn-outline-primary,
+    .btn-outline-danger,
+    .btn-outline-success,
+    .btn-outline-info {
+        margin-bottom: 10px;
+    }
+</style>
+{% endblock %}
+

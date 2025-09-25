@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}HP Challenge Sprint - Detector de Falsificações{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <style>
+        .navbar-brand {
+            font-weight: bold;
+        }
+        
+        .sidebar {
+            background-color: #f8f9fa;
+            min-height: calc(100vh - 76px);
+            padding: 20px;
+        }
+        
+        .main-content {
+            padding: 20px;
+        }
+        
+        .card {
+            margin-bottom: 20px;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+        
+        .product-card {
+            border-left: 4px solid #007bff;
+        }
+        
+        .product-card.suspicious {
+            border-left-color: #dc3545;
+        }
+        
+        .product-card.original {
+            border-left-color: #28a745;
+        }
+        
+        .product-card.uncertain {
+            border-left-color: #ffc107;
+        }
+        
+        .loading-spinner {
+            display: none;
+        }
+        
+        .progress-container {
+            margin: 20px 0;
+        }
+        
+        .cache-info {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .search-config {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .stats-card {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+        
+        .btn-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+        
+        .btn-success {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+        
+        .btn-warning {
+            background-color: #ffc107;
+            border-color: #ffc107;
+            color: #212529;
+        }
+        
+        .product-image {
+            max-width: 100%;
+            height: auto;
+            max-height: 200px;
+            object-fit: contain;
+        }
+        
+        .alert {
+            margin-bottom: 20px;
+        }
+        
+        .tab-content {
+            padding: 20px 0;
+        }
+        
+        .nav-tabs .nav-link {
+            color: #495057;
+        }
+        
+        .nav-tabs .nav-link.active {
+            background-color: #007bff;
+            border-color: #007bff;
+            color: white;
+        }
+        
+        .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+        
+        .results-container {
+            margin-top: 20px;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+        
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px 0;
+            margin-top: 40px;
+            border-top: 1px solid #dee2e6;
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <i class="bi bi-trophy"></i> HP Challenge Sprint
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'index' %}active{% endif %}" href="{{ url_for('index') }}">
+                            <i class="bi bi-house"></i> Início
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'busca' %}active{% endif %}" href="{{ url_for('busca') }}">
+                            <i class="bi bi-search"></i> Busca & Coleta
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'falsificacao' %}active{% endif %}" href="{{ url_for('falsificacao') }}">
+                            <i class="bi bi-exclamation-triangle"></i> Detecção de Falsificação
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'dataset' %}active{% endif %}" href="{{ url_for('dataset') }}">
+                            <i class="bi bi-table"></i> Dataset Generator
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'analise' %}active{% endif %}" href="{{ url_for('analise') }}">
+                            <i class="bi bi-graph-up"></i> Análise Exploratória
+                        </a>
+                    </li>
+                </ul>
+                
+                <!-- Cache Info -->
+                <div class="navbar-text me-3">
+                    <button class="btn btn-outline-light btn-sm" onclick="loadCacheInfo()">
+                        <i class="bi bi-hdd"></i> Cache: <span id="cache-count">-</span>
+                    </button>
+                </div>
+                
+                <button class="btn btn-outline-light btn-sm me-2" onclick="clearCache()">
+                    <i class="bi bi-trash"></i> Limpar Cache
+                </button>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <div class="container-fluid">
+        <div class="row">
+            {% if show_sidebar|default(true) %}
+            <!-- Sidebar -->
+            <div class="col-md-3 sidebar">
+                {% block sidebar %}
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="bi bi-info-circle"></i> Sobre o Projeto</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Objetivo:</strong> Desenvolver uma solução automatizada para identificar possíveis casos de pirataria de produtos HP vendidos em sites de e-commerce.</p>
+                        
+                        <h6><i class="bi bi-check-circle"></i> Funcionalidades:</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="bi bi-check text-success"></i> Web Scraping inteligente</li>
+                            <li><i class="bi bi-check text-success"></i> Análise de preços e vendors</li>
+                            <li><i class="bi bi-check text-success"></i> Detecção de reviews suspeitas</li>
+                            <li><i class="bi bi-check text-success"></i> Rotulagem automática</li>
+                            <li><i class="bi bi-check text-success"></i> Análise exploratória avançada</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="bi bi-lightning"></i> Performance Otimizada</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6>Melhorias Implementadas:</h6>
+                        <ul class="list-unstyled small">
+                            <li><i class="bi bi-fire text-danger"></i> Scrapy Otimizado</li>
+                            <li><i class="bi bi-memory text-info"></i> Sistema de Cache</li>
+                            <li><i class="bi bi-cpu text-warning"></i> Processamento Paralelo</li>
+                            <li><i class="bi bi-speedometer text-success"></i> Requests Otimizados</li>
+                        </ul>
+                    </div>
+                </div>
+                {% endblock %}
+            </div>
+            
+            <!-- Main Content Area -->
+            <div class="col-md-9 main-content">
+            {% else %}
+            <div class="col-12 main-content">
+            {% endif %}
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <p class="mb-0 text-muted">
+                        <i class="bi bi-trophy"></i> HP Challenge Sprint - Sistema Inteligente de Detecção de Falsificações
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Common JavaScript -->
+    <script>
+        // Global functions for cache management
+        function loadCacheInfo() {
+            fetch('/api/cache_info')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('cache-count').textContent = data.cache_size;
+                        
+                        // Show cache details if requested
+                        if (data.cache_items && data.cache_items.length > 0) {
+                            let details = 'Itens no cache:\n';
+                            data.cache_items.forEach((item, index) => {
+                                details += `${index + 1}. ${item.key} (${item.timestamp})\n`;
+                            });
+                            alert(details);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar info do cache:', error);
+                });
+        }
+        
+        function clearCache() {
+            if (confirm('Tem certeza que deseja limpar o cache?')) {
+                fetch('/api/clear_cache', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Cache limpo com sucesso!');
+                        loadCacheInfo();
+                    } else {
+                        alert('Erro ao limpar cache: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao limpar cache:', error);
+                    alert('Erro ao limpar cache');
+                });
+            }
+        }
+        
+        // Load cache info on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCacheInfo();
+        });
+        
+        // Utility functions
+        function showLoading(elementId) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.style.display = 'block';
+            }
+        }
+        
+        function hideLoading(elementId) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.style.display = 'none';
+            }
+        }
+        
+        function showAlert(message, type = 'info') {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            const container = document.querySelector('.main-content');
+            container.insertBefore(alertDiv, container.firstChild);
+            
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
+

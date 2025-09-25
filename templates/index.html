@@ -1,0 +1,283 @@
+{% extends "base.html" %}
+
+{% block title %}HP Challenge Sprint - Detector de Falsificações{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Hero Section -->
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center py-5">
+                <h1 class="display-4 mb-3">
+                    <i class="bi bi-trophy"></i> HP Challenge Sprint
+                </h1>
+                <h2 class="h4 mb-4">Detector de Falsificações</h2>
+                <p class="lead">
+                    Sistema Inteligente de Detecção de Produtos HP Suspeitos/Piratas em E-commerce
+                </p>
+                
+                <div class="row mt-4">
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="text-center">
+                            <i class="bi bi-search display-6"></i>
+                            <h5 class="mt-2">Web Scraping</h5>
+                            <p class="small">Coleta inteligente de dados</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="text-center">
+                            <i class="bi bi-exclamation-triangle display-6"></i>
+                            <h5 class="mt-2">Detecção</h5>
+                            <p class="small">Análise de falsificação</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="text-center">
+                            <i class="bi bi-star display-6"></i>
+                            <h5 class="mt-2">Reviews</h5>
+                            <p class="small">Análise de avaliações</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="text-center">
+                            <i class="bi bi-graph-up display-6"></i>
+                            <h5 class="mt-2">Análise</h5>
+                            <p class="small">Insights avançados</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mt-4">
+    <div class="col-12">
+        <h3><i class="bi bi-lightning"></i> Ações Rápidas</h3>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-search display-4 text-primary mb-3"></i>
+                <h5 class="card-title">Busca & Coleta</h5>
+                <p class="card-text">Inicie uma nova busca no Mercado Livre e colete dados de produtos HP.</p>
+                <a href="{{ url_for('busca') }}" class="btn btn-primary">
+                    <i class="bi bi-arrow-right"></i> Iniciar Busca
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-exclamation-triangle display-4 text-danger mb-3"></i>
+                <h5 class="card-title">Detecção de Falsificação</h5>
+                <p class="card-text">Analise produtos coletados para identificar possíveis falsificações.</p>
+                <a href="{{ url_for('falsificacao') }}" class="btn btn-danger">
+                    <i class="bi bi-arrow-right"></i> Analisar
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-table display-4 text-success mb-3"></i>
+                <h5 class="card-title">Dataset Generator</h5>
+                <p class="card-text">Gere datasets estruturados para análise e machine learning.</p>
+                <a href="{{ url_for('dataset') }}" class="btn btn-success">
+                    <i class="bi bi-arrow-right"></i> Gerar Dataset
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-graph-up display-4 text-info mb-3"></i>
+                <h5 class="card-title">Análise Exploratória</h5>
+                <p class="card-text">Explore dados coletados com visualizações e estatísticas avançadas.</p>
+                <a href="{{ url_for('analise') }}" class="btn btn-info">
+                    <i class="bi bi-arrow-right"></i> Explorar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Overview -->
+<div class="row mt-5">
+    <div class="col-12">
+        <h3><i class="bi bi-gear"></i> Funcionalidades Principais</h3>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-robot"></i> Web Scraping Inteligente</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li><i class="bi bi-check text-success"></i> Scrapy otimizado para performance</li>
+                    <li><i class="bi bi-check text-success"></i> Sistema de cache inteligente</li>
+                    <li><i class="bi bi-check text-success"></i> Extração de imagens e metadados</li>
+                    <li><i class="bi bi-check text-success"></i> Processamento paralelo</li>
+                    <li><i class="bi bi-check text-success"></i> Rate limiting automático</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="bi bi-shield-exclamation"></i> Detecção de Falsificação</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li><i class="bi bi-check text-success"></i> Análise de preços suspeitos</li>
+                    <li><i class="bi bi-check text-success"></i> Verificação de vendedores</li>
+                    <li><i class="bi bi-check text-success"></i> Análise de títulos e descrições</li>
+                    <li><i class="bi bi-check text-success"></i> Padrões em reviews</li>
+                    <li><i class="bi bi-check text-success"></i> Scoring probabilístico</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="bi bi-bar-chart"></i> Análise Avançada</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li><i class="bi bi-check text-success"></i> Visualizações interativas</li>
+                    <li><i class="bi bi-check text-success"></i> Estatísticas descritivas</li>
+                    <li><i class="bi bi-check text-success"></i> Análise de sentimento</li>
+                    <li><i class="bi bi-check text-success"></i> Clustering de produtos</li>
+                    <li><i class="bi bi-check text-success"></i> Exportação de relatórios</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Performance Stats -->
+<div class="row mt-5">
+    <div class="col-12">
+        <h3><i class="bi bi-speedometer"></i> Performance & Otimizações</h3>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3 mb-3">
+        <div class="card text-center stats-card">
+            <div class="card-body">
+                <i class="bi bi-lightning display-4 text-warning"></i>
+                <h3 class="mt-2">3-5x</h3>
+                <p class="text-muted">Mais rápido que versões anteriores</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card text-center stats-card">
+            <div class="card-body">
+                <i class="bi bi-memory display-4 text-info"></i>
+                <h3 class="mt-2">Cache</h3>
+                <p class="text-muted">Sistema inteligente de cache</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card text-center stats-card">
+            <div class="card-body">
+                <i class="bi bi-cpu display-4 text-success"></i>
+                <h3 class="mt-2">Paralelo</h3>
+                <p class="text-muted">Processamento multi-thread</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card text-center stats-card">
+            <div class="card-body">
+                <i class="bi bi-hdd display-4 text-primary"></i>
+                <h3 class="mt-2">Otimizado</h3>
+                <p class="text-muted">Uso eficiente de recursos</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Getting Started -->
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h3 class="mb-0"><i class="bi bi-play-circle"></i> Como Começar</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 text-center mb-3">
+                        <div class="badge bg-primary rounded-circle p-3 mb-2">
+                            <span class="h4">1</span>
+                        </div>
+                        <h5>Buscar Produtos</h5>
+                        <p class="small text-muted">Inicie uma busca por produtos HP no Mercado Livre</p>
+                    </div>
+                    <div class="col-md-3 text-center mb-3">
+                        <div class="badge bg-primary rounded-circle p-3 mb-2">
+                            <span class="h4">2</span>
+                        </div>
+                        <h5>Analisar Dados</h5>
+                        <p class="small text-muted">Execute a detecção de falsificação nos produtos encontrados</p>
+                    </div>
+                    <div class="col-md-3 text-center mb-3">
+                        <div class="badge bg-primary rounded-circle p-3 mb-2">
+                            <span class="h4">3</span>
+                        </div>
+                        <h5>Gerar Relatórios</h5>
+                        <p class="small text-muted">Exporte os resultados e datasets para análise</p>
+                    </div>
+                    <div class="col-md-3 text-center mb-3">
+                        <div class="badge bg-primary rounded-circle p-3 mb-2">
+                            <span class="h4">4</span>
+                        </div>
+                        <h5>Explorar Insights</h5>
+                        <p class="small text-muted">Use a análise exploratória para insights avançados</p>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <a href="{{ url_for('busca') }}" class="btn btn-success btn-lg">
+                        <i class="bi bi-rocket"></i> Começar Agora
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Add any page-specific JavaScript here
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize any interactive elements
+        console.log('HP Challenge Sprint - Index page loaded');
+    });
+</script>
+{% endblock %}
+

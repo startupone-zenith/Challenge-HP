@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% set show_sidebar = false %}
+
+{% block title %}Página não encontrada - HP Challenge Sprint{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <div class="error-page">
+                <i class="bi bi-exclamation-triangle display-1 text-warning"></i>
+                <h1 class="display-4 mt-4">404</h1>
+                <h2 class="mb-4">Página não encontrada</h2>
+                <p class="lead text-muted">
+                    Desculpe, a página que você está procurando não foi encontrada.
+                </p>
+                <p class="text-muted">
+                    Verifique se o endereço está correto ou use os links abaixo para navegar:
+                </p>
+                
+                <div class="mt-4">
+                    <a href="{{ url_for('index') }}" class="btn btn-primary me-2">
+                        <i class="bi bi-house"></i> Página Inicial
+                    </a>
+                    <a href="{{ url_for('busca') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-search"></i> Busca & Coleta
+                    </a>
+                </div>
+                
+                <div class="mt-4">
+                    <h5>Links Úteis:</h5>
+                    <div class="list-group list-group-flush">
+                        <a href="{{ url_for('busca') }}" class="list-group-item list-group-item-action">
+                            <i class="bi bi-search me-2"></i>Busca & Coleta de Dados
+                        </a>
+                        <a href="{{ url_for('falsificacao') }}" class="list-group-item list-group-item-action">
+                            <i class="bi bi-exclamation-triangle me-2"></i>Detecção de Falsificação
+                        </a>
+                        <a href="{{ url_for('dataset') }}" class="list-group-item list-group-item-action">
+                            <i class="bi bi-table me-2"></i>Dataset Generator
+                        </a>
+                        <a href="{{ url_for('analise') }}" class="list-group-item list-group-item-action">
+                            <i class="bi bi-graph-up me-2"></i>Análise Exploratória
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .error-page {
+        padding: 60px 0;
+    }
+    
+    .list-group-item {
+        border: none;
+        padding: 10px 15px;
+    }
+    
+    .list-group-item:hover {
+        background-color: #f8f9fa;
+    }
+</style>
+{% endblock %}
+
