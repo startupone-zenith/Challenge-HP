@@ -115,7 +115,7 @@ class MercadoLivreReviewsAPI:
                 
                 # Log da estrutura de resposta
                 reviews_count = len(api_data.get('reviews', [])) if api_data else 0
-                logging.debug(f"✅ API retornou {reviews_count} reviews para produto {self.product_id}")
+                logging.debug(f"API retornou {reviews_count} reviews para produto {self.product_id}")
                 
                 # Salvar no cache local
                 self._cache[cache_key] = {
@@ -125,7 +125,7 @@ class MercadoLivreReviewsAPI:
                 
                 return api_data
             else:
-                logging.warning(f"❌ API retornou status {response.status_code} para produto {self.product_id}")
+                logging.warning(f"API retornou status {response.status_code} para produto {self.product_id}")
                 logging.warning(f"Resposta: {response.text[:500]}...")
                 return None
                 
@@ -500,8 +500,8 @@ if __name__ == "__main__":
     reviews_result = run_review_spider(test_product_id, max_reviews=50)
     
     if reviews_result:
-        print(f"✅ Sucesso! Coletadas {len(reviews_result.get('reviews', []))} reviews")
-        print(f"📊 Total de reviews: {reviews_result.get('total_reviews_count', 0)}")
+        print(f"Sucesso! Coletadas {len(reviews_result.get('reviews', []))} reviews")
+        print(f"Total de reviews: {reviews_result.get('total_reviews_count', 0)}")
         
         # Mostrar algumas reviews como exemplo
         for i, review in enumerate(reviews_result.get('reviews', [])[:3]):  # Primeiras 3 reviews
@@ -511,4 +511,4 @@ if __name__ == "__main__":
             print(f"Texto: {review.get('text', 'N/A')[:100]}...")
             print(f"Útil: {review.get('helpful_count', '0')} pessoas")
     else:
-        print("❌ Falha na coleta de reviews")
+        print("Falha na coleta de reviews")

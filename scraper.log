@@ -1,0 +1,478 @@
+2025-09-25 21:06:36,687 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.22.0.15:5000
+2025-09-25 21:06:36,688 - INFO - [33mPress CTRL+C to quit[0m
+2025-09-25 21:06:36,891 - INFO -  * Restarting with watchdog (windowsapi)
+2025-09-25 21:06:38,561 - WARNING -  * Debugger is active!
+2025-09-25 21:06:38,564 - INFO -  * Debugger PIN: 388-795-822
+2025-09-25 21:06:42,517 - INFO - 127.0.0.1 - - [25/Sep/2025 21:06:42] "GET / HTTP/1.1" 200 -
+2025-09-25 21:06:42,645 - INFO - 127.0.0.1 - - [25/Sep/2025 21:06:42] "GET /static/style.css HTTP/1.1" 200 -
+2025-09-25 21:06:42,948 - INFO - 127.0.0.1 - - [25/Sep/2025 21:06:42] "GET /api/jobs HTTP/1.1" 200 -
+2025-09-25 21:06:43,253 - INFO - 127.0.0.1 - - [25/Sep/2025 21:06:43] "GET /api/datasets HTTP/1.1" 200 -
+2025-09-25 21:06:43,561 - INFO - 127.0.0.1 - - [25/Sep/2025 21:06:43] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-09-25 21:06:46,011 - INFO - 127.0.0.1 - - [25/Sep/2025 21:06:46] "GET /scraping HTTP/1.1" 200 -
+2025-09-25 21:06:46,066 - INFO - 127.0.0.1 - - [25/Sep/2025 21:06:46] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2025-09-25 21:06:49,715 - INFO -  * Detected change in 'C:\\Users\\sandr\\OneDrive\\Área de Trabalho\\Challenge HP\\Challenge-HP\\test_flask_api.py', reloading
+2025-09-25 21:06:49,848 - INFO -  * Detected change in 'C:\\Users\\sandr\\OneDrive\\Área de Trabalho\\Challenge HP\\Challenge-HP\\test_flask_api.py', reloading
+2025-09-25 21:06:49,854 - INFO -  * Detected change in 'C:\\Users\\sandr\\OneDrive\\Área de Trabalho\\Challenge HP\\Challenge-HP\\test_flask_api.py', reloading
+2025-09-25 21:06:49,855 - INFO -  * Detected change in 'C:\\Users\\sandr\\OneDrive\\Área de Trabalho\\Challenge HP\\Challenge-HP\\test_flask_api.py', reloading
+2025-09-25 21:06:50,331 - INFO -  * Restarting with watchdog (windowsapi)
+2025-09-25 21:06:51,897 - WARNING -  * Debugger is active!
+2025-09-25 21:06:51,900 - INFO -  * Debugger PIN: 388-795-822
+2025-09-25 21:07:07,913 - INFO - Job 62fe91af: Iniciando coleta de produtos
+2025-09-25 21:07:07,914 - INFO - 127.0.0.1 - - [25/Sep/2025 21:07:07] "[32mPOST /web/scraping/start HTTP/1.1[0m" 302 -
+2025-09-25 21:07:07,914 - INFO - Iniciando scraping para: Cartucho Impressora HP
+2025-09-25 21:07:07,915 - INFO - Parâmetros: max_items=200, images=True, sort=relevance
+2025-09-25 21:07:07,980 - INFO - 127.0.0.1 - - [25/Sep/2025 21:07:07] "GET /jobs HTTP/1.1" 200 -
+2025-09-25 21:07:08,003 - INFO -  * Detected change in 'C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\multiprocessing\\popen_spawn_win32.py', reloading
+2025-09-25 21:07:08,281 - INFO - 127.0.0.1 - - [25/Sep/2025 21:07:08] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2025-09-25 21:07:09,649 - INFO - Scrapy 2.13.0 started (bot: scrapybot)
+2025-09-25 21:07:10,010 - INFO - Versions:
+{'lxml': '5.4.0',
+ 'libxml2': '2.11.9',
+ 'cssselect': '1.3.0',
+ 'parsel': '1.10.0',
+ 'w3lib': '2.3.1',
+ 'Twisted': '24.11.0',
+ 'Python': '3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 '
+           '64 bit (AMD64)]',
+ 'pyOpenSSL': '25.1.0 (OpenSSL 3.5.0 8 Apr 2025)',
+ 'cryptography': '45.0.2',
+ 'Platform': 'Windows-11-10.0.26100-SP0'}
+2025-09-25 21:07:10,044 - INFO - Spider initialized for query='Cartucho Impressora HP', sort_by='relevance', condition='all', max_items=200. Start URL: https://lista.mercadolivre.com.br/cartucho-impressora-hp?sb=all_mercadolibre#D[A:Cartucho%20Impressora%20HP]
+2025-09-25 21:07:10,044 - INFO - Enabled addons:
+[]
+2025-09-25 21:07:10,132 - DEBUG - Using reactor: twisted.internet.asyncioreactor.AsyncioSelectorReactor
+2025-09-25 21:07:10,133 - DEBUG - Using asyncio event loop: asyncio.windows_events._WindowsSelectorEventLoop
+2025-09-25 21:07:10,228 - INFO - Telnet Password: 4a45ee91a889f300
+2025-09-25 21:07:10,820 - INFO - Enabled extensions:
+['scrapy.extensions.corestats.CoreStats',
+ 'scrapy.extensions.telnet.TelnetConsole',
+ 'scrapy.extensions.logstats.LogStats',
+ 'scrapy.extensions.throttle.AutoThrottle']
+2025-09-25 21:07:10,822 - INFO - Overridden settings:
+{'AUTOTHROTTLE_ENABLED': True,
+ 'AUTOTHROTTLE_MAX_DELAY': 10,
+ 'AUTOTHROTTLE_START_DELAY': 1,
+ 'AUTOTHROTTLE_TARGET_CONCURRENCY': 2.0,
+ 'DOWNLOAD_DELAY': 1,
+ 'LOG_LEVEL': 'INFO',
+ 'RANDOMIZE_DOWNLOAD_DELAY': 0.5,
+ 'USER_AGENT': 'Challenge HP Spider 1.0'}
+2025-09-25 21:07:11,969 - INFO - Enabled downloader middlewares:
+['scrapy.downloadermiddlewares.offsite.OffsiteMiddleware',
+ 'scrapy.downloadermiddlewares.httpauth.HttpAuthMiddleware',
+ 'scrapy.downloadermiddlewares.downloadtimeout.DownloadTimeoutMiddleware',
+ 'scrapy.downloadermiddlewares.defaultheaders.DefaultHeadersMiddleware',
+ 'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware',
+ 'scrapy.downloadermiddlewares.retry.RetryMiddleware',
+ 'scrapy.downloadermiddlewares.redirect.MetaRefreshMiddleware',
+ 'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware',
+ 'scrapy.downloadermiddlewares.redirect.RedirectMiddleware',
+ 'scrapy.downloadermiddlewares.cookies.CookiesMiddleware',
+ 'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware',
+ 'scrapy.downloadermiddlewares.stats.DownloaderStats']
+2025-09-25 21:07:12,049 - INFO - Enabled spider middlewares:
+['scrapy.spidermiddlewares.start.StartSpiderMiddleware',
+ 'scrapy.spidermiddlewares.httperror.HttpErrorMiddleware',
+ 'scrapy.spidermiddlewares.referer.RefererMiddleware',
+ 'scrapy.spidermiddlewares.urllength.UrlLengthMiddleware',
+ 'scrapy.spidermiddlewares.depth.DepthMiddleware']
+2025-09-25 21:07:12,068 - INFO - Enabled item pipelines:
+[]
+2025-09-25 21:07:12,070 - INFO - Spider opened
+2025-09-25 21:07:12,275 - WARNING - C:\Users\sandr\OneDrive\Área de Trabalho\Challenge HP\Challenge-HP\.venv\Lib\site-packages\scrapy\core\spidermw.py:433: ScrapyDeprecationWarning: mercadolivre_spider.MercadoLivreSpider defines the deprecated start_requests() method. start_requests() has been deprecated in favor of a new method, start(), to support asynchronous code execution. start_requests() will stop being called in a future version of Scrapy. If you use Scrapy 2.13 or higher only, replace start_requests() with start(); note that start() is a coroutine (async def). If you need to maintain compatibility with lower Scrapy versions, when overriding start_requests() in a spider class, override start() as well; you can use super() to reuse the inherited start() implementation without copy-pasting. See the release notes of Scrapy 2.13 for details: https://docs.scrapy.org/en/2.13/news.html
+  warn(
+
+2025-09-25 21:07:12,277 - INFO - Crawled 0 pages (at 0 pages/min), scraped 0 items (at 0 items/min)
+2025-09-25 21:07:12,278 - INFO - Telnet console listening on 127.0.0.1:6023
+2025-09-25 21:07:12,279 - INFO - Attempting to scrape URL: https://lista.mercadolivre.com.br/cartucho-impressora-hp?sb=all_mercadolibre#D[A:Cartucho%20Impressora%20HP]
+2025-09-25 21:07:12,698 - DEBUG - Redirecting (302) to <GET https://www.mercadolivre.com.br/gz/account-verification?go=https%3A%2F%2Flista.mercadolivre.com.br%2Fcartucho-impressora-hp%3Fsb%3Dall_mercadolibre&tid=9f2c22de-64b8-4113-9dda-84cab8387b45> from <GET https://lista.mercadolivre.com.br/cartucho-impressora-hp?sb=all_mercadolibre#D%5BA:Cartucho%20Impressora%20HP%5D>
+2025-09-25 21:07:13,666 - DEBUG - Crawled (200) <GET https://www.mercadolivre.com.br/gz/account-verification?go=https%3A%2F%2Flista.mercadolivre.com.br%2Fcartucho-impressora-hp%3Fsb%3Dall_mercadolibre&tid=9f2c22de-64b8-4113-9dda-84cab8387b45> (referer: None)
+2025-09-25 21:07:13,781 - INFO - Processing URL: https://www.mercadolivre.com.br/gz/account-verification?go=https%3A%2F%2Flista.mercadolivre.com.br%2Fcartucho-impressora-hp%3Fsb%3Dall_mercadolibre&tid=9f2c22de-64b8-4113-9dda-84cab8387b45 (Page 1)
+2025-09-25 21:07:13,782 - INFO - HTML da primeira página de resultados (https://www.mercadolivre.com.br/gz/account-verification?go=https%3A%2F%2Flista.mercadolivre.com.br%2Fcartucho-impressora-hp%3Fsb%3Dall_mercadolibre&tid=9f2c22de-64b8-4113-9dda-84cab8387b45) salvo em scraped_page_content_debug.html para depuração.
+2025-09-25 21:07:13,786 - WARNING - Nenhum container de produto encontrado com seletores poly-card ou geral na URL: https://www.mercadolivre.com.br/gz/account-verification?go=https%3A%2F%2Flista.mercadolivre.com.br%2Fcartucho-impressora-hp%3Fsb%3Dall_mercadolibre&tid=9f2c22de-64b8-4113-9dda-84cab8387b45
+2025-09-25 21:07:13,788 - INFO - Closing spider (finished)
+2025-09-25 21:07:13,789 - INFO - Dumping Scrapy stats:
+{'downloader/request_bytes': 878,
+ 'downloader/request_count': 2,
+ 'downloader/request_method_count/GET': 2,
+ 'downloader/response_bytes': 62247,
+ 'downloader/response_count': 2,
+ 'downloader/response_status_count/200': 1,
+ 'downloader/response_status_count/302': 1,
+ 'elapsed_time_seconds': 1.511628,
+ 'finish_reason': 'finished',
+ 'finish_time': datetime.datetime(2025, 9, 26, 0, 7, 13, 789599, tzinfo=datetime.timezone.utc),
+ 'httpcompression/response_bytes': 209822,
+ 'httpcompression/response_count': 1,
+ 'items_per_minute': 0.0,
+ 'log_count/INFO': 13,
+ 'log_count/WARNING': 2,
+ 'response_received_count': 1,
+ 'responses_per_minute': 60.0,
+ 'scheduler/dequeued': 2,
+ 'scheduler/dequeued/memory': 2,
+ 'scheduler/enqueued': 2,
+ 'scheduler/enqueued/memory': 2,
+ 'start_time': datetime.datetime(2025, 9, 26, 0, 7, 12, 277971, tzinfo=datetime.timezone.utc)}
+2025-09-25 21:07:13,790 - INFO - Spider closed (finished)
+2025-09-25 21:07:14,260 - INFO -  * Restarting with watchdog (windowsapi)
+2025-09-25 21:07:15,654 - WARNING -  * Debugger is active!
+2025-09-25 21:07:15,658 - INFO -  * Debugger PIN: 388-795-822
+2025-09-25 21:07:18,626 - INFO - 127.0.0.1 - - [25/Sep/2025 21:07:18] "GET /jobs HTTP/1.1" 200 -
+2025-09-25 21:07:18,696 - INFO - 127.0.0.1 - - [25/Sep/2025 21:07:18] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2025-09-25 21:07:33,360 - INFO -  * Detected change in 'C:\\Users\\sandr\\OneDrive\\Área de Trabalho\\Challenge HP\\Challenge-HP\\exemplo_flask.py', reloading
+2025-09-25 21:07:33,646 - INFO -  * Detected change in 'C:\\Users\\sandr\\OneDrive\\Área de Trabalho\\Challenge HP\\Challenge-HP\\exemplo_flask.py', reloading
+2025-09-25 21:07:33,667 - INFO -  * Detected change in 'C:\\Users\\sandr\\OneDrive\\Área de Trabalho\\Challenge HP\\Challenge-HP\\exemplo_flask.py', reloading
+2025-09-25 21:07:33,668 - INFO -  * Detected change in 'C:\\Users\\sandr\\OneDrive\\Área de Trabalho\\Challenge HP\\Challenge-HP\\exemplo_flask.py', reloading
+2025-09-25 21:07:34,658 - INFO -  * Restarting with watchdog (windowsapi)
+2025-09-25 21:07:36,665 - WARNING -  * Debugger is active!
+2025-09-25 21:07:36,671 - INFO -  * Debugger PIN: 388-795-822
+2025-09-25 21:07:49,172 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.22.0.15:5000
+2025-09-25 21:07:49,173 - INFO - [33mPress CTRL+C to quit[0m
+2025-09-25 21:07:49,179 - INFO -  * Restarting with watchdog (windowsapi)
+2025-09-25 21:07:50,480 - WARNING -  * Debugger is active!
+2025-09-25 21:07:50,485 - INFO -  * Debugger PIN: 388-795-822
+2025-09-25 21:07:53,840 - INFO - 127.0.0.1 - - [25/Sep/2025 21:07:53] "GET / HTTP/1.1" 200 -
+2025-09-25 21:07:53,982 - INFO - 127.0.0.1 - - [25/Sep/2025 21:07:53] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2025-09-25 21:07:54,083 - INFO - 127.0.0.1 - - [25/Sep/2025 21:07:54] "GET /api/jobs HTTP/1.1" 200 -
+2025-09-25 21:07:54,316 - INFO - 127.0.0.1 - - [25/Sep/2025 21:07:54] "GET /api/datasets HTTP/1.1" 200 -
+2025-09-25 21:07:56,738 - INFO - 127.0.0.1 - - [25/Sep/2025 21:07:56] "GET /scraping HTTP/1.1" 200 -
+2025-09-25 21:07:57,039 - INFO - 127.0.0.1 - - [25/Sep/2025 21:07:57] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2025-09-25 21:07:59,918 - INFO -  * Detected change in 'C:\\Users\\sandr\\OneDrive\\Área de Trabalho\\Challenge HP\\Challenge-HP\\flask_app.py', reloading
+2025-09-25 21:07:59,921 - INFO -  * Detected change in 'C:\\Users\\sandr\\OneDrive\\Área de Trabalho\\Challenge HP\\Challenge-HP\\flask_app.py', reloading
+2025-09-25 21:07:59,924 - INFO -  * Detected change in 'C:\\Users\\sandr\\OneDrive\\Área de Trabalho\\Challenge HP\\Challenge-HP\\run_flask.py', reloading
+2025-09-25 21:07:59,926 - INFO -  * Detected change in 'C:\\Users\\sandr\\OneDrive\\Área de Trabalho\\Challenge HP\\Challenge-HP\\test_flask_api.py', reloading
+2025-09-25 21:07:59,927 - INFO -  * Detected change in 'C:\\Users\\sandr\\OneDrive\\Área de Trabalho\\Challenge HP\\Challenge-HP\\exemplo_flask.py', reloading
+2025-09-25 21:07:59,929 - INFO -  * Detected change in 'C:\\Users\\sandr\\OneDrive\\Área de Trabalho\\Challenge HP\\Challenge-HP\\test_flask_api.py', reloading
+2025-09-25 21:07:59,930 - INFO -  * Detected change in 'C:\\Users\\sandr\\OneDrive\\Área de Trabalho\\Challenge HP\\Challenge-HP\\exemplo_flask.py', reloading
+2025-09-25 21:07:59,932 - INFO -  * Detected change in 'C:\\Users\\sandr\\OneDrive\\Área de Trabalho\\Challenge HP\\Challenge-HP\\run_flask.py', reloading
+2025-09-25 21:07:59,937 - INFO -  * Detected change in 'C:\\Users\\sandr\\OneDrive\\Área de Trabalho\\Challenge HP\\Challenge-HP\\test_flask_api.py', reloading
+2025-09-25 21:07:59,943 - INFO -  * Detected change in 'C:\\Users\\sandr\\OneDrive\\Área de Trabalho\\Challenge HP\\Challenge-HP\\exemplo_flask.py', reloading
+2025-09-25 21:08:01,098 - INFO -  * Restarting with watchdog (windowsapi)
+2025-09-25 21:08:02,277 - WARNING -  * Debugger is active!
+2025-09-25 21:08:02,281 - INFO -  * Debugger PIN: 388-795-822
+2025-09-25 21:08:03,322 - INFO - Iniciando scraping para: Cartucho HP
+2025-09-25 21:08:03,323 - INFO - Parâmetros: max_items=5, images=False, sort=relevance
+2025-09-25 21:08:04,491 - INFO - Scrapy 2.13.0 started (bot: scrapybot)
+2025-09-25 21:08:04,634 - INFO - Versions:
+{'lxml': '5.4.0',
+ 'libxml2': '2.11.9',
+ 'cssselect': '1.3.0',
+ 'parsel': '1.10.0',
+ 'w3lib': '2.3.1',
+ 'Twisted': '24.11.0',
+ 'Python': '3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 '
+           '64 bit (AMD64)]',
+ 'pyOpenSSL': '25.1.0 (OpenSSL 3.5.0 8 Apr 2025)',
+ 'cryptography': '45.0.2',
+ 'Platform': 'Windows-11-10.0.26100-SP0'}
+2025-09-25 21:08:04,667 - INFO - Spider initialized for query='Cartucho HP', sort_by='relevance', condition='all', max_items=5. Start URL: https://lista.mercadolivre.com.br/cartucho-hp?sb=all_mercadolibre#D[A:Cartucho%20HP]
+2025-09-25 21:08:04,668 - INFO - Enabled addons:
+[]
+2025-09-25 21:08:04,673 - DEBUG - Using reactor: twisted.internet.asyncioreactor.AsyncioSelectorReactor
+2025-09-25 21:08:04,674 - DEBUG - Using asyncio event loop: asyncio.windows_events._WindowsSelectorEventLoop
+2025-09-25 21:08:04,677 - INFO - Telnet Password: f4a50d322d8ba2ac
+2025-09-25 21:08:04,694 - INFO - Enabled extensions:
+['scrapy.extensions.corestats.CoreStats',
+ 'scrapy.extensions.telnet.TelnetConsole',
+ 'scrapy.extensions.logstats.LogStats',
+ 'scrapy.extensions.throttle.AutoThrottle']
+2025-09-25 21:08:04,695 - INFO - Overridden settings:
+{'AUTOTHROTTLE_ENABLED': True,
+ 'AUTOTHROTTLE_MAX_DELAY': 10,
+ 'AUTOTHROTTLE_START_DELAY': 1,
+ 'AUTOTHROTTLE_TARGET_CONCURRENCY': 2.0,
+ 'DOWNLOAD_DELAY': 1,
+ 'LOG_LEVEL': 'INFO',
+ 'RANDOMIZE_DOWNLOAD_DELAY': 0.5,
+ 'USER_AGENT': 'Challenge HP Spider 1.0'}
+2025-09-25 21:08:04,827 - INFO - Enabled downloader middlewares:
+['scrapy.downloadermiddlewares.offsite.OffsiteMiddleware',
+ 'scrapy.downloadermiddlewares.httpauth.HttpAuthMiddleware',
+ 'scrapy.downloadermiddlewares.downloadtimeout.DownloadTimeoutMiddleware',
+ 'scrapy.downloadermiddlewares.defaultheaders.DefaultHeadersMiddleware',
+ 'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware',
+ 'scrapy.downloadermiddlewares.retry.RetryMiddleware',
+ 'scrapy.downloadermiddlewares.redirect.MetaRefreshMiddleware',
+ 'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware',
+ 'scrapy.downloadermiddlewares.redirect.RedirectMiddleware',
+ 'scrapy.downloadermiddlewares.cookies.CookiesMiddleware',
+ 'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware',
+ 'scrapy.downloadermiddlewares.stats.DownloaderStats']
+2025-09-25 21:08:04,831 - INFO - Enabled spider middlewares:
+['scrapy.spidermiddlewares.start.StartSpiderMiddleware',
+ 'scrapy.spidermiddlewares.httperror.HttpErrorMiddleware',
+ 'scrapy.spidermiddlewares.referer.RefererMiddleware',
+ 'scrapy.spidermiddlewares.urllength.UrlLengthMiddleware',
+ 'scrapy.spidermiddlewares.depth.DepthMiddleware']
+2025-09-25 21:08:04,832 - INFO - Enabled item pipelines:
+[]
+2025-09-25 21:08:04,834 - INFO - Spider opened
+2025-09-25 21:08:04,842 - WARNING - C:\Users\sandr\OneDrive\Área de Trabalho\Challenge HP\Challenge-HP\.venv\Lib\site-packages\scrapy\core\spidermw.py:433: ScrapyDeprecationWarning: mercadolivre_spider.MercadoLivreSpider defines the deprecated start_requests() method. start_requests() has been deprecated in favor of a new method, start(), to support asynchronous code execution. start_requests() will stop being called in a future version of Scrapy. If you use Scrapy 2.13 or higher only, replace start_requests() with start(); note that start() is a coroutine (async def). If you need to maintain compatibility with lower Scrapy versions, when overriding start_requests() in a spider class, override start() as well; you can use super() to reuse the inherited start() implementation without copy-pasting. See the release notes of Scrapy 2.13 for details: https://docs.scrapy.org/en/2.13/news.html
+  warn(
+
+2025-09-25 21:08:04,843 - INFO - Crawled 0 pages (at 0 pages/min), scraped 0 items (at 0 items/min)
+2025-09-25 21:08:04,845 - INFO - Telnet console listening on 127.0.0.1:6023
+2025-09-25 21:08:04,846 - INFO - Attempting to scrape URL: https://lista.mercadolivre.com.br/cartucho-hp?sb=all_mercadolibre#D[A:Cartucho%20HP]
+2025-09-25 21:08:05,438 - DEBUG - Redirecting (302) to <GET https://www.mercadolivre.com.br/gz/account-verification?go=https%3A%2F%2Flista.mercadolivre.com.br%2Fcartucho-hp%3Fsb%3Dall_mercadolibre&tid=e32a20d9-2e9f-4a05-b692-66616541d52a> from <GET https://lista.mercadolivre.com.br/cartucho-hp?sb=all_mercadolibre#D%5BA:Cartucho%20HP%5D>
+2025-09-25 21:08:06,234 - DEBUG - Crawled (200) <GET https://www.mercadolivre.com.br/gz/account-verification?go=https%3A%2F%2Flista.mercadolivre.com.br%2Fcartucho-hp%3Fsb%3Dall_mercadolibre&tid=e32a20d9-2e9f-4a05-b692-66616541d52a> (referer: None)
+2025-09-25 21:08:06,346 - INFO - Processing URL: https://www.mercadolivre.com.br/gz/account-verification?go=https%3A%2F%2Flista.mercadolivre.com.br%2Fcartucho-hp%3Fsb%3Dall_mercadolibre&tid=e32a20d9-2e9f-4a05-b692-66616541d52a (Page 1)
+2025-09-25 21:08:06,348 - INFO - HTML da primeira página de resultados (https://www.mercadolivre.com.br/gz/account-verification?go=https%3A%2F%2Flista.mercadolivre.com.br%2Fcartucho-hp%3Fsb%3Dall_mercadolibre&tid=e32a20d9-2e9f-4a05-b692-66616541d52a) salvo em scraped_page_content_debug.html para depuração.
+2025-09-25 21:08:06,352 - WARNING - Nenhum container de produto encontrado com seletores poly-card ou geral na URL: https://www.mercadolivre.com.br/gz/account-verification?go=https%3A%2F%2Flista.mercadolivre.com.br%2Fcartucho-hp%3Fsb%3Dall_mercadolibre&tid=e32a20d9-2e9f-4a05-b692-66616541d52a
+2025-09-25 21:08:06,354 - INFO - Closing spider (finished)
+2025-09-25 21:08:06,355 - INFO - Dumping Scrapy stats:
+{'downloader/request_bytes': 856,
+ 'downloader/request_count': 2,
+ 'downloader/request_method_count/GET': 2,
+ 'downloader/response_bytes': 61982,
+ 'downloader/response_count': 2,
+ 'downloader/response_status_count/200': 1,
+ 'downloader/response_status_count/302': 1,
+ 'elapsed_time_seconds': 1.51038,
+ 'finish_reason': 'finished',
+ 'finish_time': datetime.datetime(2025, 9, 26, 0, 8, 6, 354117, tzinfo=datetime.timezone.utc),
+ 'httpcompression/response_bytes': 208991,
+ 'httpcompression/response_count': 1,
+ 'items_per_minute': 0.0,
+ 'log_count/INFO': 13,
+ 'log_count/WARNING': 2,
+ 'response_received_count': 1,
+ 'responses_per_minute': 60.0,
+ 'scheduler/dequeued': 2,
+ 'scheduler/dequeued/memory': 2,
+ 'scheduler/enqueued': 2,
+ 'scheduler/enqueued/memory': 2,
+ 'start_time': datetime.datetime(2025, 9, 26, 0, 8, 4, 843737, tzinfo=datetime.timezone.utc)}
+2025-09-25 21:08:06,355 - INFO - Spider closed (finished)
+2025-09-25 21:08:06,558 - INFO - Coletados 2 produtos
+2025-09-25 21:08:06,560 - INFO - 127.0.0.1 - - [25/Sep/2025 21:08:06] "POST /api/scraping/simple HTTP/1.1" 200 -
+2025-09-25 21:08:36,212 - INFO - Job ea8e1b88: Iniciando coleta de produtos
+2025-09-25 21:08:36,213 - INFO - 127.0.0.1 - - [25/Sep/2025 21:08:36] "[32mPOST /web/scraping/start HTTP/1.1[0m" 302 -
+2025-09-25 21:08:36,214 - INFO - Iniciando scraping para: Cartucho HP
+2025-09-25 21:08:36,215 - INFO - Parâmetros: max_items=10, images=True, sort=relevance
+2025-09-25 21:08:36,523 - INFO - 127.0.0.1 - - [25/Sep/2025 21:08:36] "GET /jobs HTTP/1.1" 200 -
+2025-09-25 21:08:36,912 - INFO - 127.0.0.1 - - [25/Sep/2025 21:08:36] "GET /static/style.css HTTP/1.1" 200 -
+2025-09-25 21:08:37,340 - INFO - Scrapy 2.13.0 started (bot: scrapybot)
+2025-09-25 21:08:37,464 - INFO - Versions:
+{'lxml': '5.4.0',
+ 'libxml2': '2.11.9',
+ 'cssselect': '1.3.0',
+ 'parsel': '1.10.0',
+ 'w3lib': '2.3.1',
+ 'Twisted': '24.11.0',
+ 'Python': '3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 '
+           '64 bit (AMD64)]',
+ 'pyOpenSSL': '25.1.0 (OpenSSL 3.5.0 8 Apr 2025)',
+ 'cryptography': '45.0.2',
+ 'Platform': 'Windows-11-10.0.26100-SP0'}
+2025-09-25 21:08:37,493 - INFO - Spider initialized for query='Cartucho HP', sort_by='relevance', condition='all', max_items=10. Start URL: https://lista.mercadolivre.com.br/cartucho-hp?sb=all_mercadolibre#D[A:Cartucho%20HP]
+2025-09-25 21:08:37,494 - INFO - Enabled addons:
+[]
+2025-09-25 21:08:37,499 - DEBUG - Using reactor: twisted.internet.asyncioreactor.AsyncioSelectorReactor
+2025-09-25 21:08:37,500 - DEBUG - Using asyncio event loop: asyncio.windows_events._WindowsSelectorEventLoop
+2025-09-25 21:08:37,504 - INFO - Telnet Password: 163c039628ebeb68
+2025-09-25 21:08:37,523 - INFO - Enabled extensions:
+['scrapy.extensions.corestats.CoreStats',
+ 'scrapy.extensions.telnet.TelnetConsole',
+ 'scrapy.extensions.logstats.LogStats',
+ 'scrapy.extensions.throttle.AutoThrottle']
+2025-09-25 21:08:37,523 - INFO - Overridden settings:
+{'AUTOTHROTTLE_ENABLED': True,
+ 'AUTOTHROTTLE_MAX_DELAY': 10,
+ 'AUTOTHROTTLE_START_DELAY': 1,
+ 'AUTOTHROTTLE_TARGET_CONCURRENCY': 2.0,
+ 'DOWNLOAD_DELAY': 1,
+ 'LOG_LEVEL': 'INFO',
+ 'RANDOMIZE_DOWNLOAD_DELAY': 0.5,
+ 'USER_AGENT': 'Challenge HP Spider 1.0'}
+2025-09-25 21:08:37,619 - INFO - Enabled downloader middlewares:
+['scrapy.downloadermiddlewares.offsite.OffsiteMiddleware',
+ 'scrapy.downloadermiddlewares.httpauth.HttpAuthMiddleware',
+ 'scrapy.downloadermiddlewares.downloadtimeout.DownloadTimeoutMiddleware',
+ 'scrapy.downloadermiddlewares.defaultheaders.DefaultHeadersMiddleware',
+ 'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware',
+ 'scrapy.downloadermiddlewares.retry.RetryMiddleware',
+ 'scrapy.downloadermiddlewares.redirect.MetaRefreshMiddleware',
+ 'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware',
+ 'scrapy.downloadermiddlewares.redirect.RedirectMiddleware',
+ 'scrapy.downloadermiddlewares.cookies.CookiesMiddleware',
+ 'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware',
+ 'scrapy.downloadermiddlewares.stats.DownloaderStats']
+2025-09-25 21:08:37,623 - INFO - Enabled spider middlewares:
+['scrapy.spidermiddlewares.start.StartSpiderMiddleware',
+ 'scrapy.spidermiddlewares.httperror.HttpErrorMiddleware',
+ 'scrapy.spidermiddlewares.referer.RefererMiddleware',
+ 'scrapy.spidermiddlewares.urllength.UrlLengthMiddleware',
+ 'scrapy.spidermiddlewares.depth.DepthMiddleware']
+2025-09-25 21:08:37,624 - INFO - Enabled item pipelines:
+[]
+2025-09-25 21:08:37,625 - INFO - Spider opened
+2025-09-25 21:08:37,634 - WARNING - C:\Users\sandr\OneDrive\Área de Trabalho\Challenge HP\Challenge-HP\.venv\Lib\site-packages\scrapy\core\spidermw.py:433: ScrapyDeprecationWarning: mercadolivre_spider.MercadoLivreSpider defines the deprecated start_requests() method. start_requests() has been deprecated in favor of a new method, start(), to support asynchronous code execution. start_requests() will stop being called in a future version of Scrapy. If you use Scrapy 2.13 or higher only, replace start_requests() with start(); note that start() is a coroutine (async def). If you need to maintain compatibility with lower Scrapy versions, when overriding start_requests() in a spider class, override start() as well; you can use super() to reuse the inherited start() implementation without copy-pasting. See the release notes of Scrapy 2.13 for details: https://docs.scrapy.org/en/2.13/news.html
+  warn(
+
+2025-09-25 21:08:37,635 - INFO - Crawled 0 pages (at 0 pages/min), scraped 0 items (at 0 items/min)
+2025-09-25 21:08:37,637 - INFO - Telnet console listening on 127.0.0.1:6023
+2025-09-25 21:08:37,638 - INFO - Attempting to scrape URL: https://lista.mercadolivre.com.br/cartucho-hp?sb=all_mercadolibre#D[A:Cartucho%20HP]
+2025-09-25 21:08:38,271 - DEBUG - Redirecting (302) to <GET https://www.mercadolivre.com.br/gz/account-verification?go=https%3A%2F%2Flista.mercadolivre.com.br%2Fcartucho-hp%3Fsb%3Dall_mercadolibre&tid=0a3d754e-6f61-4117-809a-a16b2e7294cb> from <GET https://lista.mercadolivre.com.br/cartucho-hp?sb=all_mercadolibre#D%5BA:Cartucho%20HP%5D>
+2025-09-25 21:08:39,049 - DEBUG - Crawled (200) <GET https://www.mercadolivre.com.br/gz/account-verification?go=https%3A%2F%2Flista.mercadolivre.com.br%2Fcartucho-hp%3Fsb%3Dall_mercadolibre&tid=0a3d754e-6f61-4117-809a-a16b2e7294cb> (referer: None)
+2025-09-25 21:08:39,175 - INFO - Processing URL: https://www.mercadolivre.com.br/gz/account-verification?go=https%3A%2F%2Flista.mercadolivre.com.br%2Fcartucho-hp%3Fsb%3Dall_mercadolibre&tid=0a3d754e-6f61-4117-809a-a16b2e7294cb (Page 1)
+2025-09-25 21:08:39,177 - INFO - HTML da primeira página de resultados (https://www.mercadolivre.com.br/gz/account-verification?go=https%3A%2F%2Flista.mercadolivre.com.br%2Fcartucho-hp%3Fsb%3Dall_mercadolibre&tid=0a3d754e-6f61-4117-809a-a16b2e7294cb) salvo em scraped_page_content_debug.html para depuração.
+2025-09-25 21:08:39,180 - WARNING - Nenhum container de produto encontrado com seletores poly-card ou geral na URL: https://www.mercadolivre.com.br/gz/account-verification?go=https%3A%2F%2Flista.mercadolivre.com.br%2Fcartucho-hp%3Fsb%3Dall_mercadolibre&tid=0a3d754e-6f61-4117-809a-a16b2e7294cb
+2025-09-25 21:08:39,181 - INFO - Closing spider (finished)
+2025-09-25 21:08:39,182 - INFO - Dumping Scrapy stats:
+{'downloader/request_bytes': 774,
+ 'downloader/request_count': 2,
+ 'downloader/request_method_count/GET': 2,
+ 'downloader/response_bytes': 61983,
+ 'downloader/response_count': 2,
+ 'downloader/response_status_count/200': 1,
+ 'downloader/response_status_count/302': 1,
+ 'elapsed_time_seconds': 1.546564,
+ 'finish_reason': 'finished',
+ 'finish_time': datetime.datetime(2025, 9, 26, 0, 8, 39, 182384, tzinfo=datetime.timezone.utc),
+ 'httpcompression/response_bytes': 208990,
+ 'httpcompression/response_count': 1,
+ 'items_per_minute': 0.0,
+ 'log_count/INFO': 13,
+ 'log_count/WARNING': 2,
+ 'response_received_count': 1,
+ 'responses_per_minute': 60.0,
+ 'scheduler/dequeued': 2,
+ 'scheduler/dequeued/memory': 2,
+ 'scheduler/enqueued': 2,
+ 'scheduler/enqueued/memory': 2,
+ 'start_time': datetime.datetime(2025, 9, 26, 0, 8, 37, 635820, tzinfo=datetime.timezone.utc)}
+2025-09-25 21:08:39,183 - INFO - Spider closed (finished)
+2025-09-25 21:08:39,358 - INFO - Coletados 2 produtos
+2025-09-25 21:08:39,358 - INFO - Job ea8e1b88: Coletando reviews
+2025-09-25 21:08:39,359 - INFO - Coletando reviews para 2 produtos
+2025-09-25 21:08:39,359 - ERROR - Job ea8e1b88: Erro - 'list' object has no attribute 'get'
+2025-09-25 21:08:40,442 - INFO - 127.0.0.1 - - [25/Sep/2025 21:08:40] "GET /api/jobs/ea8e1b88/status HTTP/1.1" 200 -
+2025-09-25 21:08:47,238 - INFO - 127.0.0.1 - - [25/Sep/2025 21:08:47] "GET /jobs HTTP/1.1" 200 -
+2025-09-25 21:08:47,256 - INFO - 127.0.0.1 - - [25/Sep/2025 21:08:47] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2025-09-25 21:17:41,371 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.22.0.15:5000
+2025-09-25 21:17:41,372 - INFO - [33mPress CTRL+C to quit[0m
+2025-09-25 21:17:41,378 - INFO -  * Restarting with watchdog (windowsapi)
+2025-09-25 21:17:42,356 - WARNING -  * Debugger is active!
+2025-09-25 21:17:42,360 - INFO -  * Debugger PIN: 388-795-822
+2025-09-25 21:17:45,175 - INFO - 127.0.0.1 - - [25/Sep/2025 21:17:45] "GET / HTTP/1.1" 200 -
+2025-09-25 21:17:45,273 - INFO - 127.0.0.1 - - [25/Sep/2025 21:17:45] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2025-09-25 21:17:45,434 - INFO - 127.0.0.1 - - [25/Sep/2025 21:17:45] "GET /api/jobs HTTP/1.1" 200 -
+2025-09-25 21:17:45,668 - INFO - 127.0.0.1 - - [25/Sep/2025 21:17:45] "GET /api/datasets HTTP/1.1" 200 -
+2025-09-25 21:17:51,756 - INFO - 127.0.0.1 - - [25/Sep/2025 21:17:51] "GET /scraping HTTP/1.1" 200 -
+2025-09-25 21:17:51,860 - INFO - 127.0.0.1 - - [25/Sep/2025 21:17:51] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2025-09-25 21:18:11,123 - INFO - Job 79614bcb: Iniciando coleta de produtos
+2025-09-25 21:18:11,124 - INFO - 127.0.0.1 - - [25/Sep/2025 21:18:11] "[32mPOST /web/scraping/start HTTP/1.1[0m" 302 -
+2025-09-25 21:18:11,124 - INFO - Iniciando scraping para: Cartucho Impressora HP 664
+2025-09-25 21:18:11,125 - INFO - Parâmetros: max_items=10, images=True, sort=relevance
+2025-09-25 21:18:11,196 - INFO - 127.0.0.1 - - [25/Sep/2025 21:18:11] "GET /jobs HTTP/1.1" 200 -
+2025-09-25 21:18:11,387 - INFO - 127.0.0.1 - - [25/Sep/2025 21:18:11] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2025-09-25 21:18:12,314 - INFO - Spider iniciado com configurações otimizadas:
+2025-09-25 21:18:12,315 - INFO -    CONCURRENT_REQUESTS: 16
+2025-09-25 21:18:12,315 - INFO -    CONCURRENT_REQUESTS_PER_DOMAIN: 8
+2025-09-25 21:18:12,315 - INFO -    DOWNLOAD_TIMEOUT: 180s
+2025-09-25 21:18:12,315 - INFO -    HTTPCACHE_ENABLED: False
+2025-09-25 21:18:12,318 - INFO - Scrapy 2.13.0 started (bot: scrapybot)
+2025-09-25 21:18:12,559 - INFO - Versions:
+{'lxml': '5.4.0',
+ 'libxml2': '2.11.9',
+ 'cssselect': '1.3.0',
+ 'parsel': '1.10.0',
+ 'w3lib': '2.3.1',
+ 'Twisted': '24.11.0',
+ 'Python': '3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 '
+           '64 bit (AMD64)]',
+ 'pyOpenSSL': '25.1.0 (OpenSSL 3.5.0 8 Apr 2025)',
+ 'cryptography': '45.0.2',
+ 'Platform': 'Windows-11-10.0.26100-SP0'}
+2025-09-25 21:18:12,593 - INFO - Spider initialized for query='Cartucho Impressora HP 664', sort_by='relevance', condition='all', max_items=10. Start URL: https://lista.mercadolivre.com.br/cartucho-impressora-hp-664?sb=all_mercadolibre#D[A:Cartucho%20Impressora%20HP%20664]
+2025-09-25 21:18:12,593 - INFO - Enabled addons:
+[]
+2025-09-25 21:18:12,596 - DEBUG - Using reactor: twisted.internet.asyncioreactor.AsyncioSelectorReactor
+2025-09-25 21:18:12,596 - DEBUG - Using asyncio event loop: asyncio.windows_events._WindowsSelectorEventLoop
+2025-09-25 21:18:12,599 - INFO - Telnet Password: 4fbba660ba851d0e
+2025-09-25 21:18:12,622 - INFO - Enabled extensions:
+['scrapy.extensions.corestats.CoreStats',
+ 'scrapy.extensions.telnet.TelnetConsole',
+ 'scrapy.extensions.logstats.LogStats',
+ 'scrapy.extensions.throttle.AutoThrottle']
+2025-09-25 21:18:12,624 - INFO - Overridden settings:
+{'AUTOTHROTTLE_ENABLED': True,
+ 'AUTOTHROTTLE_MAX_DELAY': 10,
+ 'AUTOTHROTTLE_START_DELAY': 1,
+ 'AUTOTHROTTLE_TARGET_CONCURRENCY': 2.0,
+ 'DOWNLOAD_DELAY': 1,
+ 'LOG_LEVEL': 'INFO',
+ 'RANDOMIZE_DOWNLOAD_DELAY': 0.5,
+ 'USER_AGENT': 'Challenge HP Spider 1.0'}
+2025-09-25 21:18:12,743 - INFO - Enabled downloader middlewares:
+['scrapy.downloadermiddlewares.offsite.OffsiteMiddleware',
+ 'scrapy.downloadermiddlewares.httpauth.HttpAuthMiddleware',
+ 'scrapy.downloadermiddlewares.downloadtimeout.DownloadTimeoutMiddleware',
+ 'scrapy.downloadermiddlewares.defaultheaders.DefaultHeadersMiddleware',
+ 'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware',
+ 'scrapy.downloadermiddlewares.retry.RetryMiddleware',
+ 'scrapy.downloadermiddlewares.redirect.MetaRefreshMiddleware',
+ 'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware',
+ 'scrapy.downloadermiddlewares.redirect.RedirectMiddleware',
+ 'scrapy.downloadermiddlewares.cookies.CookiesMiddleware',
+ 'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware',
+ 'scrapy.downloadermiddlewares.stats.DownloaderStats']
+2025-09-25 21:18:12,747 - INFO - Enabled spider middlewares:
+['scrapy.spidermiddlewares.start.StartSpiderMiddleware',
+ 'scrapy.spidermiddlewares.httperror.HttpErrorMiddleware',
+ 'scrapy.spidermiddlewares.referer.RefererMiddleware',
+ 'scrapy.spidermiddlewares.urllength.UrlLengthMiddleware',
+ 'scrapy.spidermiddlewares.depth.DepthMiddleware']
+2025-09-25 21:18:12,748 - INFO - Enabled item pipelines:
+[]
+2025-09-25 21:18:12,748 - INFO - Spider opened
+2025-09-25 21:18:12,756 - WARNING - C:\Users\sandr\OneDrive\Área de Trabalho\Challenge HP\Challenge-HP\.venv\Lib\site-packages\scrapy\core\spidermw.py:433: ScrapyDeprecationWarning: mercadolivre_spider.MercadoLivreSpider defines the deprecated start_requests() method. start_requests() has been deprecated in favor of a new method, start(), to support asynchronous code execution. start_requests() will stop being called in a future version of Scrapy. If you use Scrapy 2.13 or higher only, replace start_requests() with start(); note that start() is a coroutine (async def). If you need to maintain compatibility with lower Scrapy versions, when overriding start_requests() in a spider class, override start() as well; you can use super() to reuse the inherited start() implementation without copy-pasting. See the release notes of Scrapy 2.13 for details: https://docs.scrapy.org/en/2.13/news.html
+  warn(
+
+2025-09-25 21:18:12,757 - INFO - Crawled 0 pages (at 0 pages/min), scraped 0 items (at 0 items/min)
+2025-09-25 21:18:12,758 - INFO - Telnet console listening on 127.0.0.1:6023
+2025-09-25 21:18:12,759 - INFO - Attempting to scrape URL: https://lista.mercadolivre.com.br/cartucho-impressora-hp-664?sb=all_mercadolibre#D[A:Cartucho%20Impressora%20HP%20664]
+2025-09-25 21:18:13,354 - DEBUG - Redirecting (302) to <GET https://www.mercadolivre.com.br/gz/account-verification?go=https%3A%2F%2Flista.mercadolivre.com.br%2Fcartucho-impressora-hp-664%3Fsb%3Dall_mercadolibre&tid=71d28d9f-e8a2-4354-813e-128925d125f4> from <GET https://lista.mercadolivre.com.br/cartucho-impressora-hp-664?sb=all_mercadolibre#D%5BA:Cartucho%20Impressora%20HP%20664%5D>
+2025-09-25 21:18:14,113 - DEBUG - Crawled (200) <GET https://www.mercadolivre.com.br/gz/account-verification?go=https%3A%2F%2Flista.mercadolivre.com.br%2Fcartucho-impressora-hp-664%3Fsb%3Dall_mercadolibre&tid=71d28d9f-e8a2-4354-813e-128925d125f4> (referer: None)
+2025-09-25 21:18:14,238 - INFO - Processing URL: https://www.mercadolivre.com.br/gz/account-verification?go=https%3A%2F%2Flista.mercadolivre.com.br%2Fcartucho-impressora-hp-664%3Fsb%3Dall_mercadolibre&tid=71d28d9f-e8a2-4354-813e-128925d125f4 (Page 1)
+2025-09-25 21:18:14,239 - INFO - HTML da primeira página de resultados (https://www.mercadolivre.com.br/gz/account-verification?go=https%3A%2F%2Flista.mercadolivre.com.br%2Fcartucho-impressora-hp-664%3Fsb%3Dall_mercadolibre&tid=71d28d9f-e8a2-4354-813e-128925d125f4) salvo em scraped_page_content_debug.html para depuração.
+2025-09-25 21:18:14,242 - WARNING - Nenhum container de produto encontrado com seletores poly-card ou geral na URL: https://www.mercadolivre.com.br/gz/account-verification?go=https%3A%2F%2Flista.mercadolivre.com.br%2Fcartucho-impressora-hp-664%3Fsb%3Dall_mercadolibre&tid=71d28d9f-e8a2-4354-813e-128925d125f4
+2025-09-25 21:18:14,243 - INFO - Closing spider (finished)
+2025-09-25 21:18:14,244 - INFO - Dumping Scrapy stats:
+{'downloader/request_bytes': 878,
+ 'downloader/request_count': 2,
+ 'downloader/request_method_count/GET': 2,
+ 'downloader/response_bytes': 62100,
+ 'downloader/response_count': 2,
+ 'downloader/response_status_count/200': 1,
+ 'downloader/response_status_count/302': 1,
+ 'elapsed_time_seconds': 1.486918,
+ 'finish_reason': 'finished',
+ 'finish_time': datetime.datetime(2025, 9, 26, 0, 18, 14, 244069, tzinfo=datetime.timezone.utc),
+ 'httpcompression/response_bytes': 209036,
+ 'httpcompression/response_count': 1,
+ 'items_per_minute': 0.0,
+ 'log_count/INFO': 13,
+ 'log_count/WARNING': 2,
+ 'response_received_count': 1,
+ 'responses_per_minute': 60.0,
+ 'scheduler/dequeued': 2,
+ 'scheduler/dequeued/memory': 2,
+ 'scheduler/enqueued': 2,
+ 'scheduler/enqueued/memory': 2,
+ 'start_time': datetime.datetime(2025, 9, 26, 0, 18, 12, 757151, tzinfo=datetime.timezone.utc)}
+2025-09-25 21:18:14,245 - INFO - Spider closed (finished)
+2025-09-25 21:18:14,433 - WARNING - Nenhum produto foi coletado
+2025-09-25 21:18:16,275 - INFO - 127.0.0.1 - - [25/Sep/2025 21:18:16] "GET /api/jobs/79614bcb/status HTTP/1.1" 200 -
+2025-09-25 21:18:22,095 - INFO - 127.0.0.1 - - [25/Sep/2025 21:18:22] "GET /jobs HTTP/1.1" 200 -
+2025-09-25 21:18:22,400 - INFO - 127.0.0.1 - - [25/Sep/2025 21:18:22] "[36mGET /static/style.css HTTP/1.1[0m" 304 -

@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block title %}Sistema de Scraping HP - Início{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Hero Section -->
+    <div class="row">
+        <div class="col-12">
+            <div class="jumbotron bg-light p-5 rounded-3 mb-4">
+                <div class="container-fluid text-center">
+                    <h1 class="display-4">
+                        <i class="bi bi-shield-check text-primary"></i>
+                        Sistema de Scraping HP
+                    </h1>
+                    <p class="lead">
+                        Coleta automatizada de dados de produtos HP no Mercado Livre
+                    </p>
+                    <hr class="my-4">
+                    <p>Sistema focado em scraping e geração de datasets estruturados</p>
+                    <a class="btn btn-primary btn-lg" href="{{ url_for('scraping_page') }}" role="button">
+                        <i class="bi bi-search"></i> Iniciar Scraping
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features -->
+    <div class="row mb-5">
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-search display-4 text-primary mb-3"></i>
+                    <h5 class="card-title">Web Scraping</h5>
+                    <p class="card-text">
+                        Coleta automatizada de produtos HP no Mercado Livre com filtros avançados
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-chat-dots display-4 text-success mb-3"></i>
+                    <h5 class="card-title">Coleta de Reviews</h5>
+                    <p class="card-text">
+                        Extração de avaliações e comentários dos produtos para análise completa
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-database display-4 text-warning mb-3"></i>
+                    <h5 class="card-title">Geração de Datasets</h5>
+                    <p class="card-text">
+                        Exportação em CSV e JSON com dados estruturados e prontos para análise
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-graph-up"></i> Status do Sistema
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <div class="border-end">
+                                <h3 class="text-primary" id="total-jobs">-</h3>
+                                <small class="text-muted">Jobs Ativos</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="border-end">
+                                <h3 class="text-success" id="completed-jobs">-</h3>
+                                <small class="text-muted">Jobs Concluídos</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="border-end">
+                                <h3 class="text-warning" id="total-products">-</h3>
+                                <small class="text-muted">Produtos Coletados</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <h3 class="text-info" id="total-datasets">-</h3>
+                            <small class="text-muted">Datasets Gerados</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- API Documentation -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-code-slash"></i> API REST
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p>O sistema oferece uma API REST completa para integração:</p>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="bi bi-play-circle"></i> Iniciar Scraping</h6>
+                            <code>POST /api/scraping/start</code>
+                            <pre class="bg-light p-2 rounded mt-2">{
+  "query": "cartucho hp",
+  "max_items": 50,
+  "collect_reviews": true
+}</pre>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h6><i class="bi bi-info-circle"></i> Status do Job</h6>
+                            <code>GET /api/jobs/{job_id}/status</code>
+                            <pre class="bg-light p-2 rounded mt-2">{
+  "status": "concluido",
+  "progress": 100,
+  "produtos_coletados": 45
+}</pre>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <a href="/api/datasets" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-list"></i> Ver Datasets (JSON)
+                        </a>
+                        <a href="/api/jobs" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-list-task"></i> Ver Jobs (JSON)
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Carregar estatísticas do sistema
+function loadStats() {
+    fetch('/api/jobs')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const jobs = data.jobs;
+                const totalJobs = jobs.length;
+                const completedJobs = jobs.filter(job => job.status === 'concluido').length;
+                const totalProducts = jobs.reduce((sum, job) => sum + (job.produtos_coletados || 0), 0);
+                
+                document.getElementById('total-jobs').textContent = totalJobs;
+                document.getElementById('completed-jobs').textContent = completedJobs;
+                document.getElementById('total-products').textContent = totalProducts;
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao carregar estatísticas:', error);
+        });
+    
+    fetch('/api/datasets')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('total-datasets').textContent = data.datasets.length;
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao carregar datasets:', error);
+        });
+}
+
+// Carregar estatísticas ao carregar a página
+document.addEventListener('DOMContentLoaded', loadStats);
+
+// Atualizar estatísticas a cada 30 segundos
+setInterval(loadStats, 30000);
+</script>
+{% endblock %}

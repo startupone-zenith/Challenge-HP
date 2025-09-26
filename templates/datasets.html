@@ -1,0 +1,323 @@
+{% extends "base.html" %}
+
+{% block title %}Datasets - Sistema HP{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="bi bi-database"></i> Datasets Gerados
+                </h2>
+                <div>
+                    <button class="btn btn-outline-secondary" onclick="refreshDatasets()">
+                        <i class="bi bi-arrow-clockwise"></i> Atualizar
+                    </button>
+                    <a href="{{ url_for('scraping_page') }}" class="btn btn-primary">
+                        <i class="bi bi-plus"></i> Gerar Novo Dataset
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Datasets Container -->
+    <div id="datasets-container">
+        {% if datasets %}
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-md-3">
+                                    <h4 class="text-primary">{{ datasets|length }}</h4>
+                                    <small class="text-muted">Total de Datasets</small>
+                                </div>
+                                <div class="col-md-3">
+                                    <h4 class="text-success">{{ datasets|selectattr('filename', 'match', '.*\\.csv$')|list|length }}</h4>
+                                    <small class="text-muted">Arquivos CSV</small>
+                                </div>
+                                <div class="col-md-3">
+                                    <h4 class="text-warning">{{ datasets|selectattr('filename', 'match', '.*\\.json$')|list|length }}</h4>
+                                    <small class="text-muted">Arquivos JSON</small>
+                                </div>
+                                <div class="col-md-3">
+                                    <h4 class="text-info">{{ (datasets|sum(attribute='size') / 1024 / 1024)|round(1) }} MB</h4>
+                                    <small class="text-muted">Tamanho Total</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-list"></i> Lista de Datasets
+                    </h5>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th><i class="bi bi-file-earmark"></i> Arquivo</th>
+                                <th><i class="bi bi-tag"></i> Tipo</th>
+                                <th><i class="bi bi-hdd"></i> Tamanho</th>
+                                <th><i class="bi bi-calendar"></i> Modificado</th>
+                                <th><i class="bi bi-gear"></i> Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for dataset in datasets|sort(attribute='modified', reverse=true) %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        {% if dataset.filename.endswith('.csv') %}
+                                            <i class="bi bi-file-earmark-spreadsheet text-success me-2"></i>
+                                        {% elif dataset.filename.endswith('.json') %}
+                                            <i class="bi bi-file-earmark-code text-warning me-2"></i>
+                                        {% else %}
+                                            <i class="bi bi-file-earmark text-secondary me-2"></i>
+                                        {% endif %}
+                                        <span class="fw-medium">{{ dataset.filename }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if dataset.filename.endswith('.csv') %}
+                                        <span class="badge bg-success">CSV</span>
+                                    {% elif dataset.filename.endswith('.json') %}
+                                        <span class="badge bg-warning">JSON</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">OUTRO</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="text-muted">{{ dataset.size | filesizeformat }}</span>
+                                </td>
+                                <td>
+                                    <span class="text-muted">
+                                        {{ dataset.modified.strftime('%d/%m/%Y %H:%M') }}
+                                        <br>
+                                        <small>({{ dataset.modified | timeago }})</small>
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="/api/datasets/{{ dataset.filename }}/download" 
+                                           class="btn btn-outline-primary">
+                                            <i class="bi bi-download"></i> Download
+                                        </a>
+                                        <button class="btn btn-outline-info" 
+                                                onclick="previewDataset('{{ dataset.filename }}')">
+                                            <i class="bi bi-eye"></i> Preview
+                                        </button>
+                                        <button class="btn btn-outline-danger" 
+                                                onclick="deleteDataset('{{ dataset.filename }}')">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-database-x display-1 text-muted"></i>
+                <h4 class="text-muted mt-3">Nenhum dataset encontrado</h4>
+                <p class="text-muted">Execute um job de scraping para gerar datasets</p>
+                <a href="{{ url_for('scraping_page') }}" class="btn btn-primary">
+                    <i class="bi bi-plus"></i> Gerar Primeiro Dataset
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal para Preview -->
+<div class="modal fade" id="previewModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-eye"></i> Preview do Dataset
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="preview-content">
+                <!-- Conteúdo será carregado via JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-primary" id="download-preview-btn">
+                    <i class="bi bi-download"></i> Download
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Confirmação de Exclusão -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-exclamation-triangle text-danger"></i> Confirmar Exclusão
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja excluir o dataset <strong id="delete-filename"></strong>?</p>
+                <p class="text-muted">Esta ação não pode ser desfeita.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirm-delete-btn">
+                    <i class="bi bi-trash"></i> Excluir
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentPreviewFile = '';
+
+// Refresh datasets
+function refreshDatasets() {
+    location.reload();
+}
+
+// Preview dataset
+function previewDataset(filename) {
+    currentPreviewFile = filename;
+    const previewContent = document.getElementById('preview-content');
+    const downloadBtn = document.getElementById('download-preview-btn');
+    
+    previewContent.innerHTML = '<div class="text-center"><i class="bi bi-hourglass-split"></i> Carregando...</div>';
+    
+    // Configurar botão de download
+    downloadBtn.onclick = () => {
+        window.open(`/api/datasets/${filename}/download`, '_blank');
+    };
+    
+    // Mostrar modal
+    new bootstrap.Modal(document.getElementById('previewModal')).show();
+    
+    // Simular preview (na implementação real, você criaria um endpoint para preview)
+    setTimeout(() => {
+        let content = '';
+        
+        if (filename.endsWith('.csv')) {
+            content = `
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> 
+                    Preview de arquivo CSV. Mostrando estrutura básica.
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>id</th>
+                                <th>titulo</th>
+                                <th>preco</th>
+                                <th>vendedor</th>
+                                <th>condicao</th>
+                                <th>frete_gratis</th>
+                                <th>total_reviews</th>
+                                <th>rating_medio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>MLB123456</td>
+                                <td>Cartucho HP 664 Original</td>
+                                <td>R$ 89,90</td>
+                                <td>Loja HP Oficial</td>
+                                <td>new</td>
+                                <td>true</td>
+                                <td>45</td>
+                                <td>4.5</td>
+                            </tr>
+                            <tr>
+                                <td>MLB789012</td>
+                                <td>Toner HP LaserJet P1102</td>
+                                <td>R$ 159,99</td>
+                                <td>TechStore</td>
+                                <td>new</td>
+                                <td>false</td>
+                                <td>23</td>
+                                <td>4.2</td>
+                            </tr>
+                            <tr class="table-secondary">
+                                <td colspan="8" class="text-center">
+                                    <i class="bi bi-three-dots"></i> Mais linhas no arquivo completo
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        } else if (filename.endsWith('.json')) {
+            content = `
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> 
+                    Preview de arquivo JSON. Estrutura de dados.
+                </div>
+                <pre class="bg-light p-3 rounded"><code>{
+  "metadata": {
+    "total_produtos": 50,
+    "data_geracao": "2024-09-25T20:30:00",
+    "versao": "1.0"
+  },
+  "produtos": [
+    {
+      "id": "MLB123456",
+      "title": "Cartucho HP 664 Original",
+      "price": "R$ 89,90",
+      "seller": "Loja HP Oficial",
+      "condition": "new",
+      "free_shipping": true,
+      "reviews_data": {
+        "total_reviews": 45,
+        "average_rating": 4.5,
+        "reviews": [...]
+      }
+    },
+    ...
+  ]
+}</code></pre>
+            `;
+        } else {
+            content = '<div class="alert alert-warning">Preview não disponível para este tipo de arquivo.</div>';
+        }
+        
+        previewContent.innerHTML = content;
+    }, 1000);
+}
+
+// Delete dataset
+function deleteDataset(filename) {
+    document.getElementById('delete-filename').textContent = filename;
+    
+    const confirmBtn = document.getElementById('confirm-delete-btn');
+    confirmBtn.onclick = () => {
+        // Aqui você implementaria a exclusão real
+        alert('Funcionalidade de exclusão não implementada nesta versão demo');
+        bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+    };
+    
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+
+// Auto-refresh a cada 30 segundos
+setInterval(refreshDatasets, 30000);
+</script>
+{% endblock %}

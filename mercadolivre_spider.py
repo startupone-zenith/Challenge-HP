@@ -819,12 +819,22 @@ class MercadoLivreProductDetailsSpider(scrapy.Spider):
         
         yield product_details
 
-# Importar as configurações de performance centralizadas
-from scrapy_performance_config import (
-    get_optimized_spider_settings, 
-    get_optimized_product_details_settings,
-    apply_settings_to_process
-)
+# Configurações básicas do Scrapy
+def get_basic_scrapy_settings():
+    """Retorna configurações básicas do Scrapy"""
+    return {
+        'USER_AGENT': 'Challenge HP Spider 1.0',
+        'ROBOTSTXT_OBEY': False,
+        'CONCURRENT_REQUESTS': 16,
+        'CONCURRENT_REQUESTS_PER_DOMAIN': 8,
+        'DOWNLOAD_DELAY': 1,
+        'RANDOMIZE_DOWNLOAD_DELAY': 0.5,
+        'AUTOTHROTTLE_ENABLED': True,
+        'AUTOTHROTTLE_START_DELAY': 1,
+        'AUTOTHROTTLE_MAX_DELAY': 10,
+        'AUTOTHROTTLE_TARGET_CONCURRENCY': 2.0,
+        'LOG_LEVEL': 'INFO',
+    }
 
 def _run_spider_process(query, extract_images, results_queue, sort_by='relevance', condition='all', max_items=None):
     """
@@ -847,24 +857,18 @@ def _run_spider_process(query, extract_images, results_queue, sort_by='relevance
         # APLICAR CONFIGURAÇÕES OTIMIZADAS CENTRALIZADAS
         # ============================================================================
         
-        # Obter configurações otimizadas baseadas no volume de dados
-        if max_items and max_items > 100:
-            # Para alto volume, usar configurações mais agressivas
-            from scrapy_performance_config import get_high_volume_settings
-            optimized_settings = get_high_volume_settings()
-        else:
-            # Para volume normal, usar configurações padrão otimizadas
-            optimized_settings = get_optimized_spider_settings()
+        # Obter configurações básicas do Scrapy
+        optimized_settings = get_basic_scrapy_settings()
         
         # Aplicar todas as configurações de uma vez
-        settings = apply_settings_to_process(optimized_settings, settings)
+        settings.update(optimized_settings)
         
         # Log de performance para monitoramento
-        logging.info(f"🚀 Spider iniciado com configurações otimizadas:")
-        logging.info(f"   📊 CONCURRENT_REQUESTS: {settings.get('CONCURRENT_REQUESTS')}")
-        logging.info(f"   🌐 CONCURRENT_REQUESTS_PER_DOMAIN: {settings.get('CONCURRENT_REQUESTS_PER_DOMAIN')}")
-        logging.info(f"   ⏱️ DOWNLOAD_TIMEOUT: {settings.get('DOWNLOAD_TIMEOUT')}s")
-        logging.info(f"   💾 HTTPCACHE_ENABLED: {settings.get('HTTPCACHE_ENABLED')}")
+        logging.info(f"Spider iniciado com configurações otimizadas:")
+        logging.info(f"   CONCURRENT_REQUESTS: {settings.get('CONCURRENT_REQUESTS')}")
+        logging.info(f"   CONCURRENT_REQUESTS_PER_DOMAIN: {settings.get('CONCURRENT_REQUESTS_PER_DOMAIN')}")
+        logging.info(f"   DOWNLOAD_TIMEOUT: {settings.get('DOWNLOAD_TIMEOUT')}s")
+        logging.info(f"   HTTPCACHE_ENABLED: {settings.get('HTTPCACHE_ENABLED')}")
         
         process = CrawlerProcess(settings)
         
@@ -947,14 +951,14 @@ def _run_product_details_spider_process(product_url, results_queue):
         # APLICAR CONFIGURAÇÕES OTIMIZADAS PARA DETALHES DE PRODUTO
         # ============================================================================
         
-        optimized_settings = get_optimized_product_details_settings()
-        settings = apply_settings_to_process(optimized_settings, settings)
+        optimized_settings = get_basic_scrapy_settings()
+        settings.update(optimized_settings)
         
         # Log de performance específico para detalhes
-        logging.info(f"🔍 Product details spider iniciado com configurações otimizadas")
-        logging.info(f"   📊 CONCURRENT_REQUESTS: {settings.get('CONCURRENT_REQUESTS')}")
-        logging.info(f"   ⏱️ DOWNLOAD_TIMEOUT: {settings.get('DOWNLOAD_TIMEOUT')}s")
-        logging.info(f"   💾 HTTPCACHE_EXPIRATION: {settings.get('HTTPCACHE_EXPIRATION_SECS')}s")
+        logging.info(f"Product details spider iniciado com configurações otimizadas")
+        logging.info(f"   CONCURRENT_REQUESTS: {settings.get('CONCURRENT_REQUESTS')}")
+        logging.info(f"   DOWNLOAD_TIMEOUT: {settings.get('DOWNLOAD_TIMEOUT')}s")
+        logging.info(f"   HTTPCACHE_EXPIRATION: {settings.get('HTTPCACHE_EXPIRATION_SECS')}s")
         
         process = CrawlerProcess(settings)
         
@@ -1056,24 +1060,24 @@ if __name__ == "__main__":
         primeiro_produto = resultados_com_imagens[0]
         product_url = primeiro_produto.get('LINK')
         if product_url and product_url != 'N/A':
-            print(f"\n🔍 Testando extração de detalhes do produto...")
+            print(f"\nTestando extração de detalhes do produto...")
             print(f"URL do produto: {product_url}")
             
             detalhes = run_product_details_spider(product_url)
             if detalhes:
-                print("✅ Detalhes extraídos com sucesso!")
+                print("Detalhes extraídos com sucesso!")
                 print(f"📝 Descrição: {detalhes.get('description', 'N/A')[:100]}...")
                 print(f"🔧 Características principais: {len(detalhes.get('main_characteristics', {}))}")
-                print(f"📋 Outras características: {len(detalhes.get('other_characteristics', {}))}")
+                print(f"Outras características: {len(detalhes.get('other_characteristics', {}))}")
                 
                 # Mostrar algumas características como exemplo
                 main_chars = detalhes.get('main_characteristics', {})
                 if main_chars:
-                    print("📊 Exemplos de características principais:")
+                    print("Exemplos de características principais:")
                     for i, (key, value) in enumerate(list(main_chars.items())[:3]):
                         print(f"  - {key}: {value}")
             else:
-                print("❌ Falha na extração de detalhes")
+                print("Falha na extração de detalhes")
 
     # print("\nURLs usadas:") # Commented out as individual URLs are printed above
     # print("Com imagens:", urls_usadas_com_imagens)
