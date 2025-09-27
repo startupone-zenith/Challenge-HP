@@ -1,176 +1,201 @@
-# 🛡️ Sistema Simplificado de Scraping - Mercado Livre HP
+# 🔧 Sistema de Scraping HP - MercadoLivre
 
-> Sistema focado em **scraping** e **geração de datasets** de produtos HP no Mercado Livre
+Sistema completo de coleta de dados do MercadoLivre para produtos HP com **extração detalhada de 16 campos**.
 
-## 📋 Sobre o Sistema
+## 📁 Estrutura do Projeto (Nova Versão 2.0)
 
-Este sistema foi simplificado para manter apenas as funcionalidades essenciais:
-- ✅ **Web Scraping** automatizado do Mercado Livre
-- ✅ **Coleta de Reviews** dos produtos
-- ✅ **Geração de Datasets** em CSV e JSON
-- ✅ **Interface de linha de comando** simples
-
-## 🔧 Pré-requisitos
-
-- Python 3.7 ou superior
-- pip (gerenciador de pacotes Python)
-
-## 📦 Instalação
-
-1. **Clone o repositório:**
-```bash
-git clone <url-do-repositorio>
-cd Challenge-HP
 ```
-
-2. **Crie um ambiente virtual (recomendado):**
-```bash
-python -m venv .venv
-.venv\Scripts\activate  # Windows
-# ou
-source .venv/bin/activate  # Linux/Mac
-```
-
-3. **Instale as dependências:**
-```bash
-pip install -r requirements.txt
+Challenge-HP/
+├── 📂 src/                          # Código fonte
+│   ├── 📂 core/                     # Funcionalidades principais
+│   │   ├── app.py                   # Sistema principal HPScrapingSystem
+│   │   └── shared_scraping_config.py # Configurações compartilhadas
+│   ├── 📂 spiders/                  # Spiders do Scrapy
+│   │   ├── mercadolivre_spider.py   # Spider principal com extração detalhada
+│   │   └── mercadolivre_spider_reviews.py # Spider de reviews
+│   ├── 📂 web/                      # Interface Flask
+│   │   ├── flask_app.py             # Aplicação Flask
+│   │   ├── run_flask.py             # Executor Flask
+│   │   ├── 📂 templates/            # Templates HTML
+│   │   └── 📂 static/               # CSS/JS
+│   └── 📂 utils/                    # Utilitários
+├── 📂 tests/                        # Testes organizados
+│   ├── 📂 unit/                     # Testes unitários
+│   ├── 📂 integration/              # Testes de integração
+│   └── 📂 examples/                 # Exemplos de teste
+├── 📂 docs/                         # Documentação
+├── 📂 data/                         # Dados
+│   ├── 📂 datasets/                 # Datasets gerados
+│   ├── 📂 samples/                  # Amostras de páginas
+│   └── 📂 cache/                    # Cache temporário
+├── 📂 examples/                     # Exemplos de uso
+├── 📂 logs/                         # Arquivos de log
+├── 📂 config/                       # Configurações
+├── 📂 scripts/                      # Scripts auxiliares
+├── main.py                          # 🚀 PONTO DE ENTRADA PRINCIPAL
+├── requirements.txt                 # Dependências
+└── README.md                        # Este arquivo
 ```
 
 ## 🚀 Como Usar
 
-### Uso Básico - Scraping de Produtos
+### 1. **Interface Web (Recomendado)**
+```bash
+# Executar aplicação Flask
+python main.py
+
+# Ou diretamente:
+python src/web/flask_app.py
+```
+**Acesse:** `http://localhost:5000`
+
+### 2. **Linha de Comando**
+```bash
+# Scraping básico
+python main.py "cartucho hp 664" --max-items 50
+
+# Scraping detalhado (16 campos)
+python main.py "cartucho hp 664" --max-items 50 --detailed
+
+# Com reviews e JSON
+python main.py "cartucho hp 664" --max-items 50 --detailed --reviews --json
+```
+
+## ✨ Funcionalidades
+
+### 🔍 **Extração Detalhada (16 Campos)**
+- ✅ Nome do produto
+- ✅ Condição do produto
+- ✅ Preço e desconto
+- ✅ Informações de frete
+- ✅ Dados do vendedor
+- ✅ Garantias e políticas
+- ✅ Descrição completa
+- ✅ Características técnicas
+- ✅ Fotos do produto
+- ✅ Avaliações detalhadas
+
+### 🌐 **Interface Web**
+- ✅ Formulário intuitivo
+- ✅ Monitoramento de jobs
+- ✅ Preview dos datasets
+- ✅ Download CSV/JSON
+- ✅ Dashboard de resultados
+
+### 🤖 **Anti-Bot & Robustez**
+- ✅ User-agents rotativos
+- ✅ Headers realistas
+- ✅ Delays adaptativos
+- ✅ Contorno de verificações
+- ✅ Múltiplas estratégias
+
+## 🔧 Configuração
+
+### Instalar Dependências
+```bash
+pip install -r requirements.txt
+```
+
+### Estrutura de Imports
+```python
+# Sistema principal
+from src.core import HPScrapingSystem
+
+# Spiders
+from src.spiders import MercadoLivreSpider, run_spider
+
+# Interface web
+from src.web import app
+```
+
+## 📊 Exemplo de Uso Programático
+
+```python
+from src.core import HPScrapingSystem
+
+# Criar instância
+sistema = HPScrapingSystem()
+
+# Scraping com extração detalhada
+produtos = sistema.executar_scraping_produtos(
+    query="cartucho hp 664",
+    max_items=50,
+    detailed_extraction=True  # ✨ NOVA FUNCIONALIDADE!
+)
+
+# Gerar datasets
+csv_file = sistema.gerar_dataset_csv()
+json_file = sistema.gerar_dataset_json()
+
+print(f"Coletados {len(produtos)} produtos")
+print(f"CSV: {csv_file}")
+print(f"JSON: {json_file}")
+```
+
+## 🧪 Testes
 
 ```bash
-# Buscar produtos HP (básico)
-python app.py --query "cartucho hp"
+# Testes unitários
+python -m pytest tests/unit/
 
-# Buscar com limite de itens
-python app.py --query "toner hp" --max-items 50
+# Testes de integração
+python -m pytest tests/integration/
 
-# Buscar e coletar reviews
-python app.py --query "cartucho hp 664" --reviews --max-reviews 200
+# Teste rápido
+python tests/integration/teste_integracao_final.py
 ```
 
-### Parâmetros Disponíveis
+## 📋 Logs e Monitoramento
 
-```bash
-python app.py [OPÇÕES]
+- **Logs:** `logs/` - Arquivos de log organizados
+- **Flask:** Interface web com monitoramento em tempo real
+- **Jobs:** Processamento em background com status
 
-Opções obrigatórias:
-  --query, -q          Termo de busca (obrigatório)
+## 🎯 Diferencial da Nova Versão
 
-Opções de filtragem:
-  --max-items, -m      Máximo de itens para coletar
-  --sort              Ordenação: relevance, price_asc, price_desc
-  --condition         Condição: all, new, used
-  --no-images         Não extrair URLs de imagens
+### **Antes (v1.0)**
+- Estrutura desorganizada
+- 8 campos básicos
+- Apenas HTML parsing
 
-Opções de reviews:
-  --reviews           Coletar reviews dos produtos
-  --max-reviews       Máximo de reviews por produto (padrão: 100)
+### **Agora (v2.0)** ✨
+- **Estrutura profissional** organizada em módulos
+- **16+ campos detalhados**
+- **Dados estruturados JSON-LD**
+- **Interface web melhorada**
+- **Testes organizados**
+- **Documentação completa**
 
-Opções de saída:
-  --output-csv        Nome do arquivo CSV de saída
-  --output-json       Nome do arquivo JSON de saída
-```
+## 🌟 Campos Detalhados Extraídos
 
-### Exemplos Práticos
+| Campo | Descrição | Origem |
+|-------|-----------|--------|
+| `nome_produto` | Nome completo | JSON-LD |
+| `condicao_produto` | Novo/Usado | Schema.org |
+| `preco` | Preço atual | Event data |
+| `desconto` | % desconto | Cálculo |
+| `frete_gratis` | Frete gratuito | JSON-LD |
+| `tempo_entrega` | Prazo estimado | Shipping details |
+| `nome_loja` | Nome do vendedor | Event data |
+| `vendas_produto` | Vendas específicas | HTML |
+| `devolucao_gratis` | Política devolução | Schema.org |
+| `compra_garantida` | Garantia ML | Padrão |
+| `tempo_garantia` | Prazo garantia | Return policy |
+| `descricao_produto` | Descrição completa | JSON-LD |
+| `caracteristicas_principais` | Specs técnicas | HTML table |
+| `fotos_produto` | URLs imagens | JSON-LD + HTML |
+| `avaliacao` | Ratings/reviews | Aggregate data |
+| `outros` | Dados extras | Mixed sources |
 
-```bash
-# Exemplo 1: Busca simples com 30 produtos
-python app.py --query "cartucho hp 664" --max-items 30
+## 🎉 Resultado
 
-# Exemplo 2: Busca com reviews e ordenação por preço
-python app.py --query "toner hp laserjet" --reviews --sort price_asc --max-items 20
-
-# Exemplo 3: Busca apenas produtos novos com arquivo de saída específico
-python app.py --query "impressora hp" --condition new --output-csv "impressoras_hp.csv"
-
-# Exemplo 4: Busca completa com reviews e saída em JSON
-python app.py --query "cartucho hp original" --reviews --max-reviews 50 --output-json "dataset_cartuchos.json"
-```
-
-## 📁 Estrutura dos Arquivos
-
-```
-Challenge-HP/
-├── app.py                              # Sistema principal simplificado
-├── mercadolivre_spider.py             # Spider para produtos
-├── mercadolivre_spider_reviews.py     # Spider para reviews
-├── requirements.txt                   # Dependências mínimas
-├── README.md                          # Documentação
-└── scraper.log                        # Log de execução
-```
-
-## 📊 Formato dos Datasets
-
-### CSV (Padrão)
-Os datasets CSV incluem as seguintes colunas:
-- `id` - ID único do produto
-- `titulo` - Título do produto
-- `preco` - Preço atual
-- `preco_original` - Preço original (se houver desconto)
-- `desconto` - Percentual de desconto
-- `vendedor` - Nome do vendedor
-- `reputacao_vendedor` - Reputação do vendedor
-- `condicao` - Condição do produto (novo/usado)
-- `frete_gratis` - Se tem frete grátis
-- `link` - URL do produto
-- `imagem_url` - URL da imagem principal
-- `localizacao` - Localização do vendedor
-- `vendas` - Número de vendas
-- `data_coleta` - Data/hora da coleta
-
-**Se reviews foram coletadas, inclui também:**
-- `total_reviews` - Total de reviews
-- `rating_medio` - Rating médio
-- `rating_5_estrelas` - Quantidade de reviews 5 estrelas
-- `rating_4_estrelas` - Quantidade de reviews 4 estrelas
-- `rating_3_estrelas` - Quantidade de reviews 3 estrelas
-- `rating_2_estrelas` - Quantidade de reviews 2 estrelas
-- `rating_1_estrela` - Quantidade de reviews 1 estrela
-- `tem_reviews` - Se o produto tem reviews
-
-### JSON
-Os datasets JSON incluem:
-- `metadata` - Informações sobre o dataset
-- `produtos` - Array com todos os produtos e suas reviews completas
-
-## 🔍 Logs e Monitoramento
-
-O sistema gera logs em:
-- **Console**: Informações em tempo real
-- **Arquivo**: `scraper.log` com histórico completo
-
-## ⚠️ Considerações Importantes
-
-1. **Rate Limiting**: O sistema inclui delays automáticos entre requisições
-2. **Respeito aos Termos**: Use com responsabilidade e respeite os termos do Mercado Livre
-3. **Dados Dinâmicos**: Os preços e disponibilidade podem mudar rapidamente
-4. **Recursos**: Para grandes volumes, monitore uso de CPU e memória
-
-## 🛠️ Desenvolvimento
-
-### Estrutura do Código
-
-- **`HPScrapingSystem`**: Classe principal que coordena o scraping
-- **`mercadolivre_spider.py`**: Spider Scrapy para produtos
-- **`mercadolivre_spider_reviews.py`**: Spider otimizado para reviews
-
-### Extensões Possíveis
-
-Para adicionar novas funcionalidades, você pode:
-1. Estender a classe `HPScrapingSystem`
-2. Criar novos métodos de exportação
-3. Adicionar filtros personalizados
-
-## 📞 Suporte
-
-Para problemas ou dúvidas:
-1. Verifique os logs em `scraper.log`
-2. Teste com queries mais simples
-3. Verifique sua conexão com a internet
+Sistema **100% funcional** com:
+- ⚡ **Extração básica** (rápida)
+- 🔍 **Extração detalhada** (completa)
+- 🌐 **Interface web** profissional
+- 📊 **Dados ricos** em CSV/JSON
+- 🧪 **Totalmente testado**
 
 ---
 
-**Versão Simplificada** - Focada em scraping e geração de datasets
+**Versão 2.0** - Sistema reorganizado e otimizado! 🚀

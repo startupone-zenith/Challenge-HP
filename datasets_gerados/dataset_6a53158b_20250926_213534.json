@@ -1,0 +1,51 @@
+{
+  "metadata": {
+    "total_produtos": 3,
+    "data_geracao": "2025-09-26T21:35:34.627976",
+    "versao": "1.0"
+  },
+  "produtos": [
+    {
+      "TITULO PRODUTO": "Cartucho De Tinta Hp 662 Preto Advantage",
+      "LINK": "https://www.mercadolivre.com.br/cartucho-de-tinta-hp-662-preto-advantage/p/MLB36772792#polycard_client=search-nordic&search_layout=grid&position=3&type=product&tracking_id=1ebe9756-f58a-403d-917a-f349e5ad3608&wid=MLB3929057435&sid=search",
+      "ID_PRODUTO": "MLB36772792",
+      "PREÇO": "R$ 66,99",
+      "PREÇO ANTERIOR": "R$ 77",
+      "MARCA": "N/A",
+      "IMAGEM": "https://http2.mlstatic.com/D_Q_NP_2X_851261-MLA84846526119_052025-E.webp",
+      "VENDEDOR": "Eshop",
+      "MÉDIA AVALIAÇÕES": "4.7",
+      "TOTAL AVALIAÇÕES": "1755",
+      "ENTREGA": "Frete grátis",
+      "ENTREGA FULL": "Sim"
+    },
+    {
+      "TITULO PRODUTO": "Kit Cartucho Hp 662 Preto E Colorido",
+      "LINK": "https://www.mercadolivre.com.br/kit-cartucho-hp-662-preto-e-colorido/p/MLB39134548#polycard_client=search-nordic&search_layout=grid&position=4&type=product&tracking_id=1ebe9756-f58a-403d-917a-f349e5ad3608&wid=MLB5157747842&sid=search",
+      "ID_PRODUTO": "MLB39134548",
+      "PREÇO": "R$ 159",
+      "PREÇO ANTERIOR": "N/A",
+      "MARCA": "N/A",
+      "IMAGEM": "https://http2.mlstatic.com/D_Q_NP_2X_996834-MLA92902805222_092025-E.webp",
+      "VENDEDOR": "N/A",
+      "MÉDIA AVALIAÇÕES": "4.6",
+      "TOTAL AVALIAÇÕES": "160",
+      "ENTREGA": "Chegará grátis amanhã sábado",
+      "ENTREGA FULL": "Sim"
+    },
+    {
+      "TITULO PRODUTO": "Cartucho De Tinta Hp 667 Cor Preto Do 2 Ml",
+      "LINK": "https://www.mercadolivre.com.br/cartucho-de-tinta-hp-667-cor-preto-do-2-ml/p/MLB37141763#polycard_client=search-nordic&search_layout=grid&position=5&type=product&tracking_id=1ebe9756-f58a-403d-917a-f349e5ad3608&wid=MLB3713375243&sid=search",
+      "ID_PRODUTO": "MLB37141763",
+      "PREÇO": "R$ 63,90",
+      "PREÇO ANTERIOR": "N/A",
+      "MARCA": "N/A",
+      "IMAGEM": "https://http2.mlstatic.com/D_Q_NP_2X_886903-MLA87439311815_072025-E.webp",
+      "VENDEDOR": "N/A",
+      "MÉDIA AVALIAÇÕES": "4.8",
+      "TOTAL AVALIAÇÕES": "7399",
+      "ENTREGA": "Frete grátis",
+      "ENTREGA FULL": "Sim"
+    }
+  ]
+}

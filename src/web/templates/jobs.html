@@ -1,0 +1,290 @@
+{% extends "base.html" %}
+
+{% block title %}Jobs - Sistema HP{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="bi bi-list-task"></i> Jobs de Scraping
+                </h2>
+                <div>
+                    <button class="btn btn-outline-secondary" onclick="refreshJobs()">
+                        <i class="bi bi-arrow-clockwise"></i> Atualizar
+                    </button>
+                    <a href="{{ url_for('scraping_page') }}" class="btn btn-primary">
+                        <i class="bi bi-plus"></i> Novo Job
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Jobs Container -->
+    <div id="jobs-container">
+        {% if jobs %}
+            <div class="row" id="jobs-list">
+                {% for job_id, job in jobs.items() %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card job-card h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <small class="text-muted">Job ID: {{ job_id }}</small>
+                            {% if job.status == 'concluido' %}
+                                <span class="badge bg-success status-badge">
+                                    <i class="bi bi-check-circle"></i> Concluído
+                                </span>
+                            {% elif job.status == 'erro' %}
+                                <span class="badge bg-danger status-badge">
+                                    <i class="bi bi-exclamation-triangle"></i> Erro
+                                </span>
+                            {% elif job.status in ['iniciado', 'coletando_produtos', 'coletando_reviews', 'gerando_datasets'] %}
+                                <span class="badge bg-primary status-badge">
+                                    <i class="bi bi-hourglass-split"></i> Em Andamento
+                                </span>
+                            {% else %}
+                                <span class="badge bg-secondary status-badge">
+                                    {{ job.status.title() }}
+                                </span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                <i class="bi bi-search"></i> {{ job.query }}
+                            </h6>
+                            
+                            <!-- Progress Bar -->
+                            <div class="progress mb-3" style="height: 8px;">
+                                <div class="progress-bar" role="progressbar" 
+                                     style="width: {{ job.progress }}%" 
+                                     aria-valuenow="{{ job.progress }}" 
+                                     aria-valuemin="0" aria-valuemax="100">
+                                </div>
+                            </div>
+                            
+                            <!-- Stats -->
+                            <div class="row text-center mb-3">
+                                <div class="col-4">
+                                    <small class="text-muted">Produtos</small>
+                                    <div class="fw-bold">{{ job.produtos_coletados }}</div>
+                                </div>
+                                <div class="col-4">
+                                    <small class="text-muted">Reviews</small>
+                                    <div class="fw-bold">{{ job.reviews_coletadas }}</div>
+                                </div>
+                                <div class="col-4">
+                                    <small class="text-muted">Detalhado</small>
+                                    {% if job.parameters.get('detailed_extraction', False) %}
+                                        <div class="fw-bold text-success">
+                                            <i class="bi bi-check-circle"></i>
+                                        </div>
+                                    {% else %}
+                                        <div class="fw-bold text-muted">-</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- Time -->
+                            <small class="text-muted">
+                                <i class="bi bi-clock"></i> 
+                                Iniciado: {{ job.start_time.strftime('%d/%m/%Y %H:%M') if job.start_time else 'N/A' }}
+                            </small>
+                            
+                            {% if job.end_time %}
+                            <br>
+                            <small class="text-muted">
+                                <i class="bi bi-check-circle"></i> 
+                                Finalizado: {{ job.end_time.strftime('%d/%m/%Y %H:%M') }}
+                            </small>
+                            {% endif %}
+                            
+                            {% if job.error_message %}
+                            <div class="alert alert-danger mt-2 p-2">
+                                <small>{{ job.error_message }}</small>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="card-footer">
+                            <div class="d-flex justify-content-between">
+                                <button class="btn btn-outline-primary btn-sm" 
+                                        onclick="viewJobDetails('{{ job_id }}')">
+                                    <i class="bi bi-eye"></i> Detalhes
+                                </button>
+                                
+                                {% if job.result_files %}
+                                <div class="btn-group">
+                                    {% for file in job.result_files %}
+                                    <a href="/api/datasets/{{ file.filename }}/download" 
+                                       class="btn btn-success btn-sm">
+                                        <i class="bi bi-download"></i> {{ file.type.upper() }}
+                                    </a>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-inbox display-1 text-muted"></i>
+                <h4 class="text-muted mt-3">Nenhum job encontrado</h4>
+                <p class="text-muted">Inicie um novo job de scraping para ver os resultados aqui</p>
+                <a href="{{ url_for('scraping_page') }}" class="btn btn-primary">
+                    <i class="bi bi-plus"></i> Criar Primeiro Job
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal para Detalhes do Job -->
+<div class="modal fade" id="jobDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-info-circle"></i> Detalhes do Job
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="job-details-content">
+                <!-- Conteúdo será carregado via JavaScript -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Refresh jobs
+function refreshJobs() {
+    location.reload();
+}
+
+// Auto-refresh a cada 10 segundos se houver jobs em andamento
+function autoRefresh() {
+    const inProgressBadges = document.querySelectorAll('.badge.bg-primary');
+    if (inProgressBadges.length > 0) {
+        setTimeout(() => {
+            location.reload();
+        }, 10000);
+    }
+}
+
+// View job details
+function viewJobDetails(jobId) {
+    fetch(`/api/jobs/${jobId}/status`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const job = data;
+                let html = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="bi bi-search"></i> Query</h6>
+                            <p>${job.query}</p>
+                            
+                            <h6><i class="bi bi-gear"></i> Status</h6>
+                            <p><span class="badge bg-${getStatusColor(job.status)}">${job.status}</span></p>
+                            
+                            <h6><i class="bi bi-percent"></i> Progresso</h6>
+                            <div class="progress mb-2">
+                                <div class="progress-bar" style="width: ${job.progress}%">${job.progress}%</div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h6><i class="bi bi-box"></i> Produtos Coletados</h6>
+                            <p>${job.produtos_coletados}</p>
+                            
+                            <h6><i class="bi bi-chat-dots"></i> Reviews Coletadas</h6>
+                            <p>${job.reviews_coletadas}</p>
+                            
+                            <h6><i class="bi bi-clock"></i> Tempo</h6>
+                            <p>
+                                <small>Início: ${formatDateTime(job.start_time)}</small><br>
+                                ${job.end_time ? `<small>Fim: ${formatDateTime(job.end_time)}</small>` : ''}
+                            </p>
+                        </div>
+                    </div>
+                `;
+                
+                if (job.error_message) {
+                    html += `
+                        <div class="alert alert-danger">
+                            <h6><i class="bi bi-exclamation-triangle"></i> Erro</h6>
+                            <p>${job.error_message}</p>
+                        </div>
+                    `;
+                }
+                
+                if (job.result_files && job.result_files.length > 0) {
+                    html += `
+                        <h6><i class="bi bi-download"></i> Arquivos Gerados</h6>
+                        <div class="list-group">
+                    `;
+                    
+                    job.result_files.forEach(file => {
+                        html += `
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>${file.filename}</strong>
+                                    <br><small class="text-muted">${formatFileSize(file.size)}</small>
+                                </div>
+                                <a href="/api/datasets/${file.filename}/download" class="btn btn-success btn-sm">
+                                    <i class="bi bi-download"></i> Download
+                                </a>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                }
+                
+                document.getElementById('job-details-content').innerHTML = html;
+                new bootstrap.Modal(document.getElementById('jobDetailsModal')).show();
+            }
+        })
+        .catch(error => {
+            alert('Erro ao carregar detalhes do job: ' + error.message);
+        });
+}
+
+// Helper functions
+function getStatusColor(status) {
+    switch (status) {
+        case 'concluido': return 'success';
+        case 'erro': return 'danger';
+        case 'iniciado':
+        case 'coletando_produtos':
+        case 'coletando_reviews':
+        case 'gerando_datasets': return 'primary';
+        default: return 'secondary';
+    }
+}
+
+function formatDateTime(isoString) {
+    if (!isoString) return 'N/A';
+    const date = new Date(isoString);
+    return date.toLocaleString('pt-BR');
+}
+
+function formatFileSize(bytes) {
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    if (bytes === 0) return '0 B';
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+}
+
+// Auto-refresh se houver jobs em andamento
+document.addEventListener('DOMContentLoaded', autoRefresh);
+</script>
+{% endblock %}
+
