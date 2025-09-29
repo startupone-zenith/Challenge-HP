@@ -1,0 +1,935 @@
+{
+  "product_id": "MLB6125886",
+  "extraction_metadata": {
+    "total_reviews": 60,
+    "reviews_with_comments": 37,
+    "reviews_with_images": 46,
+    "comment_coverage": 61.66666666666667,
+    "image_coverage": 76.66666666666667,
+    "extraction_date": "2025-09-29T12:17:41.589308"
+  },
+  "statistics": {
+    "average_rating": 4.92,
+    "total_ratings": 60,
+    "rating_distribution": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 5,
+      "5": 55
+    },
+    "positive_reviews": 60,
+    "negative_reviews": 0,
+    "neutral_reviews": 0
+  },
+  "reviews": [
+    {
+      "review_id": 1999441067,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "Os cartuchos de tinta originais são excelentes, mas, não descobri o motivo pelo qual os cartuchos de tinta originais para impressora são tão caros. O valor de dois cartuchos compram uma impressora nova.",
+      "has_comment": true,
+      "date": "",
+      "likes": 11,
+      "has_images": false,
+      "image_urls": [],
+      "extracted_at": "2025-09-29T12:17:37.934070"
+    },
+    {
+      "review_id": 1348037781,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "Cartuchos de excelente qualidade.",
+      "has_comment": true,
+      "date": "",
+      "likes": 4,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_703481-MLA77844236599_072024-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_685471-MLA77625318880_072024-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:37.934070"
+    },
+    {
+      "review_id": 1415125829,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "Produto original.",
+      "has_comment": true,
+      "date": "",
+      "likes": 4,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_951583-MLA78273576308_082024-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:37.934070"
+    },
+    {
+      "review_id": 1422350147,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "O produto é bom mas não foi compatível com a minha impressora.",
+      "has_comment": true,
+      "date": "",
+      "likes": 4,
+      "has_images": false,
+      "image_urls": [],
+      "extracted_at": "2025-09-29T12:17:37.934070"
+    },
+    {
+      "review_id": 1319990750,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "Por enquanto satisfeita com os cartuchos, minha impressora aceitou na hora e apareceu cheio, espero que dure bem, acredito que o preço é um pouco salgado, poderia ser mais em conta, mas se for oferecer serviço de qualidade vale a pena.",
+      "has_comment": true,
+      "date": "",
+      "likes": 3,
+      "has_images": false,
+      "image_urls": [],
+      "extracted_at": "2025-09-29T12:17:37.934070"
+    },
+    {
+      "review_id": 1974527274,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "Durou menos do que eu esperava mas funciona pra o que eu preciso 😃.",
+      "has_comment": true,
+      "date": "",
+      "likes": 2,
+      "has_images": false,
+      "image_urls": [],
+      "extracted_at": "2025-09-29T12:17:37.934070"
+    },
+    {
+      "review_id": 1420036155,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "Ótimo!.",
+      "has_comment": true,
+      "date": "",
+      "likes": 2,
+      "has_images": false,
+      "image_urls": [],
+      "extracted_at": "2025-09-29T12:17:37.934070"
+    },
+    {
+      "review_id": 2270551112,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "Gosto desse produto. Já comprei várias vezes.",
+      "has_comment": true,
+      "date": "",
+      "likes": 1,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_743417-MLA90267481405_082025-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:37.934070"
+    },
+    {
+      "review_id": 1626502464,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "Produto original e rende muito bem.",
+      "has_comment": true,
+      "date": "",
+      "likes": 1,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_986964-MLA80475469276_112024-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:37.934070"
+    },
+    {
+      "review_id": 1495110214,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "E um produto que uso sempre.",
+      "has_comment": true,
+      "date": "",
+      "likes": 1,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_732636-MLA79413839145_092024-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:37.934070"
+    },
+    {
+      "review_id": 2312655974,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "O produto é original, boa qualidade, único porém, preço muito caro pela quantidade de cópias que reproduz antes de acabar a tinta.",
+      "has_comment": true,
+      "date": "",
+      "likes": 1,
+      "has_images": false,
+      "image_urls": [],
+      "extracted_at": "2025-09-29T12:17:37.934070"
+    },
+    {
+      "review_id": 2195263593,
+      "product_id": "MLB6125886",
+      "rating": 4,
+      "title": "muito bom",
+      "comment": "Este foi o segundo cartucho que eu comprei,o primeiro constava 8ml más imprimi apenas 6 folhas coloridas e pretas ou seja boletos de empresas. A tinta colorida acabou muito rápido ou seja não tinha o total de tinta que constava no cartucho.",
+      "has_comment": true,
+      "date": "",
+      "likes": 1,
+      "has_images": false,
+      "image_urls": [],
+      "extracted_at": "2025-09-29T12:17:37.934070"
+    },
+    {
+      "review_id": 1353342532,
+      "product_id": "MLB6125886",
+      "rating": 4,
+      "title": "ótimo",
+      "comment": "Só funcionou o preto.",
+      "has_comment": true,
+      "date": "",
+      "likes": 1,
+      "has_images": false,
+      "image_urls": [],
+      "extracted_at": "2025-09-29T12:17:37.934070"
+    },
+    {
+      "review_id": 1307432922,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "Tem muito rendimento.",
+      "has_comment": true,
+      "date": "",
+      "likes": 1,
+      "has_images": false,
+      "image_urls": [],
+      "extracted_at": "2025-09-29T12:17:37.934070"
+    },
+    {
+      "review_id": 1302609731,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "Material de excelente qualidade.",
+      "has_comment": true,
+      "date": "",
+      "likes": 1,
+      "has_images": false,
+      "image_urls": [],
+      "extracted_at": "2025-09-29T12:17:37.934070"
+    },
+    {
+      "review_id": 1294095533,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "Excelente.",
+      "has_comment": true,
+      "date": "",
+      "likes": 1,
+      "has_images": false,
+      "image_urls": [],
+      "extracted_at": "2025-09-29T12:17:37.934070"
+    },
+    {
+      "review_id": 1293438615,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "Incrivel.",
+      "has_comment": true,
+      "date": "",
+      "likes": 1,
+      "has_images": false,
+      "image_urls": [],
+      "extracted_at": "2025-09-29T12:17:37.934070"
+    },
+    {
+      "review_id": 1282201125,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "Ótima qualidade. Recomendo a compra.",
+      "has_comment": true,
+      "date": "",
+      "likes": 1,
+      "has_images": false,
+      "image_urls": [],
+      "extracted_at": "2025-09-29T12:17:37.934070"
+    },
+    {
+      "review_id": 1269150938,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "O produto é, de fato, muito caro pelo número de cópias que produz, mas a qualidade é boa!.",
+      "has_comment": true,
+      "date": "",
+      "likes": 1,
+      "has_images": false,
+      "image_urls": [],
+      "extracted_at": "2025-09-29T12:17:37.934070"
+    },
+    {
+      "review_id": 1882432281,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "",
+      "has_comment": false,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_832782-MLA82477623798_022025-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_608292-MLA82477623804_022025-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_799083-MLA82477623806_022025-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_654266-MLA82763705837_022025-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_709834-MLA82763521909_022025-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_697869-MLA82763599411_022025-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_983901-MLA82763676397_022025-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:37.934070"
+    },
+    {
+      "review_id": 2246316228,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "",
+      "has_comment": false,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_786635-MLA89637689061_082025-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_772476-MLA89637659537_082025-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_899588-MLA89271880652_082025-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_815291-MLA89272028522_082025-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_744992-MLA89271654612_082025-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:37.934070"
+    },
+    {
+      "review_id": 2331742315,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "Produto bom original estão de parabéns.",
+      "has_comment": true,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_951586-MLA92242368579_092025-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_969610-MLA92242408009_092025-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_809601-MLA92242368589_092025-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_847364-MLA92242428055_092025-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:37.934070"
+    },
+    {
+      "review_id": 2062570594,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "",
+      "has_comment": false,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_815561-MLA84692278570_052025-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_922185-MLA84991351225_052025-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_856944-MLA84991083697_052025-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_949662-MLA84692278566_052025-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:37.934070"
+    },
+    {
+      "review_id": 1297394976,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "",
+      "has_comment": false,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_892936-MLA77112458892_062024-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_895849-MLA77325172795_062024-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_749428-MLA77112439390_062024-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_849865-MLA77112429502_062024-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:37.934070"
+    },
+    {
+      "review_id": 1567531973,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "",
+      "has_comment": false,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_804433-MLA80179722887_102024-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_778522-MLA80180008459_102024-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_851749-MLA79925956736_102024-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:37.934070"
+    },
+    {
+      "review_id": 1251529211,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "",
+      "has_comment": false,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_890744-MLA76949884467_062024-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_682864-MLA76950099695_062024-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_969800-MLA76745176896_062024-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:37.934070"
+    },
+    {
+      "review_id": 2375289950,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "Muito bom.",
+      "has_comment": true,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_766990-MLA93549273007_092025-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_941668-MLA93549477813_092025-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:37.934070"
+    },
+    {
+      "review_id": 2353755560,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "",
+      "has_comment": false,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_805263-MLA92785601623_092025-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_711054-MLA92785601633_092025-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:37.934070"
+    },
+    {
+      "review_id": 2294861245,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "Muito bom produto de qualidade.",
+      "has_comment": true,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_845221-MLA91149722293_082025-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_690140-MLA91149955623_082025-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:37.935057"
+    },
+    {
+      "review_id": 2290257766,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "",
+      "has_comment": false,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_759387-MLA90444170202_082025-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_712370-MLA90444228464_082025-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:37.935057"
+    },
+    {
+      "review_id": 2271805706,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "Original perfeito.",
+      "has_comment": true,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_956905-MLA89901208384_082025-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_901495-MLA90279680939_082025-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:40.206544"
+    },
+    {
+      "review_id": 2229023588,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "",
+      "has_comment": false,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_653178-MLA88702365338_072025-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_962511-MLA89055408785_072025-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:40.206544"
+    },
+    {
+      "review_id": 2086012115,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "",
+      "has_comment": false,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_874369-MLA85360982900_062025-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_734614-MLA85360982906_062025-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:40.206544"
+    },
+    {
+      "review_id": 2020735158,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "",
+      "has_comment": false,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_609956-MLA84205847823_042025-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_835446-MLA84205828565_042025-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:40.206544"
+    },
+    {
+      "review_id": 1876523821,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "",
+      "has_comment": false,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_620311-MLA82687740631_022025-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_973163-MLA82687694557_022025-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:40.206544"
+    },
+    {
+      "review_id": 1610907284,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "Muito bom. Com certeza vou comprar mais.",
+      "has_comment": true,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_894695-MLA80567301011_112024-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_650285-MLA80567252705_112024-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:40.206544"
+    },
+    {
+      "review_id": 1452680415,
+      "product_id": "MLB6125886",
+      "rating": 4,
+      "title": "muito bom",
+      "comment": "",
+      "has_comment": false,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_612521-MLA79483792248_102024-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_694855-MLA79730631941_102024-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:40.206544"
+    },
+    {
+      "review_id": 1338929125,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "",
+      "has_comment": false,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_956145-MLA77763132959_072024-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_717315-MLA77545313788_072024-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:40.206544"
+    },
+    {
+      "review_id": 2370927972,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "O produto funciona muito bem. Perfeito ótimo para comprar!.",
+      "has_comment": true,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_701077-MLA92969940824_092025-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:40.206544"
+    },
+    {
+      "review_id": 2364627811,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "Bom mas consumos rapido.",
+      "has_comment": true,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_809957-MLA93378042995_092025-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:40.206544"
+    },
+    {
+      "review_id": 2364530621,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "",
+      "has_comment": false,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_964729-MLA92958571778_092025-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:40.206544"
+    },
+    {
+      "review_id": 2366441848,
+      "product_id": "MLB6125886",
+      "rating": 4,
+      "title": "muito bom",
+      "comment": "Produto de qualidade recomendo.",
+      "has_comment": true,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_904907-MLA92799997476_092025-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:40.206544"
+    },
+    {
+      "review_id": 2365230376,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "Ótimo, deu certinho na minha impressora.",
+      "has_comment": true,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_988992-MLA93181112805_092025-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:40.206544"
+    },
+    {
+      "review_id": 2335874067,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "Ótimo atende perfeitamente.",
+      "has_comment": true,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_707848-MLA92397909271_092025-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:40.206544"
+    },
+    {
+      "review_id": 2333558091,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "Produto excelente.",
+      "has_comment": true,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_869746-MLA91915883498_092025-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:40.206544"
+    },
+    {
+      "review_id": 2338864354,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "",
+      "has_comment": false,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_886433-MLA92304522537_092025-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:40.206544"
+    },
+    {
+      "review_id": 2331881363,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "",
+      "has_comment": false,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_618594-MLA92243706411_092025-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:40.206544"
+    },
+    {
+      "review_id": 2337442316,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "Boa qualidade.",
+      "has_comment": true,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_689625-MLA91838526354_092025-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:40.206544"
+    },
+    {
+      "review_id": 2323758141,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "Ótimo cartucho, original, impressora reconhece-o na hora.",
+      "has_comment": true,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_960254-MLA91558291010_092025-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:40.206544"
+    },
+    {
+      "review_id": 2301801149,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "Ótimo produto.",
+      "has_comment": true,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_982853-MLA90949936384_082025-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:40.206544"
+    },
+    {
+      "review_id": 2301786627,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "",
+      "has_comment": false,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_744949-MLA91340866659_082025-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:40.206544"
+    },
+    {
+      "review_id": 2285514405,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "Instalado e funcionando.",
+      "has_comment": true,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_872897-MLA90472388088_082025-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:40.206544"
+    },
+    {
+      "review_id": 2278659471,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "Bom.",
+      "has_comment": true,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_794507-MLA90652214837_082025-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:40.206544"
+    },
+    {
+      "review_id": 2246286085,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "",
+      "has_comment": false,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_761857-MLA89415137402_082025-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:40.206544"
+    },
+    {
+      "review_id": 2250684236,
+      "product_id": "MLB6125886",
+      "rating": 4,
+      "title": "muito bom",
+      "comment": "É bom colorido só duro 1 dia puxa muita tinta pra foto.",
+      "has_comment": true,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_758812-MLA89743412217_082025-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:40.206544"
+    },
+    {
+      "review_id": 2243976055,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "",
+      "has_comment": false,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_746846-MLA89727531245_082025-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:40.206544"
+    },
+    {
+      "review_id": 2228224149,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "",
+      "has_comment": false,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_736360-MLA88862937190_082025-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:40.206544"
+    },
+    {
+      "review_id": 2210124155,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "",
+      "has_comment": false,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_824671-MLA88347409144_072025-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:40.206544"
+    },
+    {
+      "review_id": 2187652887,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "",
+      "has_comment": false,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_803077-MLA88126396517_072025-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:40.206544"
+    },
+    {
+      "review_id": 2083237859,
+      "product_id": "MLB6125886",
+      "rating": 5,
+      "title": "excelente",
+      "comment": "Produto original é de fácil instalação. Adorei e comprarei novamente!.",
+      "has_comment": true,
+      "date": "",
+      "likes": 0,
+      "has_images": true,
+      "image_urls": [
+        "https://http2.mlstatic.com/D_NQ_NP_742166-MLA85608395629_062025-F.jpg"
+      ],
+      "extracted_at": "2025-09-29T12:17:40.206544"
+    }
+  ]
+}

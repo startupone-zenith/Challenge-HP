@@ -30,7 +30,7 @@ class HPScrapingSystem:
         
     def executar_scraping_produtos(self, query, max_items=None, extract_images=False, 
                                  sort_by='relevance', condition='all', custom_url=None, 
-                                 detailed_extraction=False):
+                                 detailed_extraction=False, request_delay=2.0):
         """
         Executa scraping de produtos no Mercado Livre
         
@@ -42,6 +42,7 @@ class HPScrapingSystem:
             condition (str): Condição ('all', 'new', 'used')
             custom_url (str): URL específica do Mercado Livre para usar como base
             detailed_extraction (bool): Se deve usar extração detalhada (16 campos)
+            request_delay (float): Delay entre requisições em segundos
         
         Returns:
             list: Lista de produtos coletados
@@ -61,7 +62,8 @@ class HPScrapingSystem:
                 sort_by=sort_by,
                 condition=condition,
                 max_items=max_items,
-                custom_url=custom_url
+                custom_url=custom_url,
+                request_delay=request_delay
             )
             
             # Se extração detalhada foi solicitada, executar para cada produto
@@ -81,7 +83,7 @@ class HPScrapingSystem:
             logger.error(f"Erro durante scraping de produtos: {str(e)}")
             return []
     
-    def executar_scraping_reviews(self, product_id, max_reviews=200):
+    def executar_scraping_reviews(self, product_id, max_reviews=200, delay=2.0):
         """
         Executa scraping de reviews para um produto específico
         Versão melhorada com análise de sentimento e distribuição detalhada
@@ -99,7 +101,7 @@ class HPScrapingSystem:
             # Importar spider dinamicamente para evitar importação circular
             from ..spiders.mercadolivre_spider_reviews import run_review_spider
             
-            reviews_data = run_review_spider(product_id, max_reviews=max_reviews)
+            reviews_data = run_review_spider(product_id, max_reviews=max_reviews, delay=delay)
             
             if reviews_data and 'reviews' in reviews_data:
                 logger.info(f"Coletadas {len(reviews_data['reviews'])} reviews")
@@ -117,12 +119,13 @@ class HPScrapingSystem:
             logger.error(f"Erro durante scraping de reviews: {str(e)}")
             return {}
     
-    def coletar_reviews_para_produtos(self, max_reviews_per_product=100):
+    def coletar_reviews_para_produtos(self, max_reviews_per_product=100, delay=2.0):
         """
         Coleta reviews para todos os produtos já coletados
         
         Args:
             max_reviews_per_product (int): Máximo de reviews por produto
+            delay (float): Delay entre requisições em segundos
         """
         if not self.produtos:
             logger.warning("Nenhum produto disponível para coletar reviews")
@@ -131,17 +134,17 @@ class HPScrapingSystem:
         logger.info(f"Coletando reviews para {len(self.produtos)} produtos")
         
         for i, produto in enumerate(self.produtos, 1):
-            product_id = produto.get('id')
+            product_id = produto.get('product_id') or produto.get('ID_PRODUTO')
             if product_id:
                 logger.info(f"Coletando reviews {i}/{len(self.produtos)} - ID: {product_id}")
-                reviews_data = self.executar_scraping_reviews(product_id, max_reviews_per_product)
+                reviews_data = self.executar_scraping_reviews(product_id, max_reviews_per_product, delay)
                 
                 # Adicionar dados de reviews ao produto
                 if reviews_data:
                     produto['reviews_data'] = reviews_data
                 
                 # Delay entre requisições
-                time.sleep(1)
+                time.sleep(delay)
     
     def _executar_extracao_detalhada_produtos(self, produtos):
         """
@@ -385,13 +388,14 @@ class HPScrapingSystem:
         else:
             return 'limitada'
     
-    def gerar_dataset_csv(self, filename=None, include_reviews=True):
+    def gerar_dataset_csv(self, filename=None, include_reviews=True, individual_reviews=False):
         """
         Gera dataset em formato CSV
         
         Args:
             filename (str): Nome do arquivo (opcional)
             include_reviews (bool): Se deve incluir dados de reviews
+            individual_reviews (bool): Se deve incluir cada review como linha separada
         
         Returns:
             str: Caminho do arquivo gerado
@@ -411,197 +415,224 @@ class HPScrapingSystem:
             dataset_rows = []
             
             for produto in self.produtos:
-                # CAMPOS BÁSICOS (sempre presentes) - Mapeamento correto dos nomes dos campos do scraper
+                # =============================================================================
+                # CONSOLIDAÇÃO DE DADOS - Usar detalhados quando disponível, senão básicos
+                # =============================================================================
+                
+                # Consolidar título
+                titulo_final = produto.get('nome_produto', '') or produto.get('TITULO PRODUTO', '')
+                
+                # Consolidar preço
+                preco_final = produto.get('preco', '') or produto.get('PREÇO', '')
+                
+                # Consolidar vendedor
+                vendedor_final = produto.get('nome_loja', '') or produto.get('VENDEDOR', '')
+                
+                # Consolidar marca
+                marca_final = produto.get('brand', '') or produto.get('MARCA', '')
+                
+                # Consolidar condição
+                condicao_final = produto.get('condicao_produto', '') or produto.get('CONDICAO', '') or 'Novo'
+                
+                # Consolidar frete grátis
+                frete_gratis_final = produto.get('frete_gratis', False) or (produto.get('ENTREGA FULL', '') == 'Sim')
+                
+                # Consolidar dados de avaliações (CORRIGIR PROBLEMA DE REVIEWS ZERADAS)
+                total_reviews_final = 0
+                rating_medio_final = 0
+                star_distribution = {5: 0, 4: 0, 3: 0, 2: 0, 1: 0}
+                reviews_com_texto_final = 0
+                reviews_com_imagens_final = 0
+                
+                # 1. Prioridade: dados específicos de reviews_data
+                comentarios_reviews = []
+                if include_reviews and 'reviews_data' in produto:
+                    reviews_data = produto['reviews_data']
+                    statistics = reviews_data.get('statistics', {})
+                    total_reviews_final = statistics.get('total_reviews', 0)
+                    rating_medio_final = statistics.get('average_rating', 0)
+                    rating_dist = statistics.get('rating_distribution', {})
+                    star_distribution.update(rating_dist)
+                    reviews_com_texto_final = statistics.get('reviews_with_text', 0)
+                    reviews_com_imagens_final = statistics.get('reviews_with_images', 0)
+                    
+                    # Extrair comentários das reviews
+                    reviews_list = reviews_data.get('reviews', [])
+                    for review in reviews_list:
+                        if review.get('has_comment', False) and review.get('comment', '').strip():
+                            comentario = {
+                                'rating': review.get('rating', 0),
+                                'titulo': review.get('title', ''),
+                                'comentario': review.get('comment', ''),
+                                'data': review.get('date', ''),
+                                'likes': review.get('likes', 0),
+                                'tem_imagens': review.get('has_images', False)
+                            }
+                            comentarios_reviews.append(comentario)
+                
+                # 2. Fallback: dados de avaliacao da extração detalhada
+                elif include_reviews and 'avaliacao' in produto and produto['avaliacao'] != 'N/A':
+                    avaliacao = produto['avaliacao']
+                    if isinstance(avaliacao, dict):
+                        total_reviews_final = avaliacao.get('count', 0) or avaliacao.get('review_count', 0)
+                        rating_medio_final = avaliacao.get('rating', 0)
+                        reviews_com_texto_final = avaliacao.get('reviews_with_comment', 0)
+                        reviews_com_imagens_final = avaliacao.get('pictures_quantity', 0)
+                        # Calcular distribuição de estrelas
+                        star_distribution = self._estimate_star_distribution(avaliacao, rating_medio_final, total_reviews_final)
+                
+                # 3. Último fallback: dados básicos da busca
+                elif include_reviews:
+                    try:
+                        if produto.get('TOTAL AVALIAÇÕES'):
+                            total_reviews_final = int(str(produto.get('TOTAL AVALIAÇÕES', '')).replace('.', '').replace(',', ''))
+                        if produto.get('MÉDIA AVALIAÇÕES'):
+                            rating_medio_final = float(produto.get('MÉDIA AVALIAÇÕES', ''))
+                        # Se há dados básicos, estimar distribuição
+                        if total_reviews_final > 0 and rating_medio_final > 0:
+                            star_distribution = self._estimate_star_distribution({}, rating_medio_final, total_reviews_final)
+                    except (ValueError, TypeError):
+                        pass
+                
+                # =============================================================================
+                # ESTRUTURA REORGANIZADA DO CSV - DADOS MAIS IMPORTANTES PRIMEIRO
+                # =============================================================================
                 row = {
+                    # === IDENTIFICAÇÃO DO PRODUTO ===
                     'id': produto.get('ID_PRODUTO', ''),
-                    'titulo': produto.get('TITULO PRODUTO', ''),
-                    'preco': produto.get('PREÇO', ''),
-                    'preco_original': produto.get('PREÇO ANTERIOR', ''),
-                    'desconto': produto.get('DESCONTO', ''),
-                    'vendedor': produto.get('VENDEDOR', ''),
-                    'reputacao_vendedor': produto.get('REPUTACAO_VENDEDOR', ''),
-                    'condicao': produto.get('CONDICAO', ''),
-                    'frete_gratis': produto.get('ENTREGA FULL', '') == 'Sim',
+                    'titulo': titulo_final,
                     'link': produto.get('LINK', ''),
+                    
+                    # === PREÇO E OFERTAS ===
+                    'preco': preco_final,
+                    'preco_original': produto.get('PREÇO ANTERIOR', ''),
+                    'desconto': produto.get('DESCONTO', '') or produto.get('desconto', ''),
+                    
+                    # === VENDEDOR ===
+                    'vendedor': vendedor_final,
+                    'seller_id': produto.get('seller_id', ''),
+                    'reputation_level': produto.get('reputation_level', ''),
+                    'power_seller_status': produto.get('power_seller_status', ''),
+                    
+                    # === AVALIAÇÕES (CONSOLIDADAS) ===
+                    'rating_medio': rating_medio_final,
+                    'total_reviews': total_reviews_final,
+                    'rating_5_estrelas': star_distribution.get(5, 0),
+                    'rating_4_estrelas': star_distribution.get(4, 0),
+                    'rating_3_estrelas': star_distribution.get(3, 0),
+                    'rating_2_estrelas': star_distribution.get(2, 0),
+                    'rating_1_estrela': star_distribution.get(1, 0),
+                    'tem_reviews': total_reviews_final > 0,
+                    'reviews_com_texto': reviews_com_texto_final,
+                    'reviews_com_imagens': reviews_com_imagens_final,
+                    'avaliacoes_positivas': star_distribution.get(5, 0) + star_distribution.get(4, 0),
+                    'avaliacoes_negativas': star_distribution.get(1, 0) + star_distribution.get(2, 0),
+                    'avaliacoes_neutras': star_distribution.get(3, 0),
+                    
+                    # === PRODUTO ===
+                    'marca': marca_final,
+                    'condicao': condicao_final,
+                    'descricao_produto': produto.get('descricao_produto', ''),
+                    'caracteristicas_principais': self._format_list_for_csv(produto.get('caracteristicas_principais', [])),
+                    
+                    # === CARACTERÍSTICAS DETALHADAS ===
+                    'main_characteristics': self._format_dict_for_csv(produto.get('main_characteristics', {})),
+                    'other_characteristics': self._format_dict_for_csv(produto.get('other_characteristics', {})),
+                    
+                    # === ENTREGA ===
+                    'frete_gratis': frete_gratis_final,
+                    'shipping_mode': produto.get('shipping_mode', ''),
+                    'tempo_entrega': produto.get('tempo_entrega', ''),
+                    
+                    # === DADOS TÉCNICOS ===
                     'imagem_url': produto.get('IMAGEM', ''),
-                    'localizacao': produto.get('LOCALIZACAO', ''),
-                    'vendas': produto.get('VENDAS', ''),
-                    'media_avaliacoes': produto.get('MÉDIA AVALIAÇÕES', ''),
-                    'total_avaliacoes': produto.get('TOTAL AVALIAÇÕES', ''),
-                    'entrega': produto.get('ENTREGA', ''),
-                    'marca': produto.get('MARCA', ''),
-                    'data_coleta': produto.get('scraped_at', datetime.now().isoformat())
+                    'fotos_produto': self._format_list_for_csv(produto.get('fotos_produto', [])),
+                    'product_id': produto.get('product_id', '') or produto.get('ID_PRODUTO', ''),
+                    'sku': produto.get('sku', ''),
+                    'brand': produto.get('brand', ''),  # Manter separado para compatibilidade
+                    
+                    # === METADADOS ===
+                    'data_coleta': produto.get('scraped_at', datetime.now().isoformat()),
+                    'tem_dados_detalhados': produto.get('extracao_detalhada', False),
+                    'qualidade_extracao_detalhada': produto.get('detalhes_qualidade', 'nao_realizada'),
+                    'score_qualidade_detalhes': produto.get('quality_score', 0),
+                    
+                    # === COMENTÁRIOS DE REVIEWS ===
+                    'comentarios_reviews': self._format_comentarios_for_csv(comentarios_reviews),
+                    'total_comentarios': len(comentarios_reviews),
+                    'comentarios_positivos': len([c for c in comentarios_reviews if c.get('rating', 0) >= 4]),
+                    'comentarios_negativos': len([c for c in comentarios_reviews if c.get('rating', 0) <= 2]),
+                    'comentarios_com_imagens': len([c for c in comentarios_reviews if c.get('tem_imagens', False)]),
+                    'comentario_mais_curtido': self._get_most_liked_comment(comentarios_reviews),
+                    'comentario_mais_recente': self._get_most_recent_comment(comentarios_reviews)
                 }
                 
-                # CAMPOS DETALHADOS (se extração detalhada foi usada)
+                # Adicionar campos extraídos de outros_dados
+                row.update(self._extract_outros_dados_fields(produto.get('outros', {})))
+                
+                # Adicionar alguns campos adicionais que podem ser úteis (apenas se disponíveis)
                 if produto.get('extracao_detalhada', False):
-                    # Os 16 campos da extração detalhada
                     row.update({
-                        # Informações do produto
-                        'nome_produto_detalhado': produto.get('nome_produto', ''),
-                        'condicao_produto_detalhada': produto.get('condicao_produto', ''),
-                        'descricao_produto': produto.get('descricao_produto', ''),
-                        
-                        # Preços e ofertas
-                        'preco_detalhado': produto.get('preco', ''),
-                        'desconto_detalhado': produto.get('desconto', ''),
-                        
-                        # Entrega e frete
-                        'frete_gratis_detalhado': produto.get('frete_gratis', ''),
-                        'tempo_entrega': produto.get('tempo_entrega', ''),
-                        
-                        # Informações do vendedor
-                        'nome_loja': produto.get('nome_loja', ''),
                         'vendas_loja': produto.get('vendas_loja', ''),
                         'vendas_produto': produto.get('vendas_produto', ''),
-                        
-                        # Garantias e políticas
                         'devolucao_gratis': produto.get('devolucao_gratis', ''),
                         'compra_garantida': produto.get('compra_garantida', ''),
                         'tempo_garantia': produto.get('tempo_garantia', ''),
-                        
-                        # Características (converter lista para string)
-                        'caracteristicas_principais': self._format_list_for_csv(produto.get('caracteristicas_principais', [])),
-                        
-                        # Fotos (converter lista para string)
-                        'fotos_produto': self._format_list_for_csv(produto.get('fotos_produto', [])),
-                        
-                        # Avaliações
-                        'avaliacao': self._format_rating_for_csv(produto.get('avaliacao', {})),
-                        
-                        # Outros dados (converter dict para string)
-                        'outros_dados': self._format_dict_for_csv(produto.get('outros', {})),
-                        
-                        # Timestamp da extração detalhada
                         'timestamp_extracao_detalhada': produto.get('timestamp', ''),
-                        
-                        # Flag indicando que tem dados detalhados
-                        'tem_dados_detalhados': True
+                        'metodo_extracao_detalhada': produto.get('extraction_method', 'spider_scrapy'),
+                        'tamanho_resposta_bytes': produto.get('response_size', 0),
+                        'status_resposta_http': produto.get('response_status', 0)
                     })
                 else:
-                    # Campos vazios para produtos sem extração detalhada
                     row.update({
-                        'nome_produto_detalhado': '',
-                        'condicao_produto_detalhada': '',
-                        'descricao_produto': '',
-                        'preco_detalhado': '',
-                        'desconto_detalhado': '',
-                        'frete_gratis_detalhado': '',
-                        'tempo_entrega': '',
-                        'nome_loja': '',
                         'vendas_loja': '',
                         'vendas_produto': '',
                         'devolucao_gratis': '',
                         'compra_garantida': '',
                         'tempo_garantia': '',
-                        'caracteristicas_principais': '',
-                        'fotos_produto': '',
-                        'avaliacao': '',
-                        'outros_dados': '',
                         'timestamp_extracao_detalhada': '',
-                        'tem_dados_detalhados': False
+                        'metodo_extracao_detalhada': 'nao_realizada',
+                        'tamanho_resposta_bytes': 0,
+                        'status_resposta_http': 0
                     })
-                
-                # Adicionar dados de reviews (melhorado para usar dados detalhados)
-                # Prioridade: 1) reviews_data específicos, 2) dados de avaliacao da extração detalhada
-                reviews_added = False
-                
-                if include_reviews and 'reviews_data' in produto:
-                    reviews_data = produto['reviews_data']
-                    statistics = reviews_data.get('statistics', {})
-                    quality = reviews_data.get('quality_indicators', {})
-                    
-                    row.update({
-                        'total_reviews': statistics.get('total_reviews', 0),
-                        'rating_medio': statistics.get('average_rating', 0),
-                        'rating_5_estrelas': statistics.get('rating_distribution', {}).get(5, 0),
-                        'rating_4_estrelas': statistics.get('rating_distribution', {}).get(4, 0),
-                        'rating_3_estrelas': statistics.get('rating_distribution', {}).get(3, 0),
-                        'rating_2_estrelas': statistics.get('rating_distribution', {}).get(2, 0),
-                        'rating_1_estrela': statistics.get('rating_distribution', {}).get(1, 0),
-                        'tem_reviews': len(reviews_data.get('reviews', [])) > 0,
-                        
-                        # Campos adicionais de análise de reviews
-                        'reviews_com_texto': statistics.get('reviews_with_text', 0),
-                        'reviews_com_imagens': statistics.get('reviews_with_images', 0),
-                        'cobertura_texto_reviews': round(statistics.get('text_coverage', 0), 1),
-                        'tamanho_medio_review': round(statistics.get('avg_text_length', 0), 1),
-                        'avaliacoes_positivas': quality.get('high_ratings', 0),
-                        'avaliacoes_negativas': quality.get('low_ratings', 0),
-                        'avaliacoes_neutras': quality.get('neutral_ratings', 0),
-                        'metodo_coleta_reviews': reviews_data.get('collection_method', 'standard')
-                    })
-                    reviews_added = True
-                
-                # Se não há reviews específicos, tentar usar dados de avaliacao da extração detalhada
-                elif include_reviews and 'avaliacao' in produto and produto['avaliacao'] != 'N/A':
-                    avaliacao = produto['avaliacao']
-                    if isinstance(avaliacao, dict):
-                        rating = avaliacao.get('rating', 0)
-                        count = avaliacao.get('count', 0) or avaliacao.get('review_count', 0)
-                        reviews_with_comment = avaliacao.get('reviews_with_comment', 0)
-                        pictures_quantity = avaliacao.get('pictures_quantity', 0)
-                        
-                        # Converter rating para float se necessário
-                        try:
-                            rating = float(rating) if rating else 0
-                            count = int(count) if count else 0
-                            reviews_with_comment = int(reviews_with_comment) if reviews_with_comment else 0
-                            pictures_quantity = int(pictures_quantity) if pictures_quantity else 0
-                        except (ValueError, TypeError):
-                            rating = count = reviews_with_comment = pictures_quantity = 0
-                        
-                        row.update({
-                            'total_reviews': count,
-                            'rating_medio': rating,
-                            'rating_5_estrelas': 0,  # Dados detalhados não disponíveis
-                            'rating_4_estrelas': 0,
-                            'rating_3_estrelas': 0,
-                            'rating_2_estrelas': 0,
-                            'rating_1_estrela': 0,
-                            'tem_reviews': count > 0,
-                            'reviews_com_texto': reviews_with_comment,
-                            'reviews_com_imagens': pictures_quantity,
-                            'cobertura_texto_reviews': 0,
-                            'tamanho_medio_review': 0,
-                            'avaliacoes_positivas': 0,
-                            'avaliacoes_negativas': 0,
-                            'avaliacoes_neutras': 0,
-                            'metodo_coleta_reviews': 'extracao_detalhada'
-                        })
-                        reviews_added = True
-                
-                # Se não há dados de reviews de nenhuma fonte
-                if not reviews_added:
-                    row.update({
-                        'total_reviews': 0,
-                        'rating_medio': 0,
-                        'rating_5_estrelas': 0,
-                        'rating_4_estrelas': 0,
-                        'rating_3_estrelas': 0,
-                        'rating_2_estrelas': 0,
-                        'rating_1_estrela': 0,
-                        'tem_reviews': False,
-                        'reviews_com_texto': 0,
-                        'reviews_com_imagens': 0,
-                        'cobertura_texto_reviews': 0,
-                        'tamanho_medio_review': 0,
-                        'avaliacoes_positivas': 0,
-                        'avaliacoes_negativas': 0,
-                        'avaliacoes_neutras': 0,
-                        'metodo_coleta_reviews': 'nao_coletado'
-                    })
-                
-                # Adicionar campos de qualidade da extração
-                row.update({
-                    'qualidade_extracao_detalhada': produto.get('detalhes_qualidade', 'nao_realizada'),
-                    'metodo_extracao_detalhada': produto.get('extraction_method', 'nao_realizada'),
-                    'score_qualidade_detalhes': produto.get('quality_score', 0),
-                    'tamanho_resposta_bytes': produto.get('response_size', 0),
-                    'status_resposta_http': produto.get('response_status', 0)
-                })
                 
                 dataset_rows.append(row)
+                
+                # Se individual_reviews=True, adicionar reviews como colunas
+                if individual_reviews and include_reviews and 'reviews_data' in produto:
+                    reviews_list = produto['reviews_data'].get('reviews', [])
+                    
+                    # Filtrar apenas reviews que possuam comentários
+                    reviews_with_comments = []
+                    for review in reviews_list:
+                        comment = review.get('comment', '')
+                        has_comment = review.get('has_comment', False)
+                        
+                        # Verificar se a review tem comentário válido
+                        if has_comment and comment and comment.strip():
+                            reviews_with_comments.append(review)
+                    
+                    # Adicionar colunas para cada review com comentário (sem limite máximo)
+                    for i, review in enumerate(reviews_with_comments):
+                        row[f'review_{i+1}_id'] = review.get('id', 'N/A')
+                        row[f'review_{i+1}_rating'] = review.get('rating', 'N/A')
+                        # Extrair texto do título se for dicionário
+                        title = review.get('title', '')
+                        if isinstance(title, dict):
+                            title = title.get('text', '')
+                        row[f'review_{i+1}_title'] = title if title else 'N/A'
+                        row[f'review_{i+1}_comment'] = review.get('comment', 'N/A')
+                        row[f'review_{i+1}_date'] = review.get('date', 'N/A')
+                        row[f'review_{i+1}_likes'] = review.get('likes', 'N/A')
+                        row[f'review_{i+1}_has_images'] = review.get('has_images', 'N/A')
+                        row[f'review_{i+1}_has_comment'] = review.get('has_comment', 'N/A')
+                    
+                    # Adicionar informações sobre total de reviews com comentários
+                    row['total_reviews_individual'] = len(reviews_with_comments)
+                    row['total_reviews_original'] = len(reviews_list)  # Total original de reviews
+                    row['tipo_linha'] = 'produto_com_reviews'
+                else:
+                    row['tipo_linha'] = 'produto'
             
             # Criar DataFrame e salvar
             df = pd.DataFrame(dataset_rows)
@@ -610,10 +641,73 @@ class HPScrapingSystem:
             logger.info(f"Dataset gerado com sucesso: {filename}")
             logger.info(f"Total de produtos: {len(df)}")
             
+            # Gerar também arquivo Excel
+            excel_filename = filename.replace('.csv', '.xlsx')
+            try:
+                self._gerar_dataset_excel(df, excel_filename)
+                logger.info(f"Dataset Excel gerado: {excel_filename}")
+            except Exception as e:
+                logger.warning(f"Erro ao gerar Excel: {e}")
+            
+            # Gerar também arquivo JSON
+            json_filename = filename.replace('.csv', '.json')
+            try:
+                df.to_json(json_filename, orient='records', indent=2, force_ascii=False)
+                logger.info(f"Dataset JSON gerado: {json_filename}")
+            except Exception as e:
+                logger.warning(f"Erro ao gerar JSON: {e}")
+            
             return filename
             
         except Exception as e:
             logger.error(f"Erro ao gerar dataset CSV: {str(e)}")
+            return None
+    
+    def gerar_dataset_excel(self, filename=None, include_reviews=True, individual_reviews=False):
+        """
+        Gera dataset em formato Excel
+        
+        Args:
+            filename (str): Nome do arquivo (opcional)
+            include_reviews (bool): Se deve incluir dados de reviews
+            individual_reviews (bool): Se deve incluir cada review como linha separada
+        
+        Returns:
+            str: Caminho do arquivo gerado
+        """
+        if not self.produtos:
+            logger.error("Nenhum produto disponível para gerar dataset")
+            return None
+        
+        if not filename:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"dataset_hp_produtos_{timestamp}.xlsx"
+        
+        logger.info(f"Gerando dataset Excel: {filename}")
+        
+        try:
+            # Usar o mesmo método do CSV para gerar dados
+            csv_file = self.gerar_dataset_csv(
+                filename.replace('.xlsx', '.csv'), 
+                include_reviews=include_reviews, 
+                individual_reviews=individual_reviews
+            )
+            
+            if not csv_file:
+                logger.error("Falha ao gerar CSV para conversão Excel")
+                return None
+            
+            # Ler CSV e converter para Excel
+            df = pd.read_csv(csv_file)
+            
+            # Gerar Excel usando o método existente
+            self._gerar_dataset_excel(df, filename)
+            
+            logger.info(f"Dataset Excel gerado: {filename}")
+            return filename
+            
+        except Exception as e:
+            logger.error(f"Erro ao gerar dataset Excel: {str(e)}")
             return None
     
     def _format_list_for_csv(self, data_list):
@@ -640,6 +734,225 @@ class HPScrapingSystem:
             review_count = rating_data.get('review_count', '')
             return f"Rating: {rating}, Count: {count}, Reviews: {review_count}"
         return str(rating_data) if rating_data else ''
+    
+    def _format_comentarios_for_csv(self, comentarios):
+        """Formatar comentários de reviews para CSV"""
+        if not comentarios:
+            return ''
+        
+        comentarios_formatados = []
+        for i, comentario in enumerate(comentarios[:10], 1):  # Limitar a 10 comentários
+            rating = comentario.get('rating', 0)
+            titulo = comentario.get('titulo', '')
+            texto = comentario.get('comentario', '')
+            data = comentario.get('data', '')
+            likes = comentario.get('likes', 0)
+            
+            # Truncar texto se muito longo
+            if len(texto) > 200:
+                texto = texto[:200] + '...'
+            
+            comentario_formatado = f"[{i}] {rating} estrelas - {titulo}: {texto} (Data: {data}, Likes: {likes})"
+            comentarios_formatados.append(comentario_formatado)
+        
+        return ' | '.join(comentarios_formatados)
+    
+    def _get_most_liked_comment(self, comentarios):
+        """Obter o comentário mais curtido"""
+        if not comentarios:
+            return ''
+        
+        most_liked = max(comentarios, key=lambda c: c.get('likes', 0))
+        return f"{most_liked.get('rating', 0)} estrelas - {most_liked.get('comentario', '')[:100]}... (Likes: {most_liked.get('likes', 0)})"
+    
+    def _get_most_recent_comment(self, comentarios):
+        """Obter o comentário mais recente"""
+        if not comentarios:
+            return ''
+        
+        # Para simplificar, pegar o primeiro comentário (assumindo que estão ordenados por data)
+        recent = comentarios[0]
+        return f"{recent.get('rating', 0)} estrelas - {recent.get('comentario', '')[:100]}... (Data: {recent.get('data', '')})"
+    
+    def _extract_outros_dados_fields(self, outros_dados):
+        """
+        Extrai campos específicos do dicionário outros_dados como colunas separadas
+        
+        Args:
+            outros_dados (dict): Dicionário com dados extras do produto
+            
+        Returns:
+            dict: Campos extraídos como colunas separadas
+        """
+        fields = {
+            'seller_id': '',
+            'reputation_level': '',
+            'power_seller_status': '',
+            'shipping_mode': '',
+            'brand': '',
+            'sku': '',
+            'product_id': ''
+        }
+        
+        if isinstance(outros_dados, dict):
+            # Mapear campos do outros_dados para as novas colunas
+            fields.update({
+                'seller_id': outros_dados.get('seller_id', ''),
+                'reputation_level': outros_dados.get('reputation_level', ''),
+                'power_seller_status': outros_dados.get('power_seller_status', ''),
+                'shipping_mode': outros_dados.get('shipping_mode', ''),
+                'brand': outros_dados.get('brand', ''),
+                'sku': outros_dados.get('sku', ''),
+                'product_id': outros_dados.get('product_id', '')
+            })
+        
+        return fields
+    
+    def _gerar_dataset_excel(self, df, filename):
+        """Gerar dataset em formato Excel com formatação"""
+        try:
+            import openpyxl
+            from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+            from openpyxl.utils.dataframe import dataframe_to_rows
+            from openpyxl.worksheet.table import Table, TableStyleInfo
+            
+            # Criar workbook
+            wb = openpyxl.Workbook()
+            ws = wb.active
+            ws.title = "Produtos HP"
+            
+            # Adicionar dados do DataFrame
+            for r in dataframe_to_rows(df, index=False, header=True):
+                ws.append(r)
+            
+            # Formatação do cabeçalho
+            header_font = Font(bold=True, color="FFFFFF")
+            header_fill = PatternFill(start_color="366092", end_color="366092", fill_type="solid")
+            header_alignment = Alignment(horizontal="center", vertical="center")
+            
+            # Aplicar formatação ao cabeçalho
+            for cell in ws[1]:
+                cell.font = header_font
+                cell.fill = header_fill
+                cell.alignment = header_alignment
+            
+            # Ajustar largura das colunas
+            column_widths = {
+                'A': 15,  # id
+                'B': 50,  # titulo
+                'C': 30,  # link
+                'D': 15,  # preco
+                'E': 15,  # preco_original
+                'F': 15,  # desconto
+                'G': 25,  # vendedor
+                'H': 15,  # rating_medio
+                'I': 15,  # total_reviews
+                'J': 20,  # marca
+                'K': 15,  # condicao
+                'L': 100, # comentarios_reviews
+            }
+            
+            for col, width in column_widths.items():
+                ws.column_dimensions[col].width = width
+            
+            # Adicionar bordas
+            thin_border = Border(
+                left=Side(style='thin'),
+                right=Side(style='thin'),
+                top=Side(style='thin'),
+                bottom=Side(style='thin')
+            )
+            
+            for row in ws.iter_rows():
+                for cell in row:
+                    cell.border = thin_border
+            
+            # Salvar arquivo
+            wb.save(filename)
+            logger.info(f"Arquivo Excel salvo: {filename}")
+            
+        except ImportError:
+            logger.error("openpyxl não instalado. Instale com: pip install openpyxl")
+            raise
+        except Exception as e:
+            logger.error(f"Erro ao gerar Excel: {e}")
+            raise
+    
+    def _estimate_star_distribution(self, avaliacao_data, rating, count):
+        """
+        Estima a distribuição de estrelas baseada no rating médio e dados disponíveis
+        
+        Args:
+            avaliacao_data (dict): Dados de avaliação extraídos
+            rating (float): Rating médio
+            count (int): Total de reviews
+            
+        Returns:
+            dict: Distribuição estimada por estrelas {1: x, 2: y, 3: z, 4: w, 5: v}
+        """
+        
+        # Se há dados específicos de distribuição, usar (apenas se não estão vazios)
+        if isinstance(avaliacao_data, dict) and 'star_distribution' in avaliacao_data:
+            star_dist = avaliacao_data['star_distribution']
+            if star_dist and isinstance(star_dist, dict) and any(v > 0 for v in star_dist.values()):
+                return star_dist
+        
+        if isinstance(avaliacao_data, dict) and 'rating_breakdown' in avaliacao_data:
+            rating_breakdown = avaliacao_data['rating_breakdown'] 
+            if rating_breakdown and isinstance(rating_breakdown, dict) and any(v > 0 for v in rating_breakdown.values()):
+                return rating_breakdown
+            
+        # Se não há dados específicos, fazer estimativa baseada no rating
+        if rating <= 0 or count <= 0:
+            return {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+        
+        # Algoritmo de estimativa baseado em padrões comuns do MercadoLivre
+        distribution = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+        
+        if rating >= 4.5:
+            # Rating alto - maioria 5 e 4 estrelas
+            distribution[5] = int(count * 0.7)  # 70%
+            distribution[4] = int(count * 0.25) # 25%
+            distribution[3] = int(count * 0.03) # 3%
+            distribution[2] = int(count * 0.01) # 1%
+            distribution[1] = int(count * 0.01) # 1%
+        elif rating >= 4.0:
+            # Rating bom - equilibrio entre 5, 4 e 3
+            distribution[5] = int(count * 0.5)  # 50%
+            distribution[4] = int(count * 0.35) # 35%
+            distribution[3] = int(count * 0.1)  # 10%
+            distribution[2] = int(count * 0.03) # 3%
+            distribution[1] = int(count * 0.02) # 2%
+        elif rating >= 3.5:
+            # Rating médio 
+            distribution[5] = int(count * 0.3)  # 30%
+            distribution[4] = int(count * 0.35) # 35%
+            distribution[3] = int(count * 0.25) # 25%
+            distribution[2] = int(count * 0.07) # 7%
+            distribution[1] = int(count * 0.03) # 3%
+        elif rating >= 3.0:
+            # Rating baixo-médio
+            distribution[5] = int(count * 0.2)  # 20%
+            distribution[4] = int(count * 0.25) # 25%
+            distribution[3] = int(count * 0.35) # 35%
+            distribution[2] = int(count * 0.15) # 15%
+            distribution[1] = int(count * 0.05) # 5%
+        else:
+            # Rating baixo
+            distribution[5] = int(count * 0.1)  # 10%
+            distribution[4] = int(count * 0.15) # 15%
+            distribution[3] = int(count * 0.25) # 25%
+            distribution[2] = int(count * 0.3)  # 30%
+            distribution[1] = int(count * 0.2)  # 20%
+        
+        # Ajustar para somar exatamente o total de reviews
+        total_estimated = sum(distribution.values())
+        if total_estimated != count and count > 0:
+            # Ajustar a categoria com mais reviews
+            max_category = max(distribution.keys(), key=lambda k: distribution[k])
+            distribution[max_category] += count - total_estimated
+        
+        return distribution
     
     def _analisar_reviews_estatisticas(self, reviews_data):
         """
@@ -732,7 +1045,7 @@ class HPScrapingSystem:
                 }
             })
             
-            logger.info(f"Análise de reviews concluída: {average_rating:.1f}⭐ média, {reviews_with_text} com texto")
+            logger.info(f"Análise de reviews concluída: {average_rating:.1f} estrelas média, {reviews_with_text} com texto")
             return reviews_data
             
         except Exception as e:

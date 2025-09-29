@@ -34,18 +34,64 @@
                             <div class="form-text">Termo que será usado para buscar produtos no Mercado Livre</div>
                         </div>
 
-                        <!-- Max Items -->
+                        <!-- Modo de Scraping -->
+                        <div class="mb-3">
+                            <label for="scraping_mode" class="form-label">
+                                <i class="bi bi-gear"></i> Modo de Scraping
+                            </label>
+                            <select class="form-select" id="scraping_mode" name="scraping_mode" onchange="updateScrapingOptions()">
+                                <option value="quick">🚀 Rápido - Dados básicos (5-25 produtos)</option>
+                                <option value="standard" selected>⚖️ Padrão - Dados completos (25-100 produtos)</option>
+                                <option value="detailed">🔍 Detalhado - Todos os campos (50-200 produtos)</option>
+                                <option value="comprehensive">📊 Abrangente - Máximo de dados (100-500 produtos)</option>
+                            </select>
+                            <div class="form-text">Escolha o nível de detalhamento e quantidade de dados</div>
+                        </div>
+
+                        <!-- Max Items - Dinâmico -->
                         <div class="mb-3">
                             <label for="max_items" class="form-label">
-                                <i class="bi bi-hash"></i> Máximo de Produtos
+                                <i class="bi bi-hash"></i> Quantidade de Produtos
                             </label>
-                            <select class="form-select" id="max_items" name="max_items">
-                                <option value="10">10 produtos</option>
-                                <option value="25">25 produtos</option>
-                                <option value="50" selected>50 produtos</option>
-                                <option value="100">100 produtos</option>
-                                <option value="200">200 produtos</option>
-                            </select>
+                            <div class="row">
+                                <div class="col-8">
+                                    <input type="range" class="form-range" id="max_items_slider" 
+                                           min="1" max="1000" value="50" step="1" 
+                                           oninput="updateMaxItemsValue()">
+                                </div>
+                                <div class="col-4">
+                                    <input type="number" class="form-control" id="max_items" name="max_items" 
+                                           value="50" min="1" max="1000" step="1" 
+                                           onchange="updateMaxItemsSlider()">
+                                </div>
+                            </div>
+                            <div class="form-text">
+                                <span id="quantity_range_text">1-1000 produtos</span> | 
+                                <span id="estimated_time_text">Tempo estimado: 2-5 minutos</span>
+                            </div>
+                        </div>
+
+                        <!-- Delay entre requisições -->
+                        <div class="mb-3">
+                            <label for="request_delay" class="form-label">
+                                <i class="bi bi-clock"></i> Delay entre Requisições (segundos)
+                            </label>
+                            <div class="row">
+                                <div class="col-8">
+                                    <input type="range" class="form-range" id="request_delay_slider" 
+                                           min="1" max="10" value="2" step="0.5" 
+                                           oninput="updateDelayValue()">
+                                </div>
+                                <div class="col-4">
+                                    <input type="number" class="form-control" id="request_delay" name="request_delay" 
+                                           value="2" min="1" max="10" step="0.5" 
+                                           onchange="updateDelaySlider()">
+                                </div>
+                            </div>
+                            <div class="form-text">
+                                <span id="delay_range_text">1-10 segundos</span> | 
+                                <span class="text-muted">Maior delay = menor chance de bloqueio</span>
+                            </div>
                         </div>
 
                         <!-- Sort By -->
@@ -72,53 +118,177 @@
                             </select>
                         </div>
 
-                        <!-- Checkboxes -->
+                        <!-- Configurações Avançadas - Collapsible -->
                         <div class="mb-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="extract_images" name="extract_images">
-                                <label class="form-check-label" for="extract_images">
-                                    <i class="bi bi-image"></i> Extrair URLs de Imagens
-                                </label>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="collapse" data-bs-target="#advancedOptions" aria-expanded="false">
+                                <i class="bi bi-gear"></i> Configurações Avançadas
+                            </button>
+                        </div>
+
+                        <div class="collapse" id="advancedOptions">
+                            <div class="card card-body mb-3">
+                                <h6 class="card-title">🔧 Opções de Extração</h6>
+                                
+                                <!-- Imagens -->
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="extract_images" name="extract_images">
+                                        <label class="form-check-label" for="extract_images">
+                                            <i class="bi bi-image"></i> Extrair URLs de Imagens
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Reviews -->
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="collect_reviews" name="collect_reviews" onchange="toggleReviewsOptions()">
+                                        <label class="form-check-label" for="collect_reviews">
+                                            <i class="bi bi-chat-dots"></i> Coletar Reviews dos Produtos
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Reviews Individuais -->
+                                <div class="mb-3" id="individual_reviews_container" style="display: none;">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="individual_reviews" name="individual_reviews">
+                                        <label class="form-check-label" for="individual_reviews">
+                                            <i class="bi bi-list-ul"></i> Incluir cada review como linha separada
+                                        </label>
+                                    </div>
+                                    <div class="form-text text-muted">
+                                        Cada review será uma linha individual no CSV/Excel/JSON
+                                    </div>
+                                </div>
+
+                                <!-- Max Reviews (conditional) -->
+                                <div class="mb-3" id="max_reviews_container" style="display: none;">
+                                    <label for="max_reviews_per_product" class="form-label">
+                                        <i class="bi bi-chat-square-dots"></i> Máximo de Reviews por Produto
+                                    </label>
+                                    <div class="row">
+                                        <div class="col-8">
+                                            <input type="range" class="form-range" id="reviews_slider" 
+                                                   min="10" max="500" value="100" step="10" 
+                                                   oninput="updateReviewsValue()">
+                                        </div>
+                                        <div class="col-4">
+                                            <input type="number" class="form-control" id="max_reviews_per_product" name="max_reviews_per_product" 
+                                                   value="100" min="10" max="500" step="10" 
+                                                   onchange="updateReviewsSlider()">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Extração Detalhada -->
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="detailed_extraction" name="detailed_extraction">
+                                        <label class="form-check-label" for="detailed_extraction">
+                                            <i class="bi bi-zoom-in"></i> <strong>Extração Detalhada (16+ campos)</strong>
+                                            <div class="form-text">Especificações técnicas, reviews estruturados, compatibilidade, etc.</div>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Formato de Saída -->
+                                <h6 class="card-title mt-3">📄 Formato de Saída</h6>
+                                <div class="row">
+                                    <div class="col-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="generate_csv" name="generate_csv" checked>
+                                            <label class="form-check-label" for="generate_csv">
+                                                <i class="bi bi-file-earmark-spreadsheet"></i> CSV
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="generate_json" name="generate_json">
+                                            <label class="form-check-label" for="generate_json">
+                                                <i class="bi bi-file-earmark-code"></i> JSON
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="generate_excel" name="generate_excel">
+                                            <label class="form-check-label" for="generate_excel">
+                                                <i class="bi bi-file-earmark-excel"></i> Excel
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
+                        <!-- Filtros Avançados -->
                         <div class="mb-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="collect_reviews" name="collect_reviews">
-                                <label class="form-check-label" for="collect_reviews">
-                                    <i class="bi bi-chat-dots"></i> Coletar Reviews dos Produtos
-                                </label>
-                            </div>
+                            <button type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="collapse" data-bs-target="#filterOptions" aria-expanded="false">
+                                <i class="bi bi-funnel"></i> Filtros Avançados
+                            </button>
                         </div>
 
-                        <!-- Max Reviews (conditional) -->
-                        <div class="mb-3" id="max_reviews_container" style="display: none;">
-                            <label for="max_reviews_per_product" class="form-label">
-                                <i class="bi bi-chat-square-dots"></i> Máximo de Reviews por Produto
-                            </label>
-                            <select class="form-select" id="max_reviews_per_product" name="max_reviews_per_product">
-                                <option value="50">50 reviews</option>
-                                <option value="100" selected>100 reviews</option>
-                                <option value="200">200 reviews</option>
-                            </select>
-                        </div>
+                        <div class="collapse" id="filterOptions">
+                            <div class="card card-body mb-3">
+                                <h6 class="card-title">🎯 Filtros de Produtos</h6>
+                                
+                                <!-- Preço -->
+                                <div class="row mb-3">
+                                    <div class="col-6">
+                                        <label for="min_price" class="form-label">Preço Mínimo (R$)</label>
+                                        <input type="number" class="form-control" id="min_price" name="min_price" 
+                                               min="0" step="0.01" placeholder="Ex: 10.00">
+                                    </div>
+                                    <div class="col-6">
+                                        <label for="max_price" class="form-label">Preço Máximo (R$)</label>
+                                        <input type="number" class="form-control" id="max_price" name="max_price" 
+                                               min="0" step="0.01" placeholder="Ex: 500.00">
+                                    </div>
+                                </div>
 
-                        <div class="mb-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="detailed_extraction" name="detailed_extraction">
-                                <label class="form-check-label" for="detailed_extraction">
-                                    <i class="bi bi-zoom-in"></i> <strong>Extração Detalhada (16 campos)</strong>
-                                    <div class="form-text">Nome, condição, preço, desconto, frete, tempo entrega, loja, vendas, garantias, descrição, características, fotos, etc.</div>
-                                </label>
-                            </div>
-                        </div>
+                                <!-- Vendedor -->
+                                <div class="row mb-3">
+                                    <div class="col-6">
+                                        <label for="min_seller_rating" class="form-label">Rating Mínimo do Vendedor</label>
+                                        <select class="form-select" id="min_seller_rating" name="min_seller_rating">
+                                            <option value="">Qualquer</option>
+                                            <option value="3.0">3.0+ estrelas</option>
+                                            <option value="4.0">4.0+ estrelas</option>
+                                            <option value="4.5">4.5+ estrelas</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="form-check mt-4">
+                                            <input class="form-check-input" type="checkbox" id="power_seller_only" name="power_seller_only">
+                                            <label class="form-check-label" for="power_seller_only">
+                                                Apenas Power Sellers
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
 
-                        <div class="mb-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="generate_json" name="generate_json">
-                                <label class="form-check-label" for="generate_json">
-                                    <i class="bi bi-file-earmark-code"></i> Gerar Dataset JSON (além do CSV)
-                                </label>
+                                <!-- Produto -->
+                                <div class="row mb-3">
+                                    <div class="col-6">
+                                        <label for="min_product_rating" class="form-label">Rating Mínimo do Produto</label>
+                                        <select class="form-select" id="min_product_rating" name="min_product_rating">
+                                            <option value="">Qualquer</option>
+                                            <option value="3.0">3.0+ estrelas</option>
+                                            <option value="4.0">4.0+ estrelas</option>
+                                            <option value="4.5">4.5+ estrelas</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="form-check mt-4">
+                                            <input class="form-check-input" type="checkbox" id="free_shipping_only" name="free_shipping_only">
+                                            <label class="form-check-label" for="free_shipping_only">
+                                                Apenas Frete Grátis
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -133,56 +303,92 @@
             </div>
         </div>
 
-        <!-- Teste Rápido -->
+        <!-- Painel de Configuração -->
         <div class="col-lg-4">
-            <div class="card">
+            <!-- Presets Rápidos -->
+            <div class="card mb-3">
                 <div class="card-header">
                     <h5 class="mb-0">
-                        <i class="bi bi-lightning"></i> Teste Rápido
+                        <i class="bi bi-lightning"></i> Presets Rápidos
                     </h5>
                 </div>
                 <div class="card-body">
-                    <p class="text-muted">Teste o sistema com uma busca simples (máx. 5 produtos)</p>
+                    <p class="text-muted">Configurações pré-definidas para diferentes necessidades</p>
                     
-                    <div class="mb-3">
-                        <input type="text" class="form-control" id="quick_query" 
-                               placeholder="Ex: cartucho hp">
-                    </div>
-                    
-                    <button type="button" class="btn btn-outline-primary w-100" onclick="quickTest()">
-                        <i class="bi bi-search"></i> Teste Rápido
-                    </button>
-                    
-                    <!-- Results -->
-                    <div id="quick_results" class="mt-3" style="display: none;">
-                        <div class="alert alert-info">
-                            <i class="bi bi-hourglass-split"></i> Processando...
-                        </div>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary" onclick="applyPreset('quick')">
+                            <i class="bi bi-zap"></i> Rápido (5-25 produtos)
+                        </button>
+                        <button class="btn btn-outline-success" onclick="applyPreset('standard')">
+                            <i class="bi bi-check-circle"></i> Padrão (25-100 produtos)
+                        </button>
+                        <button class="btn btn-outline-warning" onclick="applyPreset('detailed')">
+                            <i class="bi bi-search"></i> Detalhado (50-200 produtos)
+                        </button>
+                        <button class="btn btn-outline-info" onclick="applyPreset('comprehensive')">
+                            <i class="bi bi-graph-up"></i> Abrangente (100-500 produtos)
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <!-- Exemplos -->
-            <div class="card mt-3">
+            <!-- Filtros Predefinidos -->
+            <div class="card mb-3">
                 <div class="card-header">
-                    <h6 class="mb-0">
-                        <i class="bi bi-lightbulb"></i> Exemplos de Busca
-                    </h6>
+                    <h5 class="mb-0">
+                        <i class="bi bi-funnel"></i> Filtros Predefinidos
+                    </h5>
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
-                        <button class="btn btn-outline-secondary btn-sm" onclick="setQuery('cartucho hp 664')">
-                            Cartucho HP 664
+                        <button class="btn btn-outline-secondary btn-sm" onclick="applyFilterPreset('budget')">
+                            💰 Orçamento (até R$ 100, frete grátis)
                         </button>
-                        <button class="btn btn-outline-secondary btn-sm" onclick="setQuery('toner hp laserjet')">
-                            Toner HP LaserJet
+                        <button class="btn btn-outline-secondary btn-sm" onclick="applyFilterPreset('premium')">
+                            ⭐ Premium (acima de R$ 50, 4.5+ estrelas)
                         </button>
-                        <button class="btn btn-outline-secondary btn-sm" onclick="setQuery('impressora hp deskjet')">
-                            Impressora HP DeskJet
+                        <button class="btn btn-outline-secondary btn-sm" onclick="applyFilterPreset('new_products')">
+                            🆕 Produtos Novos (vendedores confiáveis)
                         </button>
-                        <button class="btn btn-outline-secondary btn-sm" onclick="setQuery('cartucho hp original')">
-                            Cartucho HP Original
+                        <button class="btn btn-outline-secondary btn-sm" onclick="applyFilterPreset('high_volume')">
+                            📈 Alto Volume (vendedores estabelecidos)
                         </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estatísticas em Tempo Real -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-graph-up"></i> Estimativas
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <h6 class="text-primary" id="estimated_products">50</h6>
+                            <small class="text-muted">Produtos</small>
+                        </div>
+                        <div class="col-6">
+                            <h6 class="text-success" id="estimated_time">2-5 min</h6>
+                            <small class="text-muted">Tempo</small>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <h6 class="text-info" id="estimated_reviews">0</h6>
+                            <small class="text-muted">Reviews</small>
+                        </div>
+                        <div class="col-4">
+                            <h6 class="text-warning" id="estimated_images">0</h6>
+                            <small class="text-muted">Imagens</small>
+                        </div>
+                        <div class="col-4">
+                            <h6 class="text-secondary" id="estimated_size">~2MB</h6>
+                            <small class="text-muted">Tamanho</small>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -193,16 +399,241 @@
 
 {% block scripts %}
 <script>
-// Mostrar/ocultar campo de max reviews
-document.getElementById('collect_reviews').addEventListener('change', function() {
-    const container = document.getElementById('max_reviews_container');
-    container.style.display = this.checked ? 'block' : 'none';
-});
+// === CONFIGURAÇÕES DE PRESETS ===
+const SCRAPING_PRESETS = {
+    quick: {
+        mode: 'quick',
+        max_items: 15,
+        extract_images: false,
+        collect_reviews: false,
+        detailed_extraction: false,
+        generate_csv: true,
+        generate_json: false,
+        generate_excel: false
+    },
+    standard: {
+        mode: 'standard',
+        max_items: 50,
+        extract_images: true,
+        collect_reviews: false,
+        detailed_extraction: false,
+        generate_csv: true,
+        generate_json: false,
+        generate_excel: false
+    },
+    detailed: {
+        mode: 'detailed',
+        max_items: 100,
+        extract_images: true,
+        collect_reviews: true,
+        max_reviews_per_product: 100,
+        detailed_extraction: true,
+        generate_csv: true,
+        generate_json: true,
+        generate_excel: false
+    },
+    comprehensive: {
+        mode: 'comprehensive',
+        max_items: 200,
+        extract_images: true,
+        collect_reviews: true,
+        max_reviews_per_product: 200,
+        detailed_extraction: true,
+        generate_csv: true,
+        generate_json: true,
+        generate_excel: true
+    }
+};
 
-// Definir query nos exemplos
-function setQuery(query) {
-    document.getElementById('query').value = query;
+const FILTER_PRESETS = {
+    budget: {
+        max_price: 100,
+        free_shipping_only: true,
+        min_seller_rating: 4.0
+    },
+    premium: {
+        min_price: 50,
+        power_seller_only: true,
+        min_product_rating: 4.5,
+        min_reviews_count: 10
+    },
+    new_products: {
+        min_seller_rating: 4.0,
+        min_seller_sales: 100,
+        min_product_rating: 4.0
+    },
+    high_volume: {
+        min_seller_sales: 1000,
+        power_seller_only: true,
+        min_reviews_count: 50
+    }
+};
+
+// === FUNÇÕES DE CONFIGURAÇÃO ===
+
+function updateScrapingOptions() {
+    const mode = document.getElementById('scraping_mode').value;
+    const preset = SCRAPING_PRESETS[mode];
+    
+    if (preset) {
+        // Aplicar configurações do preset
+        document.getElementById('max_items').value = preset.max_items;
+        document.getElementById('max_items_slider').value = preset.max_items;
+        document.getElementById('extract_images').checked = preset.extract_images;
+        document.getElementById('collect_reviews').checked = preset.collect_reviews;
+        document.getElementById('detailed_extraction').checked = preset.detailed_extraction;
+        document.getElementById('generate_csv').checked = preset.generate_csv;
+        document.getElementById('generate_json').checked = preset.generate_json;
+        document.getElementById('generate_excel').checked = preset.generate_excel;
+        
+        if (preset.max_reviews_per_product) {
+            document.getElementById('max_reviews_per_product').value = preset.max_reviews_per_product;
+            document.getElementById('reviews_slider').value = preset.max_reviews_per_product;
+        }
+        
+        // Atualizar estimativas
+        updateEstimates();
+        toggleReviewsOptions();
+    }
 }
+
+function applyPreset(presetName) {
+    updateScrapingOptions();
+    // Scroll para o topo do formulário
+    document.querySelector('form').scrollIntoView({ behavior: 'smooth' });
+}
+
+function applyFilterPreset(presetName) {
+    const preset = FILTER_PRESETS[presetName];
+    
+    if (preset) {
+        // Aplicar filtros
+        if (preset.min_price) document.getElementById('min_price').value = preset.min_price;
+        if (preset.max_price) document.getElementById('max_price').value = preset.max_price;
+        if (preset.min_seller_rating) document.getElementById('min_seller_rating').value = preset.min_seller_rating;
+        if (preset.min_product_rating) document.getElementById('min_product_rating').value = preset.min_product_rating;
+        if (preset.power_seller_only) document.getElementById('power_seller_only').checked = preset.power_seller_only;
+        if (preset.free_shipping_only) document.getElementById('free_shipping_only').checked = preset.free_shipping_only;
+        
+        // Expandir seção de filtros
+        const filterCollapse = new bootstrap.Collapse(document.getElementById('filterOptions'), { show: true });
+    }
+}
+
+// === FUNÇÕES DE CONTROLE DE QUANTIDADE ===
+
+function updateMaxItemsValue() {
+    const slider = document.getElementById('max_items_slider');
+    const input = document.getElementById('max_items');
+    input.value = slider.value;
+    updateEstimates();
+}
+
+function updateMaxItemsSlider() {
+    const slider = document.getElementById('max_items_slider');
+    const input = document.getElementById('max_items');
+    slider.value = input.value;
+    updateEstimates();
+}
+
+function updateReviewsValue() {
+    const slider = document.getElementById('reviews_slider');
+    const input = document.getElementById('max_reviews_per_product');
+    input.value = slider.value;
+    updateEstimates();
+}
+
+function updateReviewsSlider() {
+    const slider = document.getElementById('reviews_slider');
+    const input = document.getElementById('max_reviews_per_product');
+    slider.value = input.value;
+    updateEstimates();
+}
+
+// === FUNÇÕES DE CONTROLE DE DELAY ===
+
+function updateDelayValue() {
+    const slider = document.getElementById('request_delay_slider');
+    const input = document.getElementById('request_delay');
+    input.value = slider.value;
+    updateEstimates();
+}
+
+function updateDelaySlider() {
+    const slider = document.getElementById('request_delay_slider');
+    const input = document.getElementById('request_delay');
+    slider.value = input.value;
+    updateEstimates();
+}
+
+function toggleReviewsOptions() {
+    const collectReviews = document.getElementById('collect_reviews');
+    const container = document.getElementById('max_reviews_container');
+    const individualContainer = document.getElementById('individual_reviews_container');
+    
+    if (collectReviews.checked) {
+        container.style.display = 'block';
+        individualContainer.style.display = 'block';
+    } else {
+        container.style.display = 'none';
+        individualContainer.style.display = 'none';
+    }
+    updateEstimates();
+}
+
+// === FUNÇÕES DE ESTIMATIVA ===
+
+function updateEstimates() {
+    const maxItems = parseInt(document.getElementById('max_items').value) || 50;
+    const collectReviews = document.getElementById('collect_reviews').checked;
+    const maxReviews = parseInt(document.getElementById('max_reviews_per_product').value) || 100;
+    const extractImages = document.getElementById('extract_images').checked;
+    const detailedExtraction = document.getElementById('detailed_extraction').checked;
+    
+    // Atualizar produtos
+    document.getElementById('estimated_products').textContent = maxItems;
+    
+    // Calcular tempo estimado
+    let baseTime = maxItems * 2; // 2 segundos por produto base
+    if (detailedExtraction) baseTime *= 1.5;
+    if (collectReviews) baseTime += maxItems * 0.5;
+    if (extractImages) baseTime += maxItems * 0.3;
+    
+    const minutes = Math.ceil(baseTime / 60);
+    document.getElementById('estimated_time').textContent = `${minutes}-${minutes + 2} min`;
+    
+    // Calcular reviews
+    const totalReviews = collectReviews ? maxItems * Math.min(maxReviews, 50) : 0;
+    document.getElementById('estimated_reviews').textContent = totalReviews.toLocaleString();
+    
+    // Calcular imagens
+    const totalImages = extractImages ? maxItems * 3 : 0;
+    document.getElementById('estimated_images').textContent = totalImages.toLocaleString();
+    
+    // Calcular tamanho estimado
+    let sizePerProduct = 2; // KB base
+    if (detailedExtraction) sizePerProduct += 3;
+    if (collectReviews) sizePerProduct += 1;
+    if (extractImages) sizePerProduct += 0.5;
+    
+    const totalSize = (maxItems * sizePerProduct) / 1024; // MB
+    document.getElementById('estimated_size').textContent = `~${totalSize.toFixed(1)}MB`;
+}
+
+// === INICIALIZAÇÃO ===
+
+// Mostrar/ocultar campo de max reviews
+document.getElementById('collect_reviews').addEventListener('change', toggleReviewsOptions);
+
+// Atualizar estimativas quando valores mudam
+document.getElementById('max_items').addEventListener('input', updateEstimates);
+document.getElementById('max_items_slider').addEventListener('input', updateEstimates);
+document.getElementById('extract_images').addEventListener('change', updateEstimates);
+document.getElementById('collect_reviews').addEventListener('change', updateEstimates);
+document.getElementById('detailed_extraction').addEventListener('change', updateEstimates);
+
+// Inicializar estimativas
+updateEstimates();
 
 // Teste rápido
 function quickTest() {

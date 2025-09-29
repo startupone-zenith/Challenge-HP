@@ -1,487 +1,255 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+Spider para extração de reviews do MercadoLivre
+Implementa extração dinâmica com paginação automática e cancelamento imediato
+"""
+
 import requests
-import logging
-import re
-import json
 import time
 import random
-import multiprocessing
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
+import json
+from typing import Dict, List, Optional
+import logging
 
-# Importar configurações padronizadas
-from ..core.shared_scraping_config import (
-    USER_AGENTS_2025,
-    API_HEADERS_BASE,
-    STANDARD_RETRY_CONFIG,
-    STANDARD_HTTP_CONFIG,
-    get_random_user_agent,
-    get_api_headers,
-    setup_requests_session,
-    setup_standard_logging
-)
-
-class MercadoLivreReviewsAPI:
+def extract_reviews(product_id: str, max_reviews: int = 300, delay: float = 2.0):
     """
-    Cliente otimizado para API de Reviews do Mercado Livre
-    OTIMIZADO PARA ALTA PERFORMANCE com requisições concorrentes e cache
-    """
-    
-    def __init__(self, product_id):
-        self.product_id = product_id
-        self.base_url = "https://api.mercadolibre.com"
-        self.max_limit = 30  # Máximo por requisição da API (baseado na API real)
-        self.max_offset = 200  # Limite máximo de offset da API (baseado na API real)
-        
-        # ============================================================================
-        # CONFIGURAÇÃO DE SESSÃO HTTP PADRONIZADA
-        # ============================================================================
-        
-        # Usar configuração padronizada de sessão
-        self.session = setup_requests_session()
-        
-        # Cache local para evitar requisições duplicadas
-        self._cache = {}
-        self._cache_ttl = STANDARD_HTTP_CONFIG['cache_ttl']  # Usar configuração padronizada
-
-    def get_reviews(self, limit=15, offset=0, rating_filter=None):
-        """
-        Busca reviews da API com otimizações de performance
-        """
-        # Gerar chave de cache
-        cache_key = f"{self.product_id}_{limit}_{offset}_{rating_filter}"
-        
-        # Verificar cache local
-        if cache_key in self._cache:
-            cache_data = self._cache[cache_key]
-            if time.time() - cache_data['timestamp'] < self._cache_ttl:
-                logging.debug(f"Cache hit para {cache_key}")
-                return cache_data['data']
-        
-        # Construir URL da API (baseado na estrutura real do ML)
-        url = f"https://www.mercadolivre.com.br/noindex/catalog/reviews/{self.product_id}/search"
-        
-        # Parâmetros otimizados baseados na API real
-        params = {
-            'objectId': self.product_id,
-            'siteId': 'MLB',
-            'isItem': 'false',
-            'limit': min(limit, 30),  # Limite máximo observado: 30
-            'offset': offset,
-            'x-is-webview': 'false',
-            'controlled': 'true'
-        }
-        
-        if rating_filter:
-            params['rating'] = rating_filter
-        
-        try:
-            # Requisição HTTP com timeout padronizado
-            response = self.session.get(
-                url, 
-                params=params, 
-                timeout=STANDARD_HTTP_CONFIG['timeout']  # Usar configuração padronizada
-            )
-            
-            if response.status_code == 200:
-                api_data = response.json()
-                
-                # Log da estrutura de resposta
-                reviews_count = len(api_data.get('reviews', [])) if api_data else 0
-                logging.debug(f"API retornou {reviews_count} reviews para produto {self.product_id}")
-                
-                # Salvar no cache local
-                self._cache[cache_key] = {
-                    'data': api_data,
-                    'timestamp': time.time()
-                }
-                
-                return api_data
-            else:
-                logging.warning(f"API retornou status {response.status_code} para produto {self.product_id}")
-                logging.warning(f"Resposta: {response.text[:500]}...")
-                return None
-                
-        except requests.exceptions.Timeout:
-            logging.error(f"Timeout na requisição para produto {self.product_id} (offset: {offset})")
-            return None
-        except requests.exceptions.RequestException as e:
-            logging.error(f"Erro na requisição para produto {self.product_id}: {e}")
-            return None
-        except json.JSONDecodeError as e:
-            logging.error(f"Erro ao decodificar JSON para produto {self.product_id}: {e}")
-            return None
-
-    def parse_reviews_data(self, api_data):
-        """
-        Processa dados da API de forma otimizada
-        """
-        if not api_data or 'reviews' not in api_data:
-            return None
-        
-        processed_reviews = []
-        
-        for review_data in api_data.get('reviews', []):
-            try:
-                # Extrair dados baseado na estrutura real da API do ML
-                title_text = ''
-                if review_data.get('title') and isinstance(review_data['title'], dict):
-                    title_text = review_data['title'].get('text', '').strip()
-                
-                comment_text = ''
-                comment_date = ''
-                if review_data.get('comment'):
-                    comment = review_data['comment']
-                    if comment.get('content') and isinstance(comment['content'], dict):
-                        comment_text = comment['content'].get('text', '').strip()
-                    comment_date = comment.get('date', '')
-                
-                # Contagem de "útil"
-                helpful_count = 0
-                if review_data.get('actions'):
-                    for action in review_data['actions']:
-                        if action.get('type') == 'LIKE':
-                            helpful_count = action.get('value', 0)
-                            break
-                
-                # Processar review individual
-                processed_review = {
-                    'id': review_data.get('id', ''),
-                    'rating': str(review_data.get('rating', 0)),
-                    'title': title_text,
-                    'text': comment_text,
-                    'date': self._format_date(comment_date),
-                    'helpful_count': str(helpful_count),
-                    'reviewer_id': '',  # Não disponível na nova API
-                    'status': review_data.get('type', '')
-                }
-                
-                # Validar review (menos restritivo - aceitar reviews mesmo sem texto)
-                if processed_review['rating'] and str(processed_review['rating']) != '0':
-                    processed_reviews.append(processed_review)
-                    
-            except Exception as e:
-                logging.warning(f"Erro ao processar review individual: {e}")
-                continue
-        
-        return {
-            'reviews': processed_reviews,
-            'total_reviews_count': api_data.get('paging', {}).get('total', len(processed_reviews)),
-            'has_more': len(processed_reviews) == self.max_limit
-        }
-
-    def _format_date(self, date_str):
-        """
-        Formata data de forma otimizada
-        """
-        if not date_str:
-            return 'N/A'
-        
-        try:
-            # Formato esperado: 2023-12-15T10:30:00.000-03:00
-            if 'T' in date_str:
-                date_part = date_str.split('T')[0]
-                return date_part
-            return date_str[:10] if len(date_str) >= 10 else date_str
-        except Exception:
-            return 'N/A'
-
-    def get_all_reviews(self, max_reviews=200, rating_limits=None):
-        """
-        Método principal otimizado para coletar reviews com alta performance
-        Usa requisições concorrentes para máxima velocidade
-        """
-        if rating_limits:
-            return self._collect_reviews_by_rating_concurrent(rating_limits)
-        else:
-            return self._collect_reviews_general_concurrent(max_reviews)
-
-    def _collect_reviews_general_concurrent(self, max_reviews):
-        """
-        Coleta reviews gerais usando requisições CONCORRENTES para alta performance
-        """
-        all_reviews = []
-        
-        # Calcular requisições necessárias
-        reviews_per_request = self.max_limit
-        max_requests = min((max_reviews + reviews_per_request - 1) // reviews_per_request, 
-                          (self.max_offset // reviews_per_request) + 1)
-        
-        offsets_to_try = [i * reviews_per_request for i in range(max_requests) 
-                         if i * reviews_per_request <= self.max_offset]
-        
-        logging.info(f"Estratégia concorrente: {len(offsets_to_try)} requisições paralelas")
-        
-        # ============================================================================
-        # EXECUÇÃO CONCORRENTE DAS REQUISIÇÕES
-        # ============================================================================
-        
-        def fetch_reviews_batch(offset):
-            """Função para executar uma requisição individual"""
-            try:
-                current_limit = min(self.max_limit, max_reviews - len(all_reviews))
-                if current_limit <= 0:
-                    return []
-                
-                logging.debug(f"Requisição concorrente: offset={offset}, limit={current_limit}")
-                api_data = self.get_reviews(limit=current_limit, offset=offset)
-                
-                if api_data and 'reviews' in api_data:
-                    processed_data = self.parse_reviews_data(api_data)
-                    if processed_data and processed_data.get('reviews'):
-                        return processed_data['reviews']
-                
-                return []
-                
-            except Exception as e:
-                logging.error(f"Erro na requisição concorrente offset {offset}: {e}")
-                return []
-        
-        # Executar requisições em paralelo com ThreadPoolExecutor
-        with ThreadPoolExecutor(max_workers=8) as executor:  # 8 threads concorrentes
-            # Submeter todas as tarefas
-            future_to_offset = {
-                executor.submit(fetch_reviews_batch, offset): offset 
-                for offset in offsets_to_try
-            }
-            
-            # Coletar resultados conforme completam
-            for future in as_completed(future_to_offset):
-                offset = future_to_offset[future]
-                try:
-                    batch_reviews = future.result(timeout=20)  # Timeout por batch
-                    if batch_reviews:
-                        # Filtrar duplicatas antes de adicionar
-                        new_reviews = self._filter_duplicates(batch_reviews, all_reviews)
-                        all_reviews.extend(new_reviews)
-                        logging.info(f"Batch offset {offset}: +{len(new_reviews)} reviews únicas")
-                        
-                        # Verificar se já temos reviews suficientes
-                        if len(all_reviews) >= max_reviews:
-                            logging.info(f"Limite de {max_reviews} reviews atingido")
-                            break
-                            
-                except Exception as e:
-                    logging.error(f"Erro ao processar batch offset {offset}: {e}")
-        
-        # Limitar ao máximo solicitado
-        all_reviews = all_reviews[:max_reviews]
-        
-        logging.info(f"Coleta concorrente finalizada: {len(all_reviews)} reviews coletadas")
-        
-        return {
-            'reviews': all_reviews,
-            'total_reviews_count': len(all_reviews),
-            'collection_method': 'concurrent_general'
-        }
-
-    def _collect_reviews_by_rating_concurrent(self, rating_limits):
-        """
-        Coleta reviews por rating usando requisições CONCORRENTES
-        """
-        all_reviews = []
-        rating_stats = {}
-        
-        def fetch_rating_batch(rating, offset, limit_remaining):
-            """Função para executar requisição de um rating específico"""
-            try:
-                current_limit = min(self.max_limit, limit_remaining)
-                if current_limit <= 0:
-                    return []
-                
-                logging.debug(f"Requisição rating {rating}⭐: offset={offset}, limit={current_limit}")
-                api_data = self.get_reviews(limit=current_limit, offset=offset, rating_filter=rating)
-                
-                if api_data and 'reviews' in api_data:
-                    processed_data = self.parse_reviews_data(api_data)
-                    if processed_data and processed_data.get('reviews'):
-                        # Filtrar por rating (dupla verificação)
-                        filtered_reviews = [
-                            review for review in processed_data['reviews'] 
-                            if review.get('rating') == str(rating)
-                        ]
-                        return filtered_reviews
-                
-                return []
-                
-            except Exception as e:
-                logging.error(f"Erro na requisição rating {rating}⭐ offset {offset}: {e}")
-                return []
-        
-        # Executar coleta para cada rating em paralelo
-        with ThreadPoolExecutor(max_workers=6) as executor:  # 6 threads para ratings
-            rating_futures = []
-            
-            for rating, limit in rating_limits.items():
-                if limit <= 0:
-                    continue
-                
-                logging.info(f"Iniciando coleta concorrente para {rating}⭐: {limit} reviews")
-                
-                # Calcular offsets necessários para este rating
-                reviews_per_request = self.max_limit
-                max_requests = min((limit + reviews_per_request - 1) // reviews_per_request, 
-                                  (self.max_offset // reviews_per_request) + 1)
-                
-                offsets_to_try = [i * reviews_per_request for i in range(max_requests) 
-                                 if i * reviews_per_request <= self.max_offset]
-                
-                # Submeter tarefas para este rating
-                for offset in offsets_to_try:
-                    remaining = limit - rating_stats.get(rating, 0)
-                    if remaining <= 0:
-                        break
-                    
-                    future = executor.submit(fetch_rating_batch, rating, offset, remaining)
-                    rating_futures.append((future, rating, offset))
-            
-            # Coletar resultados
-            for future, rating, offset in rating_futures:
-                try:
-                    batch_reviews = future.result(timeout=20)
-                    if batch_reviews:
-                        # Filtrar duplicatas
-                        existing_rating_reviews = [r for r in all_reviews if r.get('rating') == str(rating)]
-                        new_reviews = self._filter_duplicates(batch_reviews, existing_rating_reviews)
-                        
-                        # Verificar limite do rating
-                        current_count = rating_stats.get(rating, 0)
-                        limit_for_rating = rating_limits.get(rating, 0)
-                        
-                        if current_count < limit_for_rating:
-                            reviews_to_add = new_reviews[:limit_for_rating - current_count]
-                            all_reviews.extend(reviews_to_add)
-                            rating_stats[rating] = current_count + len(reviews_to_add)
-                            
-                            logging.info(f"Rating {rating}⭐ offset {offset}: +{len(reviews_to_add)} reviews")
-                        
-                except Exception as e:
-                    logging.error(f"Erro ao processar rating {rating}⭐ offset {offset}: {e}")
-        
-        # Log do resumo final
-        logging.info(f"Coleta por rating finalizada: {rating_stats}")
-        
-        return {
-            'reviews': all_reviews,
-            'total_reviews_count': len(all_reviews),
-            'rating_stats': rating_stats,
-            'collection_method': 'concurrent_by_rating'
-        }
-
-    def _filter_duplicates(self, new_reviews, existing_reviews):
-        """
-        Filtra reviews duplicadas de forma otimizada usando sets
-        """
-        if not existing_reviews:
-            return new_reviews
-        
-        # Criar set de identificadores únicos das reviews existentes
-        existing_signatures = {
-            f"{review.get('text', '')}_{review.get('date', '')}_{review.get('rating', '')}"
-            for review in existing_reviews
-        }
-        
-        # Filtrar reviews novas
-        unique_reviews = []
-        for new_review in new_reviews:
-            signature = f"{new_review.get('text', '')}_{new_review.get('date', '')}_{new_review.get('rating', '')}"
-            if signature not in existing_signatures:
-                unique_reviews.append(new_review)
-                existing_signatures.add(signature)  # Adicionar para evitar duplicatas dentro do próprio batch
-        
-        return unique_reviews
-    
-    def __del__(self):
-        """
-        Cleanup da sessão HTTP
-        """
-        if hasattr(self, 'session'):
-            self.session.close()
-
-def _run_review_api_process(product_id, results_queue, max_reviews=200):
-    """
-    Função interna para executar a API de reviews em um processo separado
-    e colocar o resultado em uma queue.
-    """
-    try:
-        logging.info(f"Iniciando coleta de reviews para produto {product_id}")
-        
-        # Criar instância da API
-        api_client = MercadoLivreReviewsAPI(product_id)
-        
-        # Obter todas as reviews disponíveis
-        reviews_data = api_client.get_all_reviews(max_reviews=max_reviews)
-        
-        if reviews_data:
-            results_queue.put(reviews_data)
-            logging.info(f"Reviews coletadas com sucesso para produto {product_id}: {len(reviews_data.get('reviews', []))} reviews")
-        else:
-            results_queue.put(None)
-            logging.warning(f"Nenhuma review encontrada para produto {product_id}")
-
-    except Exception as e:
-        logging.error(f"Erro no processo de coleta de reviews para produto '{product_id}': {e}", exc_info=True)
-        results_queue.put(None)
-
-def run_review_spider(product_id, max_reviews=200, rating_limits=None):
-    """
-    Executa a coleta de reviews via API para um product_id específico
-    e retorna os dados das reviews.
+    Extrai reviews de um produto do MercadoLivre com paginação dinâmica
     
     Args:
-        product_id (str): ID do produto no Mercado Livre
-        max_reviews (int): Número máximo de reviews para coletar (se rating_limits for None)
-        rating_limits (dict): Limites por rating {1: 40, 2: 40, 3: 20, 4: 80, 5: 100}
-        
+        product_id (str): ID do produto (ex: MLB6125886)
+        max_reviews (int): Número máximo de reviews para coletar
+        delay (float): Delay entre requisições em segundos
+    
     Returns:
-        dict: Dados das reviews ou None se houver erro
+        dict: Dados das reviews extraídas
     """
-    if not product_id:
-        logging.error("run_review_spider chamado sem product_id")
+    if not product_id or product_id == 'N/A':
+        print("ID do produto inválido ou não fornecido")
         return None
-
-    # Para execução local (sem multiprocessing por enquanto, já que a API é mais rápida)
-    try:
-        logging.info(f"Coletando reviews para produto {product_id}")
+    
+    base_url = "https://www.mercadolivre.com.br/noindex/catalog/reviews"
+    limit = 30  # Limite da API
+    all_reviews = []
+    offset = 0
+    page = 1
+    consecutive_empty_pages = 0  # Contador de páginas vazias consecutivas
+    max_empty_pages = 3  # Máximo de páginas vazias antes de parar
+    max_pages = 20  # Máximo de páginas para evitar loop infinito
+    
+    # Headers para simular navegador
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'application/json, text/plain, */*',
+        'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.8',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Connection': 'keep-alive',
+        'Referer': f'https://www.mercadolivre.com.br/produto/{product_id}',
+        'Sec-Fetch-Dest': 'empty',
+        'Sec-Fetch-Mode': 'cors',
+        'Sec-Fetch-Site': 'same-origin'
+    }
+    
+    print(f"Iniciando extração dinâmica de reviews para {product_id}")
+    print(f"Meta: {max_reviews} reviews, Delay: {delay}s")
+    
+    while len(all_reviews) < max_reviews and page <= max_pages:
+        # Calcular quantas reviews ainda precisamos
+        remaining_reviews = max_reviews - len(all_reviews)
+        current_limit = min(limit, remaining_reviews)
         
-        # Criar instância da API
-        api_client = MercadoLivreReviewsAPI(product_id)
+        url = f"{base_url}/{product_id}/search"
+        params = {
+            'objectId': product_id,
+            'offset': offset,
+            'limit': current_limit
+        }
         
-        # Obter todas as reviews disponíveis
-        reviews_data = api_client.get_all_reviews(max_reviews=max_reviews, rating_limits=rating_limits)
-        
-        if reviews_data:
-            logging.info(f"Reviews coletadas com sucesso: {len(reviews_data.get('reviews', []))} reviews")
-            return reviews_data
-        else:
-            logging.warning(f"Nenhuma review encontrada para produto {product_id}")
-            return None
+        try:
+            print(f"Página {page}: offset={offset}, limit={current_limit}, coletadas={len(all_reviews)}/{max_reviews}")
             
+            response = requests.get(url, params=params, headers=headers, timeout=30)
+            
+            # Se erro 404 ou 400, produto não existe ou ID inválido - parar imediatamente
+            if response.status_code in [404, 400]:
+                print(f"Produto não encontrado ou ID inválido ({response.status_code}). Parando imediatamente.")
+                break
+            
+            response.raise_for_status()
+            
+            # Verificar se a resposta é um JSON válido
+            try:
+                data = response.json()
+            except (ValueError, json.JSONDecodeError) as e:
+                print(f"Resposta não é um JSON válido: {e}. Produto sem reviews. Parando imediatamente.")
+                break
+            
+            # Verificar se a resposta contém dados válidos
+            if not isinstance(data, dict):
+                print(f"Resposta não é um dicionário válido. Produto sem reviews. Parando imediatamente.")
+                break
+            
+            # Verificar se a resposta contém o campo 'reviews'
+            if 'reviews' not in data:
+                print("Resposta não contém campo 'reviews'. Produto sem reviews. Parando imediatamente.")
+                break
+            
+            reviews = data.get('reviews', [])
+            if not reviews:
+                # Se é a primeira página e está vazia, parar imediatamente (otimização)
+                if page == 1:
+                    print("Primeira página vazia - produto não possui reviews. Parando imediatamente.")
+                    break
+                
+                # Para outras páginas, contar páginas vazias consecutivas
+                consecutive_empty_pages += 1
+                print(f"Nenhuma review encontrada na página {page}. Páginas vazias consecutivas: {consecutive_empty_pages}")
+                
+                # Se atingiu o limite de páginas vazias consecutivas, parar
+                if consecutive_empty_pages >= max_empty_pages:
+                    print(f"Limite de {max_empty_pages} páginas vazias consecutivas atingido. Parando.")
+                    break
+                
+                # Continuar para próxima página se não é a primeira
+                offset += limit
+                page += 1
+                continue
+            else:
+                # Reset contador se encontrou reviews
+                consecutive_empty_pages = 0
+            
+            # Processar reviews
+            reviews_added = 0
+            for review in reviews:
+                if len(all_reviews) >= max_reviews:
+                    break
+                    
+                processed_review = process_single_review(review, product_id)
+                if processed_review:
+                    all_reviews.append(processed_review)
+                    reviews_added += 1
+            
+            print(f"  -> {reviews_added} reviews processadas (total: {len(all_reviews)})")
+            
+            # Se não conseguimos mais reviews ou atingimos o limite, parar
+            if len(reviews) < current_limit or len(all_reviews) >= max_reviews:
+                print(f"Limite atingido ou fim das reviews. Parando.")
+                break
+                
+            # Atualizar offset para próxima página
+            offset += limit
+            page += 1
+            
+            # Delay mínimo apenas para evitar sobrecarga (sem delay configurado pelo usuário)
+            if len(all_reviews) < max_reviews:  # Só fazer delay se ainda precisamos de mais reviews
+                # Delay mínimo de 0.1s para evitar sobrecarga, sem usar o delay configurado
+                minimal_delay = random.uniform(0.1, 0.3)  # Entre 0.1s e 0.3s
+                print(f"  -> Aguardando {minimal_delay:.1f}s antes da proxima requisicao...")
+                time.sleep(minimal_delay)
+                    
+        except Exception as e:
+            print(f"Erro na página {page}: {e}")
+            print("Tentando continuar com delay maior...")
+            time.sleep(delay * 2)  # Delay maior em caso de erro
+            offset += limit
+            page += 1
+    
+    # Verificações finais para evitar loops infinitos
+    if page > max_pages:
+        print(f"Limite máximo de {max_pages} páginas atingido. Parando.")
+    
+    if consecutive_empty_pages >= max_empty_pages:
+        print(f"Limite de {max_empty_pages} páginas vazias consecutivas atingido. Parando.")
+    
+    print(f"Extracao finalizada. Total de reviews coletadas: {len(all_reviews)}")
+    
+    return structure_result(all_reviews, product_id)
+
+def process_single_review(review: dict, product_id: str) -> Optional[dict]:
+    """
+    Processa uma única review extraída da API
+    
+    Args:
+        review (dict): Dados da review da API
+        product_id (str): ID do produto
+    
+    Returns:
+        dict: Review processada ou None se inválida
+    """
+    try:
+        # Extrair dados básicos
+        review_id = review.get('id', '')
+        rating = review.get('rating', 0)
+        title = review.get('title', '')
+        comment = review.get('content', '')
+        date = review.get('date_created', '')
+        likes = review.get('likes', 0)
+        
+        # Verificar se tem imagens
+        has_images = bool(review.get('pictures', []))
+        
+        # Verificar se tem comentário
+        has_comment = bool(comment and comment.strip())
+        
+        return {
+            'id': review_id,
+            'rating': rating,
+            'title': title,
+            'comment': comment,
+            'date': date,
+            'likes': likes,
+            'has_images': has_images,
+            'has_comment': has_comment,
+            'product_id': product_id
+        }
+        
     except Exception as e:
-        logging.error(f"Erro na coleta de reviews para produto '{product_id}': {e}", exc_info=True)
+        print(f"Erro ao processar review: {e}")
         return None
 
-# Exemplo de uso da nova API de Reviews
+def structure_result(reviews: List[dict], product_id: str) -> dict:
+    """
+    Estrutura o resultado final das reviews
+    
+    Args:
+        reviews (List[dict]): Lista de reviews processadas
+        product_id (str): ID do produto
+    
+    Returns:
+        dict: Resultado estruturado
+    """
+    return {
+        'product_id': product_id,
+        'reviews': reviews,
+        'total_reviews': len(reviews),
+        'extraction_metadata': {
+            'total_reviews': len(reviews),
+            'pages_processed': len(reviews) // 30 + 1,
+            'extraction_timestamp': time.time(),
+            'success': True
+        }
+    }
+
+def run_review_spider(product_id: str, max_reviews: int = 300, delay: float = 2.0):
+    """Função de compatibilidade com o sistema existente"""
+    return extract_reviews(product_id, max_reviews, delay)
+
 if __name__ == "__main__":
-    # Configurar logging para teste
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    import sys
     
-    # Testar com um produto específico
-    test_product_id = "MLB36751072"  # ID do exemplo fornecido
-    print(f"Testando coleta de reviews para produto: {test_product_id}")
+    if len(sys.argv) < 2:
+        print("Uso: python mercadolivre_spider_reviews.py <product_id> [max_reviews] [delay]")
+        sys.exit(1)
     
-    reviews_result = run_review_spider(test_product_id, max_reviews=50)
+    product_id = sys.argv[1]
+    max_reviews = int(sys.argv[2]) if len(sys.argv) > 2 else 300
+    delay = float(sys.argv[3]) if len(sys.argv) > 3 else 2.0
     
-    if reviews_result:
-        print(f"Sucesso! Coletadas {len(reviews_result.get('reviews', []))} reviews")
-        print(f"Total de reviews: {reviews_result.get('total_reviews_count', 0)}")
-        
-        # Mostrar algumas reviews como exemplo
-        for i, review in enumerate(reviews_result.get('reviews', [])[:3]):  # Primeiras 3 reviews
-            print(f"\n--- Review {i+1} ---")
-            print(f"Rating: {review.get('rating', 'N/A')} estrelas")
-            print(f"Data: {review.get('date', 'N/A')}")
-            print(f"Texto: {review.get('text', 'N/A')[:100]}...")
-            print(f"Útil: {review.get('helpful_count', '0')} pessoas")
+    print(f"Testando extração de reviews para {product_id}")
+    result = extract_reviews(product_id, max_reviews, delay)
+    
+    if result:
+        print(f"Sucesso! {result['total_reviews']} reviews extraídas")
     else:
-        print("Falha na coleta de reviews")
+        print("Falha na extração")

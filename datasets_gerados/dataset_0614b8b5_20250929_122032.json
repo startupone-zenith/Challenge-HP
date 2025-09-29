@@ -1,0 +1,972 @@
+{
+  "metadata": {
+    "total_produtos": 11,
+    "data_geracao": "2025-09-29T12:20:32.645444",
+    "versao": "1.0"
+  },
+  "produtos": [
+    {
+      "TITULO PRODUTO": "Cartucho De Tinta Hp 667 Cor Preto Do 2 Ml",
+      "LINK": "https://www.mercadolivre.com.br/cartucho-de-tinta-hp-667-cor-preto-do-2-ml/p/MLB37141763#polycard_client=search-nordic&search_layout=stack&position=3&type=product&tracking_id=9348bede-20da-4830-a387-76cff08f2e54&wid=MLB4164477091&sid=search",
+      "ID_PRODUTO": "MLB37141763",
+      "PREÇO": "R$ 64,22",
+      "PREÇO ANTERIOR": "R$ 71",
+      "MARCA": "N/A",
+      "IMAGEM": "N/A (imagens desabilitadas)",
+      "VENDEDOR": "N/A",
+      "MÉDIA AVALIAÇÕES": "4.8",
+      "TOTAL AVALIAÇÕES": "7473",
+      "ENTREGA": "Chegará grátis amanhã",
+      "ENTREGA FULL": "Sim",
+      "url": "https://www.mercadolivre.com.br/cartucho-de-tinta-hp-667-cor-preto-do-2-ml/p/MLB37141763#polycard_client=search-nordic&search_layout=stack&position=3&type=product&tracking_id=9348bede-20da-4830-a387-76cff08f2e54&wid=MLB4164477091&sid=search",
+      "timestamp": "2025-09-29T12:19:59.357832",
+      "nome_produto": "Cartucho De Tinta Hp 667 Cor Preto Do 2 Ml",
+      "condicao_produto": "Novo",
+      "preco": "BRL 59",
+      "desconto": "24.4%",
+      "frete_gratis": "Não",
+      "tempo_entrega": "Consultar no site",
+      "nome_loja": "Eshop",
+      "vendas_produto": "100000",
+      "vendas_loja": null,
+      "devolucao_gratis": "Sim",
+      "compra_garantida": "Sim",
+      "tempo_garantia": "30 dias",
+      "descricao_produto": "Unidades por embalagem: 1. | Conteúdo total em volume: 2 mL. | Cor da tinta: Preto. | Unidades por kit: 1. | Formato de venda: Unidade. | Cartucho do tipo original. | Rendimentos 120 páginas",
+      "especificacoes_tecnicas": {
+        "rendimento_paginas": "0 páginas",
+        "volume_ml": "2 ml"
+      },
+      "caracteristicas_principais": [
+        "N/A"
+      ],
+      "outros": {
+        "seller_id": 1737442603,
+        "reputation_level": "5_green",
+        "power_seller_status": "platinum",
+        "shipping_mode": "me2",
+        "review_rate": 5,
+        "brand": "HP",
+        "sku": "MLB37141763",
+        "product_id": "MLB37141763"
+      },
+      "fotos_produto": [
+        "https://http2.mlstatic.com/D_NQ_NP_886903-MLA87439311815_072025-O.webp",
+        "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+      ],
+      "reviews_detalhados": {
+        "rating_medio": 4.8,
+        "total_reviews": 7473,
+        "tem_reviews": true,
+        "distribuicao_estrelas": {
+          "estrelas_5": {
+            "quantidade": 6571,
+            "percentual": "87.93%"
+          },
+          "estrelas_4": {
+            "quantidade": 508,
+            "percentual": "6.81%"
+          },
+          "estrelas_3": {
+            "quantidade": 179,
+            "percentual": "2.40%"
+          },
+          "estrelas_2": {
+            "quantidade": 44,
+            "percentual": "0.60%"
+          },
+          "estrelas_1": {
+            "quantidade": 168,
+            "percentual": "2.26%"
+          }
+        },
+        "reviews_com_texto": 1276,
+        "reviews_com_imagens": 38,
+        "avaliacoes_positivas": 7079,
+        "avaliacoes_negativas": 212,
+        "avaliacoes_neutras": 179
+      },
+      "extraction_success": true,
+      "extraction_method": "spider_scrapy",
+      "response_size": 674438,
+      "response_status": 200,
+      "quality_score": 83.3,
+      "extracao_detalhada": true,
+      "detalhes_qualidade": "excelente"
+    },
+    {
+      "TITULO PRODUTO": "Cartucho De Tinta Hp Tricolor 667",
+      "LINK": "https://www.mercadolivre.com.br/cartucho-de-tinta-hp-tricolor-667/p/MLB36752162#polycard_client=search-nordic&search_layout=stack&position=4&type=product&tracking_id=9348bede-20da-4830-a387-76cff08f2e54&wid=MLB5151394802&sid=search",
+      "ID_PRODUTO": "MLB36752162",
+      "PREÇO": "R$ 66,15",
+      "PREÇO ANTERIOR": "R$ 77",
+      "MARCA": "N/A",
+      "IMAGEM": "N/A (imagens desabilitadas)",
+      "VENDEDOR": "N/A",
+      "MÉDIA AVALIAÇÕES": "4.7",
+      "TOTAL AVALIAÇÕES": "1665",
+      "ENTREGA": "Frete grátis",
+      "ENTREGA FULL": "Sim",
+      "url": "https://www.mercadolivre.com.br/cartucho-de-tinta-hp-tricolor-667/p/MLB36752162#polycard_client=search-nordic&search_layout=stack&position=4&type=product&tracking_id=9348bede-20da-4830-a387-76cff08f2e54&wid=MLB5151394802&sid=search",
+      "timestamp": "2025-09-29T12:20:01.863488",
+      "nome_produto": "Cartucho De Tinta Hp Tricolor 667",
+      "condicao_produto": "Novo",
+      "preco": "BRL 66.15",
+      "desconto": "Sem desconto",
+      "frete_gratis": "Não",
+      "tempo_entrega": "Consultar no site",
+      "nome_loja": "MegaByteMagazine",
+      "vendas_produto": "10000",
+      "vendas_loja": null,
+      "devolucao_gratis": "Sim",
+      "compra_garantida": "Sim",
+      "tempo_garantia": "30 dias",
+      "descricao_produto": "Unidades por embalagem: 1. | Conteúdo total em volume: 2 mL. | Cor da tinta: Colorida. | Unidades por kit: 1. | Formato de venda: Unidade. | Cartucho do tipo original. | Rende 100 páginas | Tinta à base de água.",
+      "especificacoes_tecnicas": {
+        "tipo_tinta": "água.",
+        "rendimento_paginas": "100 páginas",
+        "volume_ml": "2 ml"
+      },
+      "caracteristicas_principais": [
+        "N/A"
+      ],
+      "outros": {
+        "seller_id": 167787623,
+        "reputation_level": "5_green",
+        "power_seller_status": "platinum",
+        "shipping_mode": "me2",
+        "review_rate": 4,
+        "brand": "HP",
+        "sku": "MLB36752162",
+        "product_id": "MLB36752162"
+      },
+      "fotos_produto": [
+        "https://http2.mlstatic.com/D_NQ_NP_923540-MLU76267517903_052024-O.webp",
+        "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+      ],
+      "reviews_detalhados": {
+        "rating_medio": 4.7,
+        "total_reviews": 1665,
+        "tem_reviews": true,
+        "distribuicao_estrelas": {
+          "estrelas_5": {
+            "quantidade": 1434,
+            "percentual": "86.13%"
+          },
+          "estrelas_4": {
+            "quantidade": 118,
+            "percentual": "7.09%"
+          },
+          "estrelas_3": {
+            "quantidade": 44,
+            "percentual": "2.70%"
+          },
+          "estrelas_2": {
+            "quantidade": 17,
+            "percentual": "1.08%"
+          },
+          "estrelas_1": {
+            "quantidade": 49,
+            "percentual": "3.00%"
+          }
+        },
+        "reviews_com_texto": 294,
+        "reviews_com_imagens": 26,
+        "avaliacoes_positivas": 1552,
+        "avaliacoes_negativas": 66,
+        "avaliacoes_neutras": 44
+      },
+      "extraction_success": true,
+      "extraction_method": "spider_scrapy",
+      "response_size": 697655,
+      "response_status": 200,
+      "quality_score": 83.3,
+      "extracao_detalhada": true,
+      "detalhes_qualidade": "excelente"
+    },
+    {
+      "TITULO PRODUTO": "Kit Cartucho Hp 667 Preto E 667 Colorido 2376 2776",
+      "LINK": "https://www.mercadolivre.com.br/kit-cartucho-hp-667-preto-e-667-colorido-2376-2776/p/MLB39019456#polycard_client=search-nordic&search_layout=stack&position=5&type=product&tracking_id=9348bede-20da-4830-a387-76cff08f2e54&wid=MLB4143415521&sid=search",
+      "ID_PRODUTO": "MLB39019456",
+      "PREÇO": "R$ 142,50",
+      "PREÇO ANTERIOR": "R$ 154",
+      "MARCA": "N/A",
+      "IMAGEM": "N/A (imagens desabilitadas)",
+      "VENDEDOR": "N/A",
+      "MÉDIA AVALIAÇÕES": "4.8",
+      "TOTAL AVALIAÇÕES": "319",
+      "ENTREGA": "Chegará grátis amanhã",
+      "ENTREGA FULL": "Sim",
+      "url": "https://www.mercadolivre.com.br/kit-cartucho-hp-667-preto-e-667-colorido-2376-2776/p/MLB39019456#polycard_client=search-nordic&search_layout=stack&position=5&type=product&tracking_id=9348bede-20da-4830-a387-76cff08f2e54&wid=MLB4143415521&sid=search",
+      "timestamp": "2025-09-29T12:20:04.757136",
+      "nome_produto": "Kit Cartucho Hp 667 Preto E 667 Colorido 2376 2776",
+      "condicao_produto": "Novo",
+      "preco": "BRL 142.5",
+      "desconto": "Sem desconto",
+      "frete_gratis": "Sim",
+      "tempo_entrega": "Consultar no site",
+      "nome_loja": "vanvan",
+      "vendas_produto": "5000",
+      "vendas_loja": null,
+      "devolucao_gratis": "Sim",
+      "compra_garantida": "Sim",
+      "tempo_garantia": "30 dias",
+      "descricao_produto": "Unidades por embalagem: 2. | Conteúdo total em volume: 4 mL. | Cor da tinta: Preto/Tricolor. | Unidades por kit: 2. | Formato de venda: Kit. | Cartucho do tipo original. | Tinta pigmentada. | Rende 120 páginas.",
+      "especificacoes_tecnicas": {
+        "tipo_tinta": "preto/tricolor. | unidades por kit: 2. | formato de venda: kit. | cartucho do tipo original. | tinta",
+        "rendimento_paginas": "120 páginas",
+        "volume_ml": "4 ml"
+      },
+      "caracteristicas_principais": [
+        "N/A"
+      ],
+      "outros": {
+        "seller_id": 1377207124,
+        "reputation_level": "5_green",
+        "power_seller_status": "platinum",
+        "shipping_mode": "me2",
+        "review_rate": 5,
+        "brand": "HP",
+        "sku": "MLB39019456",
+        "product_id": "MLB39019456"
+      },
+      "fotos_produto": [
+        "https://http2.mlstatic.com/D_NQ_NP_807591-MLU78192290417_082024-O.webp",
+        "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+      ],
+      "reviews_detalhados": {
+        "rating_medio": 4.8,
+        "total_reviews": 320,
+        "tem_reviews": true,
+        "distribuicao_estrelas": {
+          "estrelas_5": {
+            "quantidade": 280,
+            "percentual": "87.50%"
+          },
+          "estrelas_4": {
+            "quantidade": 20,
+            "percentual": "6.25%"
+          },
+          "estrelas_3": {
+            "quantidade": 8,
+            "percentual": "2.81%"
+          },
+          "estrelas_2": {
+            "quantidade": 3,
+            "percentual": "0.94%"
+          },
+          "estrelas_1": {
+            "quantidade": 8,
+            "percentual": "2.50%"
+          }
+        },
+        "reviews_com_texto": 59,
+        "reviews_com_imagens": 14,
+        "avaliacoes_positivas": 300,
+        "avaliacoes_negativas": 11,
+        "avaliacoes_neutras": 8
+      },
+      "extraction_success": true,
+      "extraction_method": "spider_scrapy",
+      "response_size": 679113,
+      "response_status": 200,
+      "quality_score": 83.3,
+      "extracao_detalhada": true,
+      "detalhes_qualidade": "excelente"
+    },
+    {
+      "TITULO PRODUTO": "Cartucho Hp 667 Colorido 3ym78ab",
+      "LINK": "https://www.mercadolivre.com.br/cartucho-hp-667-colorido-3ym78ab/p/MLB22658653#polycard_client=search-nordic&search_layout=stack&position=6&type=product&tracking_id=9348bede-20da-4830-a387-76cff08f2e54&wid=MLB3897978171&sid=search",
+      "ID_PRODUTO": "MLB22658653",
+      "PREÇO": "R$ 70,60",
+      "PREÇO ANTERIOR": "N/A",
+      "MARCA": "N/A",
+      "IMAGEM": "N/A (imagens desabilitadas)",
+      "VENDEDOR": "N/A",
+      "MÉDIA AVALIAÇÕES": "4.7",
+      "TOTAL AVALIAÇÕES": "1245",
+      "ENTREGA": "Chegará grátis amanhã",
+      "ENTREGA FULL": "Sim",
+      "url": "https://www.mercadolivre.com.br/cartucho-hp-667-colorido-3ym78ab/p/MLB22658653#polycard_client=search-nordic&search_layout=stack&position=6&type=product&tracking_id=9348bede-20da-4830-a387-76cff08f2e54&wid=MLB3897978171&sid=search",
+      "timestamp": "2025-09-29T12:20:07.800160",
+      "nome_produto": "Cartucho Hp 667 Colorido 3ym78ab",
+      "condicao_produto": "Novo",
+      "preco": "BRL 70.6",
+      "desconto": "Sem desconto",
+      "frete_gratis": "Não",
+      "tempo_entrega": "Consultar no site",
+      "nome_loja": "vanvan",
+      "vendas_produto": "10000",
+      "vendas_loja": null,
+      "devolucao_gratis": "Sim",
+      "compra_garantida": "Sim",
+      "tempo_garantia": "30 dias",
+      "descricao_produto": "Unidades por kit: 1. | Formato de venda: Unidade.",
+      "especificacoes_tecnicas": "N/A",
+      "caracteristicas_principais": [
+        "N/A"
+      ],
+      "outros": {
+        "seller_id": 1377207124,
+        "reputation_level": "5_green",
+        "power_seller_status": "platinum",
+        "shipping_mode": "me2",
+        "review_rate": 4,
+        "brand": "HP",
+        "sku": "MLB22658653",
+        "product_id": "MLB22658653"
+      },
+      "fotos_produto": [
+        "https://http2.mlstatic.com/D_NQ_NP_935084-MLA91971430481_092025-O.webp",
+        "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+      ],
+      "reviews_detalhados": {
+        "rating_medio": 4.7,
+        "total_reviews": 1245,
+        "tem_reviews": true,
+        "distribuicao_estrelas": {
+          "estrelas_5": {
+            "quantidade": 1089,
+            "percentual": "87.55%"
+          },
+          "estrelas_4": {
+            "quantidade": 75,
+            "percentual": "6.10%"
+          },
+          "estrelas_3": {
+            "quantidade": 31,
+            "percentual": "2.57%"
+          },
+          "estrelas_2": {
+            "quantidade": 7,
+            "percentual": "0.64%"
+          },
+          "estrelas_1": {
+            "quantidade": 38,
+            "percentual": "3.13%"
+          }
+        },
+        "reviews_com_texto": 226,
+        "reviews_com_imagens": 24,
+        "avaliacoes_positivas": 1164,
+        "avaliacoes_negativas": 45,
+        "avaliacoes_neutras": 31
+      },
+      "extraction_success": true,
+      "extraction_method": "spider_scrapy",
+      "response_size": 689914,
+      "response_status": 200,
+      "quality_score": 83.3,
+      "extracao_detalhada": true,
+      "detalhes_qualidade": "excelente"
+    },
+    {
+      "TITULO PRODUTO": "Kit Cartucho Tinta Original Hp 667 Preto/colorido 2376 2774",
+      "LINK": "https://www.mercadolivre.com.br/kit-cartucho-tinta-original-hp-667-pretocolorido-2376-2774/up/MLBU750370459#polycard_client=search-nordic&search_layout=stack&position=7&type=product&tracking_id=9348bede-20da-4830-a387-76cff08f2e54&wid=MLB2685036387&sid=search",
+      "ID_PRODUTO": "N/A",
+      "PREÇO": "R$ 143,90",
+      "PREÇO ANTERIOR": "N/A",
+      "MARCA": "N/A",
+      "IMAGEM": "N/A (imagens desabilitadas)",
+      "VENDEDOR": "N/A",
+      "MÉDIA AVALIAÇÕES": "4.7",
+      "TOTAL AVALIAÇÕES": "4460",
+      "ENTREGA": "Chegará grátis amanhã",
+      "ENTREGA FULL": "Sim",
+      "url": "https://www.mercadolivre.com.br/kit-cartucho-tinta-original-hp-667-pretocolorido-2376-2774/up/MLBU750370459#polycard_client=search-nordic&search_layout=stack&position=7&type=product&tracking_id=9348bede-20da-4830-a387-76cff08f2e54&wid=MLB2685036387&sid=search",
+      "timestamp": "2025-09-29T12:20:10.328763",
+      "nome_produto": "Kit Cartucho Tinta Original Hp 667 Preto/colorido 2376 2774",
+      "condicao_produto": "Novo",
+      "preco": "BRL 143.9",
+      "desconto": "Sem desconto",
+      "frete_gratis": "Sim",
+      "tempo_entrega": "Consultar no site",
+      "nome_loja": "OBERO INFORMATICA",
+      "vendas_produto": "10000",
+      "vendas_loja": null,
+      "devolucao_gratis": "Sim",
+      "compra_garantida": "Sim",
+      "tempo_garantia": "30 dias",
+      "descricao_produto": "Unidades por embalagem: 2 | Conteúdo total em volume: 2 mL | Cor da tinta: Tricolor e Preto | Unidades por kit: 1 | Formato de venda: Unidade | Cartucho do tipo original. | Rende 100 páginas",
+      "especificacoes_tecnicas": {
+        "rendimento_paginas": "100 páginas",
+        "volume_ml": "2 ml"
+      },
+      "caracteristicas_principais": [
+        "N/A"
+      ],
+      "outros": {
+        "seller_id": 676710281,
+        "reputation_level": "5_green",
+        "power_seller_status": "platinum",
+        "shipping_mode": "me2",
+        "review_rate": 4,
+        "brand": "HP",
+        "sku": "MLBU750370459",
+        "product_id": "MLBU750370459"
+      },
+      "fotos_produto": [
+        "https://http2.mlstatic.com/D_NQ_NP_864941-MLB53340335621_012023-O.webp",
+        "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+      ],
+      "reviews_detalhados": {
+        "rating_medio": 4.7,
+        "total_reviews": 4460,
+        "tem_reviews": true,
+        "distribuicao_estrelas": {
+          "estrelas_5": {
+            "quantidade": 3787,
+            "percentual": "84.93%"
+          },
+          "estrelas_4": {
+            "quantidade": 374,
+            "percentual": "8.39%"
+          },
+          "estrelas_3": {
+            "quantidade": 123,
+            "percentual": "2.76%"
+          },
+          "estrelas_2": {
+            "quantidade": 52,
+            "percentual": "1.17%"
+          },
+          "estrelas_1": {
+            "quantidade": 123,
+            "percentual": "2.76%"
+          }
+        },
+        "reviews_com_texto": 874,
+        "reviews_com_imagens": 26,
+        "avaliacoes_positivas": 4161,
+        "avaliacoes_negativas": 175,
+        "avaliacoes_neutras": 123
+      },
+      "extraction_success": true,
+      "extraction_method": "spider_scrapy",
+      "response_size": 628094,
+      "response_status": 200,
+      "quality_score": 83.3,
+      "extracao_detalhada": true,
+      "detalhes_qualidade": "excelente"
+    },
+    {
+      "TITULO PRODUTO": "Kit Cartucho Hp 667 667xl Deskjet 2776 Preto E Color Full",
+      "LINK": "https://www.mercadolivre.com.br/kit-cartucho-hp-667-667xl-deskjet-2776-preto-e-color-full/p/MLB48152766#polycard_client=search-nordic&search_layout=stack&position=8&type=product&tracking_id=9348bede-20da-4830-a387-76cff08f2e54&wid=MLB5370579290&sid=search",
+      "ID_PRODUTO": "MLB48152766",
+      "PREÇO": "R$ 309,43",
+      "PREÇO ANTERIOR": "N/A",
+      "MARCA": "N/A",
+      "IMAGEM": "N/A (imagens desabilitadas)",
+      "VENDEDOR": "Park Ecom",
+      "MÉDIA AVALIAÇÕES": "4.5",
+      "TOTAL AVALIAÇÕES": "136",
+      "ENTREGA": "Chegará grátis amanhã",
+      "ENTREGA FULL": "Sim",
+      "url": "https://www.mercadolivre.com.br/kit-cartucho-hp-667-667xl-deskjet-2776-preto-e-color-full/p/MLB48152766#polycard_client=search-nordic&search_layout=stack&position=8&type=product&tracking_id=9348bede-20da-4830-a387-76cff08f2e54&wid=MLB5370579290&sid=search",
+      "timestamp": "2025-09-29T12:20:13.038696",
+      "nome_produto": "Kit Cartucho Hp 667 667xl Deskjet 2776 Preto E Color Full",
+      "condicao_produto": "Novo",
+      "preco": "BRL 309.43",
+      "desconto": "Sem desconto",
+      "frete_gratis": "Sim",
+      "tempo_entrega": "Consultar no site",
+      "nome_loja": "Park Ecom",
+      "vendas_produto": "1000",
+      "vendas_loja": null,
+      "devolucao_gratis": "Sim",
+      "compra_garantida": "Sim",
+      "tempo_garantia": "30 dias",
+      "descricao_produto": "Unidades por embalagem: 1. | Conteúdo total em volume: 8 mL. | Cor da tinta: Preto e Color. | Unidades por kit: 2. | Formato de venda: Kit. | Cartucho do tipo original. | É recarregável. | Tinta pigmentada. | Rende 480 páginas.",
+      "especificacoes_tecnicas": {
+        "tipo_tinta": "preto e color. | unidades por kit: 2. | formato de venda: kit. | cartucho do tipo original. | é reca",
+        "rendimento_paginas": "480 páginas",
+        "volume_ml": "8 ml"
+      },
+      "caracteristicas_principais": [
+        "N/A"
+      ],
+      "outros": {
+        "seller_id": 1301646661,
+        "reputation_level": "5_green",
+        "power_seller_status": "platinum",
+        "shipping_mode": "me2",
+        "review_rate": 4,
+        "brand": "HP",
+        "sku": "MLB48152766",
+        "product_id": "MLB48152766"
+      },
+      "fotos_produto": [
+        "https://http2.mlstatic.com/D_NQ_NP_789780-MLA83447264888_042025-O.webp"
+      ],
+      "reviews_detalhados": {
+        "rating_medio": 4.5,
+        "total_reviews": 136,
+        "tem_reviews": true,
+        "distribuicao_estrelas": {
+          "estrelas_5": {
+            "quantidade": 111,
+            "percentual": "82.35%"
+          },
+          "estrelas_4": {
+            "quantidade": 7,
+            "percentual": "5.15%"
+          },
+          "estrelas_3": {
+            "quantidade": 3,
+            "percentual": "2.94%"
+          },
+          "estrelas_2": {
+            "quantidade": 5,
+            "percentual": "3.68%"
+          },
+          "estrelas_1": {
+            "quantidade": 7,
+            "percentual": "5.88%"
+          }
+        },
+        "reviews_com_texto": 28,
+        "reviews_com_imagens": 3,
+        "avaliacoes_positivas": 118,
+        "avaliacoes_negativas": 12,
+        "avaliacoes_neutras": 3
+      },
+      "extraction_success": true,
+      "extraction_method": "spider_scrapy",
+      "response_size": 643678,
+      "response_status": 200,
+      "quality_score": 83.3,
+      "extracao_detalhada": true,
+      "detalhes_qualidade": "excelente"
+    },
+    {
+      "TITULO PRODUTO": "Kit 2 Cartuchos Hp 667 Preto P/ 2374 2376 2774 2776",
+      "LINK": "https://www.mercadolivre.com.br/kit-2-cartuchos-hp-667-preto-p-2374-2376-2774-2776/p/MLB39018524#polycard_client=search-nordic&search_layout=stack&position=9&type=product&tracking_id=9348bede-20da-4830-a387-76cff08f2e54&wid=MLB5109186670&sid=search",
+      "ID_PRODUTO": "MLB39018524",
+      "PREÇO": "R$ 179,80",
+      "PREÇO ANTERIOR": "N/A",
+      "MARCA": "N/A",
+      "IMAGEM": "N/A (imagens desabilitadas)",
+      "VENDEDOR": "N/A",
+      "MÉDIA AVALIAÇÕES": "4.8",
+      "TOTAL AVALIAÇÕES": "111",
+      "ENTREGA": "Chegará grátis amanhã",
+      "ENTREGA FULL": "Sim",
+      "url": "https://www.mercadolivre.com.br/kit-2-cartuchos-hp-667-preto-p-2374-2376-2774-2776/p/MLB39018524#polycard_client=search-nordic&search_layout=stack&position=9&type=product&tracking_id=9348bede-20da-4830-a387-76cff08f2e54&wid=MLB5109186670&sid=search",
+      "timestamp": "2025-09-29T12:20:16.405493",
+      "nome_produto": "Kit 2 Cartuchos Hp 667 Preto P/ 2374 2376 2774 2776",
+      "condicao_produto": "Novo",
+      "preco": "BRL 179.8",
+      "desconto": "Sem desconto",
+      "frete_gratis": "Sim",
+      "tempo_entrega": "Consultar no site",
+      "nome_loja": "informticaponto",
+      "vendas_produto": "1000",
+      "vendas_loja": null,
+      "devolucao_gratis": "Sim",
+      "compra_garantida": "Sim",
+      "tempo_garantia": "30 dias",
+      "descricao_produto": "Conteúdo total em volume: 2 mL. | Cartucho do tipo original. | Rende 240 páginas. | Tinta pigmentada.",
+      "especificacoes_tecnicas": {
+        "rendimento_paginas": "240 páginas",
+        "volume_ml": "2 ml"
+      },
+      "caracteristicas_principais": [
+        "N/A"
+      ],
+      "outros": {
+        "seller_id": 456253729,
+        "reputation_level": "5_green",
+        "power_seller_status": "platinum",
+        "shipping_mode": "me2",
+        "review_rate": 5,
+        "brand": "HP",
+        "sku": "MLB39018524",
+        "product_id": "MLB39018524"
+      },
+      "fotos_produto": [
+        "https://http2.mlstatic.com/D_NQ_NP_709003-MLA92146332677_092025-O.webp",
+        "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+      ],
+      "reviews_detalhados": {
+        "rating_medio": 4.8,
+        "total_reviews": 111,
+        "tem_reviews": true,
+        "distribuicao_estrelas": {
+          "estrelas_5": {
+            "quantidade": 96,
+            "percentual": "86.49%"
+          },
+          "estrelas_4": {
+            "quantidade": 9,
+            "percentual": "8.11%"
+          },
+          "estrelas_3": {
+            "quantidade": 2,
+            "percentual": "2.70%"
+          },
+          "estrelas_2": {
+            "quantidade": 0,
+            "percentual": "0.00%"
+          },
+          "estrelas_1": {
+            "quantidade": 2,
+            "percentual": "2.70%"
+          }
+        },
+        "reviews_com_texto": 12,
+        "reviews_com_imagens": 1,
+        "avaliacoes_positivas": 105,
+        "avaliacoes_negativas": 2,
+        "avaliacoes_neutras": 2
+      },
+      "extraction_success": true,
+      "extraction_method": "spider_scrapy",
+      "response_size": 641495,
+      "response_status": 200,
+      "quality_score": 83.3,
+      "extracao_detalhada": true,
+      "detalhes_qualidade": "excelente"
+    },
+    {
+      "TITULO PRODUTO": "Cartucho De Tinta Hp 664xl Preto F6v31ab",
+      "LINK": "https://www.mercadolivre.com.br/cartucho-de-tinta-hp-664xl-preto-f6v31ab/p/MLB43544566#polycard_client=search-nordic&search_layout=stack&position=10&type=product&tracking_id=9348bede-20da-4830-a387-76cff08f2e54&wid=MLB5575638530&sid=search",
+      "ID_PRODUTO": "MLB43544566",
+      "PREÇO": "R$ 121,40",
+      "PREÇO ANTERIOR": "R$ 189",
+      "MARCA": "N/A",
+      "IMAGEM": "N/A (imagens desabilitadas)",
+      "VENDEDOR": "N/A",
+      "MÉDIA AVALIAÇÕES": "4.8",
+      "TOTAL AVALIAÇÕES": "24",
+      "ENTREGA": "Frete grátis",
+      "ENTREGA FULL": "Não",
+      "url": "https://www.mercadolivre.com.br/cartucho-de-tinta-hp-664xl-preto-f6v31ab/p/MLB43544566#polycard_client=search-nordic&search_layout=stack&position=10&type=product&tracking_id=9348bede-20da-4830-a387-76cff08f2e54&wid=MLB5575638530&sid=search",
+      "timestamp": "2025-09-29T12:20:19.953157",
+      "nome_produto": "N/A",
+      "condicao_produto": "N/A",
+      "preco": "N/A",
+      "desconto": "Sem desconto",
+      "frete_gratis": "Não",
+      "tempo_entrega": "Consultar no site",
+      "nome_loja": "N/A",
+      "vendas_produto": "N/A",
+      "vendas_loja": "N/A",
+      "devolucao_gratis": "N/A",
+      "compra_garantida": "Sim",
+      "tempo_garantia": "30 dias",
+      "descricao_produto": "N/A",
+      "especificacoes_tecnicas": "N/A",
+      "caracteristicas_principais": [
+        "N/A"
+      ],
+      "outros": {},
+      "fotos_produto": [
+        "N/A"
+      ],
+      "reviews_detalhados": {
+        "rating_medio": "N/A",
+        "total_reviews": "N/A",
+        "tem_reviews": false,
+        "distribuicao_estrelas": {
+          "estrelas_5": {
+            "quantidade": 0,
+            "percentual": "0%"
+          },
+          "estrelas_4": {
+            "quantidade": 0,
+            "percentual": "0%"
+          },
+          "estrelas_3": {
+            "quantidade": 0,
+            "percentual": "0%"
+          },
+          "estrelas_2": {
+            "quantidade": 0,
+            "percentual": "0%"
+          },
+          "estrelas_1": {
+            "quantidade": 0,
+            "percentual": "0%"
+          }
+        },
+        "reviews_com_texto": 0,
+        "reviews_com_imagens": 0,
+        "avaliacoes_positivas": 0,
+        "avaliacoes_negativas": 0,
+        "avaliacoes_neutras": 0
+      },
+      "extraction_success": true,
+      "extraction_method": "spider_scrapy",
+      "response_size": 209053,
+      "response_status": 200,
+      "quality_score": 33.3,
+      "extracao_detalhada": true,
+      "detalhes_qualidade": "limitada"
+    },
+    {
+      "TITULO PRODUTO": "Cartucho de tinta HP 667 Deskjet Ink Advantage cor preto do 2 mL",
+      "LINK": "https://www.mercadolivre.com.br/cartucho-de-tinta-hp-667-deskjet-ink-advantage-cor-preto-do-2-ml/p/MLB55040541#polycard_client=search-nordic&search_layout=stack&position=11&type=product&tracking_id=9348bede-20da-4830-a387-76cff08f2e54&wid=MLB5686731398&sid=search",
+      "ID_PRODUTO": "MLB55040541",
+      "PREÇO": "R$ 77,99",
+      "PREÇO ANTERIOR": "N/A",
+      "MARCA": "N/A",
+      "IMAGEM": "N/A (imagens desabilitadas)",
+      "VENDEDOR": "Tec Print",
+      "MÉDIA AVALIAÇÕES": "4.8",
+      "TOTAL AVALIAÇÕES": "2860",
+      "ENTREGA": "Chegará grátis amanhã",
+      "ENTREGA FULL": "Não",
+      "url": "https://www.mercadolivre.com.br/cartucho-de-tinta-hp-667-deskjet-ink-advantage-cor-preto-do-2-ml/p/MLB55040541#polycard_client=search-nordic&search_layout=stack&position=11&type=product&tracking_id=9348bede-20da-4830-a387-76cff08f2e54&wid=MLB5686731398&sid=search",
+      "timestamp": "2025-09-29T12:20:23.682533",
+      "nome_produto": "Cartucho de tinta HP 667 Deskjet Ink Advantage cor preto do 2 mL",
+      "condicao_produto": "Novo",
+      "preco": "BRL 77.99",
+      "desconto": "Sem desconto",
+      "frete_gratis": "Não",
+      "tempo_entrega": "Consultar no site",
+      "nome_loja": "Tec Print ",
+      "vendas_produto": "1000",
+      "vendas_loja": null,
+      "devolucao_gratis": "Sim",
+      "compra_garantida": "Sim",
+      "tempo_garantia": "30 dias",
+      "descricao_produto": "Cartucho do tipo original. | Tinta preto: pigmentado colorido: corante.",
+      "especificacoes_tecnicas": "N/A",
+      "caracteristicas_principais": [
+        "N/A"
+      ],
+      "outros": {
+        "seller_id": 69438105,
+        "reputation_level": "5_green",
+        "power_seller_status": "platinum",
+        "shipping_mode": "me2",
+        "review_rate": 5,
+        "brand": "HP",
+        "sku": "MLB55040541",
+        "product_id": "MLB55040541"
+      },
+      "fotos_produto": [
+        "https://http2.mlstatic.com/D_NQ_NP_857589-MLA91641441290_092025-O.webp"
+      ],
+      "reviews_detalhados": {
+        "rating_medio": 4.8,
+        "total_reviews": 2860,
+        "tem_reviews": true,
+        "distribuicao_estrelas": {
+          "estrelas_5": {
+            "quantidade": 2509,
+            "percentual": "87.73%"
+          },
+          "estrelas_4": {
+            "quantidade": 195,
+            "percentual": "6.85%"
+          },
+          "estrelas_3": {
+            "quantidade": 58,
+            "percentual": "2.06%"
+          },
+          "estrelas_2": {
+            "quantidade": 26,
+            "percentual": "0.94%"
+          },
+          "estrelas_1": {
+            "quantidade": 68,
+            "percentual": "2.41%"
+          }
+        },
+        "reviews_com_texto": 529,
+        "reviews_com_imagens": 39,
+        "avaliacoes_positivas": 2704,
+        "avaliacoes_negativas": 94,
+        "avaliacoes_neutras": 58
+      },
+      "extraction_success": true,
+      "extraction_method": "spider_scrapy",
+      "response_size": 663143,
+      "response_status": 200,
+      "quality_score": 83.3,
+      "extracao_detalhada": true,
+      "detalhes_qualidade": "excelente"
+    },
+    {
+      "TITULO PRODUTO": "Kit Cartucho Hp 664 Preto E Hp 664 Colorido",
+      "LINK": "https://www.mercadolivre.com.br/kit-cartucho-hp-664-preto-e-hp-664-colorido/p/MLB36751072#polycard_client=search-nordic&search_layout=stack&position=12&type=product&tracking_id=9348bede-20da-4830-a387-76cff08f2e54&wid=MLB4020435573&sid=search",
+      "ID_PRODUTO": "MLB36751072",
+      "PREÇO": "R$ 143,90",
+      "PREÇO ANTERIOR": "N/A",
+      "MARCA": "N/A",
+      "IMAGEM": "N/A (imagens desabilitadas)",
+      "VENDEDOR": "N/A",
+      "MÉDIA AVALIAÇÕES": "4.7",
+      "TOTAL AVALIAÇÕES": "4963",
+      "ENTREGA": "Chegará grátis amanhã",
+      "ENTREGA FULL": "Sim",
+      "url": "https://www.mercadolivre.com.br/kit-cartucho-hp-664-preto-e-hp-664-colorido/p/MLB36751072#polycard_client=search-nordic&search_layout=stack&position=12&type=product&tracking_id=9348bede-20da-4830-a387-76cff08f2e54&wid=MLB4020435573&sid=search",
+      "timestamp": "2025-09-29T12:20:26.418479",
+      "nome_produto": "Kit Cartucho Hp 664 Preto E Hp 664 Colorido",
+      "condicao_produto": "Novo",
+      "preco": "BRL 143.9",
+      "desconto": "Sem desconto",
+      "frete_gratis": "Sim",
+      "tempo_entrega": "Consultar no site",
+      "nome_loja": "OBERO INFORMATICA",
+      "vendas_produto": "50000",
+      "vendas_loja": null,
+      "devolucao_gratis": "Sim",
+      "compra_garantida": "Sim",
+      "tempo_garantia": "30 dias",
+      "descricao_produto": "Linha Advantage. | Conteúdo total em volume: 2 mL. | Cor da tinta: Preto Pigmentado e Colorido Corante. | Unidades por embalagem: 2. | Rendimento de páginas: 100.",
+      "especificacoes_tecnicas": {
+        "tipo_tinta": "preto pigmentado e colorido corante. | unidades por embalagem: 2. | rendimento de páginas: 100.",
+        "rendimento_paginas": "100 páginas",
+        "volume_ml": "2 ml"
+      },
+      "caracteristicas_principais": [
+        "N/A"
+      ],
+      "outros": {
+        "seller_id": 676710281,
+        "reputation_level": "5_green",
+        "power_seller_status": "platinum",
+        "shipping_mode": "me2",
+        "review_rate": 4,
+        "brand": "HP",
+        "sku": "MLB36751072",
+        "product_id": "MLB36751072"
+      },
+      "fotos_produto": [
+        "https://http2.mlstatic.com/D_NQ_NP_950197-MLU76394007878_052024-O.webp",
+        "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+      ],
+      "reviews_detalhados": {
+        "rating_medio": 4.7,
+        "total_reviews": 4963,
+        "tem_reviews": true,
+        "distribuicao_estrelas": {
+          "estrelas_5": {
+            "quantidade": 4312,
+            "percentual": "86.90%"
+          },
+          "estrelas_4": {
+            "quantidade": 354,
+            "percentual": "7.15%"
+          },
+          "estrelas_3": {
+            "quantidade": 106,
+            "percentual": "2.14%"
+          },
+          "estrelas_2": {
+            "quantidade": 40,
+            "percentual": "0.81%"
+          },
+          "estrelas_1": {
+            "quantidade": 148,
+            "percentual": "3.00%"
+          }
+        },
+        "reviews_com_texto": 864,
+        "reviews_com_imagens": 41,
+        "avaliacoes_positivas": 4666,
+        "avaliacoes_negativas": 188,
+        "avaliacoes_neutras": 106
+      },
+      "extraction_success": true,
+      "extraction_method": "spider_scrapy",
+      "response_size": 699867,
+      "response_status": 200,
+      "quality_score": 83.3,
+      "extracao_detalhada": true,
+      "detalhes_qualidade": "excelente"
+    },
+    {
+      "TITULO PRODUTO": "Kit Tinta Cartucho Hp 667 Preto E 667 Colorido",
+      "LINK": "https://www.mercadolivre.com.br/kit-tinta-cartucho-hp-667-preto-e-667-colorido/p/MLB40504426#polycard_client=search-nordic&search_layout=stack&position=13&type=product&tracking_id=9348bede-20da-4830-a387-76cff08f2e54&wid=MLB4119387607&sid=search",
+      "ID_PRODUTO": "MLB40504426",
+      "PREÇO": "R$ 155,90",
+      "PREÇO ANTERIOR": "R$ 168",
+      "MARCA": "N/A",
+      "IMAGEM": "N/A (imagens desabilitadas)",
+      "VENDEDOR": "Park Ecom",
+      "MÉDIA AVALIAÇÕES": "4.5",
+      "TOTAL AVALIAÇÕES": "58",
+      "ENTREGA": "Chegará grátis amanhã",
+      "ENTREGA FULL": "Sim",
+      "url": "https://www.mercadolivre.com.br/kit-tinta-cartucho-hp-667-preto-e-667-colorido/p/MLB40504426#polycard_client=search-nordic&search_layout=stack&position=13&type=product&tracking_id=9348bede-20da-4830-a387-76cff08f2e54&wid=MLB4119387607&sid=search",
+      "timestamp": "2025-09-29T12:20:29.996220",
+      "nome_produto": "Kit Tinta Cartucho Hp 667 Preto E 667 Colorido",
+      "condicao_produto": "Novo",
+      "preco": "BRL 139.9",
+      "desconto": "Sem desconto",
+      "frete_gratis": "Sim",
+      "tempo_entrega": "Consultar no site",
+      "nome_loja": "MELIMELI12",
+      "vendas_produto": "5000",
+      "vendas_loja": null,
+      "devolucao_gratis": "Sim",
+      "compra_garantida": "Sim",
+      "tempo_garantia": "30 dias",
+      "descricao_produto": "Unidades por embalagem: 1. | Conteúdo total em volume: 2 mL. | Cor da tinta: Preto e Tricolor. | Unidades por kit: 2. | Formato de venda: Kit. | Cartucho do tipo original. | Tinta à base de água. | Rende 240 páginas.",
+      "especificacoes_tecnicas": {
+        "tipo_tinta": "água. | rende 240 páginas.",
+        "rendimento_paginas": "240 páginas",
+        "volume_ml": "2 ml"
+      },
+      "caracteristicas_principais": [
+        "N/A"
+      ],
+      "outros": {
+        "seller_id": 1736381249,
+        "reputation_level": "5_green",
+        "power_seller_status": "platinum",
+        "shipping_mode": "me2",
+        "review_rate": 4,
+        "brand": "HP",
+        "sku": "MLB40504426",
+        "product_id": "MLB40504426"
+      },
+      "fotos_produto": [
+        "https://http2.mlstatic.com/D_NQ_NP_701576-MLA92588471101_092025-O.webp",
+        "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+      ],
+      "reviews_detalhados": {
+        "rating_medio": 4.5,
+        "total_reviews": 58,
+        "tem_reviews": true,
+        "distribuicao_estrelas": {
+          "estrelas_5": {
+            "quantidade": 45,
+            "percentual": "79.31%"
+          },
+          "estrelas_4": {
+            "quantidade": 5,
+            "percentual": "10.34%"
+          },
+          "estrelas_3": {
+            "quantidade": 0,
+            "percentual": "1.72%"
+          },
+          "estrelas_2": {
+            "quantidade": 0,
+            "percentual": "1.72%"
+          },
+          "estrelas_1": {
+            "quantidade": 4,
+            "percentual": "6.90%"
+          }
+        },
+        "reviews_com_texto": 12,
+        "reviews_com_imagens": 3,
+        "avaliacoes_positivas": 50,
+        "avaliacoes_negativas": 4,
+        "avaliacoes_neutras": 0
+      },
+      "extraction_success": true,
+      "extraction_method": "spider_scrapy",
+      "response_size": 646089,
+      "response_status": 200,
+      "quality_score": 83.3,
+      "extracao_detalhada": true,
+      "detalhes_qualidade": "excelente"
+    }
+  ]
+}

@@ -20,12 +20,17 @@ import uuid
 # Importar o sistema de scraping existente
 from ..core import get_scraping_system
 
+# Diretório para logs - caminho absoluto baseado na raiz do projeto
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+LOGS_FOLDER = os.path.join(PROJECT_ROOT, 'logs')
+os.makedirs(LOGS_FOLDER, exist_ok=True)
+
 # Configurar logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('flask_scraper.log'),
+        logging.FileHandler(os.path.join(LOGS_FOLDER, 'flask_scraper.log')),
         logging.StreamHandler()
     ]
 )
@@ -37,8 +42,7 @@ app = Flask(__name__)
 app.secret_key = 'hp_challenge_scraping_system_2024'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 
-# Diretório para arquivos gerados - caminho absoluto baseado na raiz do projeto
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Diretório para arquivos gerados
 UPLOAD_FOLDER = os.path.join(PROJECT_ROOT, 'datasets_gerados')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -87,7 +91,8 @@ class ScrapingJob:
                 sort_by=self.parameters.get('sort_by', 'relevance'),
                 condition=self.parameters.get('condition', 'all'),
                 custom_url=self.parameters.get('custom_url'),
-                detailed_extraction=self.parameters.get('detailed_extraction', False)
+                detailed_extraction=self.parameters.get('detailed_extraction', False),
+                request_delay=self.parameters.get('request_delay', 2.0)
             )
             
             if not produtos:
@@ -104,7 +109,8 @@ class ScrapingJob:
                 logger.info(f"Job {self.job_id}: Coletando reviews")
                 
                 self.sistema.coletar_reviews_para_produtos(
-                    self.parameters.get('max_reviews_per_product', 100)
+                    self.parameters.get('max_reviews_per_product', 100),
+                    self.parameters.get('request_delay', 2.0)
                 )
                 
                 # Contar reviews coletadas
@@ -125,7 +131,8 @@ class ScrapingJob:
             csv_path = os.path.join(UPLOAD_FOLDER, csv_filename)
             csv_file = self.sistema.gerar_dataset_csv(
                 csv_path, 
-                include_reviews=self.parameters.get('collect_reviews', False)
+                include_reviews=self.parameters.get('collect_reviews', False),
+                individual_reviews=self.parameters.get('individual_reviews', False)
             )
             
             if csv_file:
@@ -154,6 +161,32 @@ class ScrapingJob:
                 logger.info(f"Job {self.job_id}: Arquivo JSON gerado - {json_filename}")
             else:
                 logger.warning(f"Job {self.job_id}: Falha ao gerar arquivo JSON")
+            
+            # Excel - se solicitado
+            if self.parameters.get('generate_excel', False):
+                excel_filename = f"dataset_{self.job_id}_{timestamp}.xlsx"
+                excel_path = os.path.join(UPLOAD_FOLDER, excel_filename)
+                
+                try:
+                    # Gerar Excel usando o método do sistema
+                    excel_file = self.sistema.gerar_dataset_excel(
+                        excel_path,
+                        include_reviews=self.parameters.get('collect_reviews', False),
+                        individual_reviews=self.parameters.get('individual_reviews', False)
+                    )
+                    
+                    if excel_file:
+                        self.result_files.append({
+                            'type': 'excel',
+                            'filename': excel_filename,
+                            'path': excel_file,
+                            'size': os.path.getsize(excel_file)
+                        })
+                        logger.info(f"Job {self.job_id}: Arquivo Excel gerado - {excel_filename}")
+                    else:
+                        logger.warning(f"Job {self.job_id}: Falha ao gerar arquivo Excel")
+                except Exception as e:
+                    logger.warning(f"Job {self.job_id}: Erro ao gerar Excel: {e}")
             
             self.progress = 100
             self.status = 'concluido'
@@ -230,7 +263,7 @@ def api_start_scraping():
         # Gerar ID único para o job
         job_id = str(uuid.uuid4())[:8]
         
-        # Parâmetros do job
+        # Parâmetros do job - expandidos com novas opções
         parameters = {
             'query': data['query'],
             'max_items': data.get('max_items', 50),
@@ -240,7 +273,22 @@ def api_start_scraping():
             'collect_reviews': data.get('collect_reviews', False),
             'max_reviews_per_product': data.get('max_reviews_per_product', 100),
             'generate_json': data.get('generate_json', False),
-            'detailed_extraction': data.get('detailed_extraction', False)
+            'generate_csv': data.get('generate_csv', True),
+            'generate_excel': data.get('generate_excel', False),
+            'detailed_extraction': data.get('detailed_extraction', False),
+            
+            # Novos parâmetros de filtros
+            'min_price': data.get('min_price'),
+            'max_price': data.get('max_price'),
+            'min_seller_rating': data.get('min_seller_rating'),
+            'min_seller_sales': data.get('min_seller_sales'),
+            'power_seller_only': data.get('power_seller_only', False),
+            'min_product_rating': data.get('min_product_rating'),
+            'min_reviews_count': data.get('min_reviews_count'),
+            'free_shipping_only': data.get('free_shipping_only', False),
+            
+            # Parâmetros de modo
+            'scraping_mode': data.get('scraping_mode', 'standard')
         }
         
         # Criar job
@@ -427,7 +475,7 @@ def web_start_scraping():
         # Gerar ID único para o job
         job_id = str(uuid.uuid4())[:8]
         
-        # Parâmetros do job
+        # Parâmetros do job - expandidos com novas opções
         parameters = {
             'query': query,
             'max_items': int(request.form.get('max_items', 50)),
@@ -436,9 +484,40 @@ def web_start_scraping():
             'condition': request.form.get('condition', 'all'),
             'collect_reviews': 'collect_reviews' in request.form,
             'max_reviews_per_product': int(request.form.get('max_reviews_per_product', 100)),
+            'individual_reviews': 'individual_reviews' in request.form,
+            'request_delay': float(request.form.get('request_delay', 2.0)),
             'generate_json': 'generate_json' in request.form,
-            'detailed_extraction': 'detailed_extraction' in request.form
+            'generate_csv': 'generate_csv' in request.form,
+            'generate_excel': 'generate_excel' in request.form,
+            'detailed_extraction': 'detailed_extraction' in request.form,
+            
+            # Novos parâmetros de filtros
+            'min_price': request.form.get('min_price'),
+            'max_price': request.form.get('max_price'),
+            'min_seller_rating': request.form.get('min_seller_rating'),
+            'min_seller_sales': request.form.get('min_seller_sales'),
+            'power_seller_only': 'power_seller_only' in request.form,
+            'min_product_rating': request.form.get('min_product_rating'),
+            'min_reviews_count': request.form.get('min_reviews_count'),
+            'free_shipping_only': 'free_shipping_only' in request.form,
+            
+            # Parâmetros de modo
+            'scraping_mode': request.form.get('scraping_mode', 'standard')
         }
+        
+        # Converter valores numéricos
+        if parameters['min_price']:
+            parameters['min_price'] = float(parameters['min_price'])
+        if parameters['max_price']:
+            parameters['max_price'] = float(parameters['max_price'])
+        if parameters['min_seller_rating']:
+            parameters['min_seller_rating'] = float(parameters['min_seller_rating'])
+        if parameters['min_seller_sales']:
+            parameters['min_seller_sales'] = int(parameters['min_seller_sales'])
+        if parameters['min_product_rating']:
+            parameters['min_product_rating'] = float(parameters['min_product_rating'])
+        if parameters['min_reviews_count']:
+            parameters['min_reviews_count'] = int(parameters['min_reviews_count'])
         
         # Criar job
         job = ScrapingJob(job_id, query, parameters)

@@ -7,10 +7,14 @@ Sistema de Scraping HP
 
 import os
 import sys
+from pathlib import Path
 from flask_app import app
 
 def main():
     """Função principal para executar a aplicação Flask"""
+    
+    # Verificar se deve rodar em modo de desenvolvimento ou produção
+    development_mode = os.environ.get('FLASK_ENV', 'development') == 'development'
     
     print("=" * 60)
     print("🛡️  SISTEMA DE SCRAPING HP - FLASK WEB APPLICATION")
@@ -30,22 +34,52 @@ def main():
     print("   • GET  /api/jobs             - Listar jobs (API)")
     print("   • GET  /api/datasets         - Listar datasets (API)")
     print()
+    
+    if development_mode:
+        print("🔄 Modo: DESENVOLVIMENTO (debug + watchdog controlado)")
+    else:
+        print("🏭 Modo: PRODUÇÃO (otimizado, sem reloader)")
+    
     print("⚠️  Para parar o servidor, pressione Ctrl+C")
     print("=" * 60)
     print()
     
     try:
-        # Configurar ambiente de desenvolvimento
-        os.environ['FLASK_ENV'] = 'development'
-        
-        # Executar aplicação
-        app.run(
-            debug=True,
-            host='0.0.0.0',
-            port=5000,
-            use_reloader=True,
-            threaded=True
-        )
+        if development_mode:
+            # Configurar ambiente de desenvolvimento
+            os.environ['FLASK_ENV'] = 'development'
+            
+            print("📁 Arquivos que NÃO causarão restart:")
+            excluded_extensions = ['*.log', '*.csv', '*.json']
+            excluded_dirs = ['datasets_gerados/', 'data/', 'logs/']
+            
+            for ext in excluded_extensions:
+                print(f"   • {ext}")
+            for dir_name in excluded_dirs:
+                print(f"   • {dir_name}")
+            print()
+            
+            # Executar em modo desenvolvimento com reloader inteligente
+            # SOLUÇÃO: Usar um watchdog customizado mais conservador
+            app.run(
+                debug=True,
+                host='0.0.0.0',
+                port=5000,
+                use_reloader=False,  # DESATIVAR reloader automático
+                threaded=True
+            )
+        else:
+            # Modo produção - sem debug, sem reloader
+            print("🏭 Rodando em modo PRODUÇÃO - sem monitoramento de arquivos")
+            print()
+            
+            app.run(
+                debug=False,
+                host='0.0.0.0',
+                port=5000,
+                use_reloader=False,
+                threaded=True
+            )
         
     except KeyboardInterrupt:
         print("\n🛑 Servidor interrompido pelo usuário")

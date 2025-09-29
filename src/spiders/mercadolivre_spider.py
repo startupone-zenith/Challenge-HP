@@ -213,6 +213,25 @@ class MercadoLivreSpider(scrapy.Spider):
                 'url': response.url,
                 'timestamp': datetime.now().isoformat(),
             }
+            
+            # Extrair product_id da URL (usando regex para capturar apenas o ID)
+            import re
+            match_id = re.search(r'/(?:p|up)/(MLB[A-Z0-9]+)', response.url)
+            if match_id:
+                product_id = match_id.group(1)
+                detailed_info['product_id'] = product_id
+                detailed_info['ID_PRODUTO'] = product_id  # Para compatibilidade
+                logging.info(f"Product ID extraído da URL: {product_id}")
+            else:
+                # Fallback: tentar capturar qualquer ID após /p/ ou /up/
+                fallback_match = re.search(r'/(?:p|up)/([A-Z0-9]+)', response.url)
+                if fallback_match:
+                    product_id = fallback_match.group(1)
+                    detailed_info['product_id'] = product_id
+                    detailed_info['ID_PRODUTO'] = product_id
+                    logging.info(f"Product ID extraído da URL (fallback): {product_id}")
+                else:
+                    logging.warning(f"Não foi possível extrair product_id da URL: {response.url}")
 
             # 1. EXTRAIR DADOS ESTRUTURADOS (JSON-LD e JavaScript)
             json_ld_scripts = response.css('script[type="application/ld+json"]::text').getall()
@@ -391,13 +410,111 @@ class MercadoLivreSpider(scrapy.Spider):
             guarantee_days = return_policy.get('merchantReturnDays') if return_policy else 30
             detailed_info['tempo_garantia'] = f"{guarantee_days} dias" if guarantee_days else '30 dias'
 
-            # Descrição do produto
+            # Descrição do produto - MELHORADA para capturar informações técnicas detalhadas
             description = structured_data.get('description', '') if structured_data else ''
+            detailed_technical_info = {}
+            
             if not description:
-                desc_paragraphs = response.css('.ui-pdp-description__content p::text, .ui-pdp-description p::text').getall()
+                # Buscar na descrição principal do produto 
+                desc_paragraphs = response.css('p[data-testid="content"]::text, .ui-pdp-description__content p::text, .ui-pdp-description p::text').getall()
                 description = ' '.join([p.strip() for p in desc_paragraphs if p.strip()])
             
-            detailed_info['descricao_produto'] = description[:1000] if description else 'N/A'  # Limitar tamanho
+            # NOVO: Extrair informações técnicas específicas da descrição
+            if description:
+                text_lower = description.lower()
+                
+                # Extrair tipos de tinta
+                ink_patterns = [
+                    r'tipo(?:s)? de tinta[:：]\s*([^<\n\r]+)',
+                    r'tinta[:：]\s*([^<\n\r]*(?:pigment|corante|dye)[^<\n\r]*)',
+                    r'(?:tinta\s+)?(?:à base de|base de)\s+([^<\n\r]+)',
+                    r'impressão de cores consumíveis[:：]\s*([^<\n\r]+)'
+                ]
+                
+                for pattern in ink_patterns:
+                    match = re.search(pattern, text_lower)
+                    if match:
+                        detailed_technical_info['tipo_tinta'] = match.group(1).strip()[:100]
+                        break
+                
+                # Extrair rendimento de páginas
+                page_yield_patterns = [
+                    r'rendimento[^:]*[:：]?\s*(\d+(?:\.\d+)?)\s*(?:páginas?|folhas?)',
+                    r'rende?\s*(?:até\s*)?(\d+(?:\.\d+)?)\s*(?:páginas?|folhas?)',
+                    r'(?:páginas?|folhas?)[:：]?\s*(\d+(?:\.\d+)?)',
+                    r'(\d+(?:\.\d+)?)\s*páginas?'
+                ]
+                
+                for pattern in page_yield_patterns:
+                    match = re.search(pattern, text_lower)
+                    if match:
+                        detailed_technical_info['rendimento_paginas'] = f"{match.group(1)} páginas"
+                        break
+                
+                # Extrair temperaturas
+                temp_patterns = [
+                    r'temperatura.*operacional[^:]*[:：]?\s*([^<\n\r]+)',
+                    r'faixa de temperatura[^:]*[:：]?\s*([^<\n\r]+)',
+                    r'temperatura[^:]*armazen[^:]*[:：]?\s*([^<\n\r]+)'
+                ]
+                
+                for pattern in temp_patterns:
+                    match = re.search(pattern, text_lower)
+                    if match:
+                        temp_info = match.group(1).strip()[:100]
+                        if 'operacion' in pattern:
+                            detailed_technical_info['temperatura_operacional'] = temp_info
+                        elif 'armazen' in pattern:
+                            detailed_technical_info['temperatura_armazenamento'] = temp_info
+                        else:
+                            detailed_technical_info['temperatura'] = temp_info
+                
+                # Extrair volume/capacidade
+                volume_patterns = [
+                    r'(?:volume|capacidade)[^:]*[:：]?\s*(\d+(?:\.\d+)?)\s*ml',
+                    r'(\d+(?:\.\d+)?)\s*ml',
+                    r'conteúdo[^:]*[:：]?\s*(\d+(?:\.\d+)?)\s*ml'
+                ]
+                
+                for pattern in volume_patterns:
+                    match = re.search(pattern, text_lower)
+                    if match:
+                        detailed_technical_info['volume_ml'] = f"{match.group(1)} ml"
+                        break
+                
+                # Extrair umidade
+                humidity_patterns = [
+                    r'umidade[^:]*[:：]?\s*([^<\n\r]+)',
+                    r'(\d+(?:\.\d+)?)\s*(?:a|até)\s*(\d+(?:\.\d+)?)\s*%\s*ur'
+                ]
+                
+                for pattern in humidity_patterns:
+                    match = re.search(pattern, text_lower)
+                    if match:
+                        if len(match.groups()) > 1:
+                            detailed_technical_info['umidade'] = f"{match.group(1)}-{match.group(2)}% UR"
+                        else:
+                            detailed_technical_info['umidade'] = match.group(1).strip()[:100]
+                        break
+                
+                # Extrair impressoras compatíveis
+                compatible_patterns = [
+                    r'impressoras?\s*compatíveis?[:：]?\s*([^<\n\r]+)',
+                    r'compatível\s*com[:：]?\s*([^<\n\r]+)',
+                    r'para\s*(?:impressoras?)?[:：]?\s*(hp\s+[^<\n\r]*)',
+                ]
+                
+                for pattern in compatible_patterns:
+                    match = re.search(pattern, text_lower)
+                    if match:
+                        printers = match.group(1).strip()[:300]
+                        # Limpar texto desnecessário
+                        printers = re.sub(r'<[^>]+>', '', printers)
+                        detailed_technical_info['impressoras_compativeis'] = printers
+                        break
+            
+            detailed_info['descricao_produto'] = description[:1000] if description else 'N/A'
+            detailed_info['especificacoes_tecnicas'] = detailed_technical_info if detailed_technical_info else 'N/A'
 
             # Características Principais
             specs = []
@@ -447,41 +564,217 @@ class MercadoLivreSpider(scrapy.Spider):
             
             detailed_info['fotos_produto'] = images[:10] if images else ['N/A']
 
-            # Avaliações - melhorada para extrair dados estruturados de reviews
+            # AVALIAÇÕES MELHORADAS - Extração completa da estrutura de reviews
             rating_info = structured_data.get('aggregateRating', {}) if structured_data else {}
             reviews_data = event_data.get('reviews', {}) if event_data else {}
             
-            if rating_info or reviews_data or event_data.get('review_rate'):
-                avaliacao_final = {}
+            # Inicializar estrutura completa de reviews
+            reviews_completos = {
+                'rating_medio': 'N/A',
+                'total_reviews': 'N/A',
+                'tem_reviews': False,
+                'distribuicao_estrelas': {
+                    'estrelas_5': {'quantidade': 0, 'percentual': '0%'},
+                    'estrelas_4': {'quantidade': 0, 'percentual': '0%'}, 
+                    'estrelas_3': {'quantidade': 0, 'percentual': '0%'},
+                    'estrelas_2': {'quantidade': 0, 'percentual': '0%'},
+                    'estrelas_1': {'quantidade': 0, 'percentual': '0%'}
+                },
+                'reviews_com_texto': 0,
+                'reviews_com_imagens': 0,
+                'avaliacoes_positivas': 0,
+                'avaliacoes_negativas': 0,
+                'avaliacoes_neutras': 0
+            }
+            
+            # Dados do JSON-LD estruturado
+            if rating_info:
+                reviews_completos['rating_medio'] = rating_info.get('ratingValue', 'N/A')
+                reviews_completos['total_reviews'] = rating_info.get('ratingCount', 0)
+                reviews_completos['tem_reviews'] = bool(rating_info.get('ratingCount', 0))
+            
+            # Dados de reviews do event_data
+            if reviews_data:
+                reviews_completos['rating_medio'] = reviews_data.get('rate', reviews_completos['rating_medio'])
+                reviews_completos['total_reviews'] = reviews_data.get('count', reviews_completos['total_reviews'])
+                reviews_completos['tem_reviews'] = bool(reviews_data.get('count', 0))
+                reviews_completos['reviews_com_texto'] = reviews_data.get('reviews_with_comment', 0)
+                reviews_completos['reviews_com_imagens'] = reviews_data.get('pictures_quantity', 0)
+            
+            # Fallback para review_rate simples se não encontrou nada
+            if not reviews_completos.get('rating_medio') or reviews_completos['rating_medio'] == 'N/A':
+                if event_data.get('review_rate'):
+                    reviews_completos['rating_medio'] = event_data.get('review_rate')
+                    reviews_completos['tem_reviews'] = True
+            
+            # NOVO: Extrair distribuição de estrelas do HTML (estrutura completa como fornecida pelo usuário)
+            try:
+                # Buscar pelo componente de rating com data-testid="rating-component"
+                rating_component = response.css('div[data-testid="rating-component"]').get()
                 
-                # Dados do JSON-LD estruturado
-                if rating_info:
-                    avaliacao_final.update({
-                        'rating': rating_info.get('ratingValue'),
-                        'count': rating_info.get('ratingCount'), 
-                        'review_count': rating_info.get('reviewCount')
-                    })
+                if rating_component:
+                    # Extrair rating médio do componente visual
+                    avg_rating = response.css('p.ui-review-capability__rating__average::text').get()
+                    if avg_rating:
+                        reviews_completos['rating_medio'] = float(avg_rating.strip())
+                    
+                    # Extrair total de avaliações
+                    total_label = response.css('p.ui-review-capability__rating__label::text').get()
+                    if total_label:
+                        # Buscar número no formato "4.931 avaliações"
+                        total_match = re.search(r'([\d.,]+)\s*avali', total_label.lower())
+                        if total_match:
+                            total_str = total_match.group(1).replace('.', '').replace(',', '')
+                            reviews_completos['total_reviews'] = int(total_str)
+                            reviews_completos['tem_reviews'] = True
+                    
+                    # Extrair distribuição detalhada por estrelas
+                    star_levels = response.css('li.ui-review-capability-rating__level')
+                    total_reviews_num = reviews_completos.get('total_reviews', 0)
+                    
+                    if star_levels and isinstance(total_reviews_num, int) and total_reviews_num > 0:
+                        for i, level in enumerate(star_levels):
+                            star_num = 5 - i  # 5, 4, 3, 2, 1
+                            
+                            # Extrair percentual da barra de progresso
+                            fill_style = level.css('.ui-review-capability-rating__level__progress-bar__fill-background::attr(style)').get()
+                            if fill_style:
+                                width_match = re.search(r'width:\s*([\d.]+)%', fill_style)
+                                if width_match:
+                                    percentual = float(width_match.group(1))
+                                    quantidade = int((percentual / 100.0) * total_reviews_num)
+                                    
+                                    reviews_completos['distribuicao_estrelas'][f'estrelas_{star_num}'] = {
+                                        'quantidade': quantidade,
+                                        'percentual': f'{percentual:.2f}%'
+                                    }
+                        
+                        # Calcular avaliações positivas/negativas/neutras
+                        estrelas_5 = reviews_completos['distribuicao_estrelas']['estrelas_5']['quantidade']
+                        estrelas_4 = reviews_completos['distribuicao_estrelas']['estrelas_4']['quantidade']
+                        estrelas_3 = reviews_completos['distribuicao_estrelas']['estrelas_3']['quantidade']
+                        estrelas_2 = reviews_completos['distribuicao_estrelas']['estrelas_2']['quantidade']
+                        estrelas_1 = reviews_completos['distribuicao_estrelas']['estrelas_1']['quantidade']
+                        
+                        reviews_completos['avaliacoes_positivas'] = estrelas_5 + estrelas_4
+                        reviews_completos['avaliacoes_neutras'] = estrelas_3
+                        reviews_completos['avaliacoes_negativas'] = estrelas_2 + estrelas_1
                 
-                # Dados de reviews do event_data
-                if reviews_data:
-                    avaliacao_final.update({
-                        'rating': reviews_data.get('rate'),
-                        'count': reviews_data.get('count'),
-                        'review_count': reviews_data.get('count'),
-                        'reviews_with_comment': reviews_data.get('reviews_with_comment'),
-                        'pictures_quantity': reviews_data.get('pictures_quantity'),
-                        'attributes_quantity': reviews_data.get('attributes_quantity'),
-                        'qualitative_attributes': reviews_data.get('qualitative_attributes', [])
-                    })
+                logging.info(f"Reviews estruturados extraídos: rating={reviews_completos.get('rating_medio')}, total={reviews_completos.get('total_reviews')}, distribuição={len([k for k,v in reviews_completos['distribuicao_estrelas'].items() if v['quantidade'] > 0])} níveis")
                 
-                # Fallback para review_rate simples
-                if not avaliacao_final.get('rating') and event_data.get('review_rate'):
-                    avaliacao_final['rating'] = event_data.get('review_rate')
+            except Exception as e:
+                logging.warning(f"Erro ao extrair distribuição de estrelas: {e}")
+            
+            detailed_info['reviews_detalhados'] = reviews_completos
+
+            # 4. EXTRAIR CARACTERÍSTICAS DO PRODUTO
+            logging.info("  [CARACTERÍSTICAS] Iniciando extração de características do produto...")
+            detailed_info['main_characteristics'] = {}
+            detailed_info['other_characteristics'] = {}
+            
+            try:
+                # Extrair Características Principais - Seletores baseados na estrutura real
+                main_chars_selectors = [
+                    # Seletor baseado na estrutura observada na imagem
+                    '.ui-vpp-striped-specs_table table.andes-table tbody tr',
+                    # Seletores alternativos para diferentes layouts
+                    '#highlighted_specs_attrs .ui-vpp-striped-specs_table table.andes-table tbody tr',
+                    '.ui-pdp-specs .ui-vpp-striped-specs_table table.andes-table tbody tr',
+                    # Seletores mais genéricos como fallback
+                    '.andes-table tbody tr',
+                    '[data-testid="specifications"] table tbody tr'
+                ]
                 
-                detailed_info['avaliacao'] = avaliacao_final
-                logging.info(f"Reviews extraídos: rating={avaliacao_final.get('rating')}, count={avaliacao_final.get('count')}")
-            else:
-                detailed_info['avaliacao'] = 'N/A'
+                main_chars_rows = None
+                used_selector = None
+                
+                for selector in main_chars_selectors:
+                    main_chars_rows = response.css(selector)
+                    if main_chars_rows:
+                        used_selector = selector
+                        logging.info(f"  [CARACTERÍSTICAS PRINCIPAIS] Usando seletor: {selector}")
+                        break
+                
+                if main_chars_rows:
+                    logging.info(f"  [CARACTERÍSTICAS PRINCIPAIS] Encontradas {len(main_chars_rows)} características")
+                    for i, row in enumerate(main_chars_rows):
+                        # Seletores precisos baseados na estrutura HTML observada
+                        char_name = (row.css('th .andes-table_header_container::text').get() or
+                                    row.css('th div::text').get() or 
+                                    row.css('th::text').get() or
+                                    row.css('th span::text').get() or
+                                    row.css('.andes-table__header--left div::text').get() or
+                                    row.css('.ui-vpp-striped-specs_row_column--id div::text').get())
+                        
+                        # Seletores precisos para valor baseados na estrutura observada
+                        char_value = (row.css('td .andes-table_column--value::text').get() or
+                                     row.css('td span[id$="-value"]::text').get() or
+                                     row.css('td .andes-table_column--value span::text').get() or
+                                     row.css('td div::text').get() or 
+                                     row.css('td::text').get() or
+                                     row.css('td span::text').get())
+                        
+                        if char_name and char_value:
+                            detailed_info['main_characteristics'][char_name.strip()] = char_value.strip()
+                            logging.info(f"    - {char_name.strip()}: {char_value.strip()}")
+                        else:
+                            logging.warning(f"    - Row {i+1}: char_name='{char_name}', char_value='{char_value}' (skipped)")
+                else:
+                    logging.warning("  [CARACTERÍSTICAS PRINCIPAIS] Tabela não encontrada com nenhum seletor")
+                
+                # Extrair Outras Características - Usar abordagem mais simples (sem nth-of-type)
+                other_chars_selectors = [
+                    # Seletores alternativos para layout de duas colunas
+                    '#highlighted_specs_attrs > div.ui-pdp-container__row.ui-pdp-container__row--technical-specifications > div > div > div > div:nth-child(2) > div > table > tbody tr',
+                    # Procurar por divs adicionais com características
+                    '.ui-pdp-specs .andes-table tbody tr',
+                    '#highlighted_specs_attrs .andes-table tbody tr'
+                ]
+                
+                other_chars_rows = None
+                used_other_selector = None
+                
+                for selector in other_chars_selectors:
+                    other_chars_rows = response.css(selector)
+                    if other_chars_rows:
+                        used_other_selector = selector
+                        logging.info(f"  [OUTRAS CARACTERÍSTICAS] Usando seletor: {selector}")
+                        break
+                
+                if other_chars_rows:
+                    logging.info(f"  [OUTRAS CARACTERÍSTICAS] Encontradas {len(other_chars_rows)} características")
+                    for i, row in enumerate(other_chars_rows):
+                        # Usar os mesmos seletores precisos
+                        char_name = (row.css('th .andes-table_header_container::text').get() or
+                                    row.css('th div::text').get() or 
+                                    row.css('th::text').get() or
+                                    row.css('th span::text').get() or
+                                    row.css('.andes-table__header--left div::text').get() or
+                                    row.css('.ui-vpp-striped-specs_row_column--id div::text').get())
+                        
+                        char_value = (row.css('td .andes-table_column--value::text').get() or
+                                     row.css('td span[id$="-value"]::text').get() or
+                                     row.css('td .andes-table_column--value span::text').get() or
+                                     row.css('td div::text').get() or 
+                                     row.css('td::text').get() or
+                                     row.css('td span::text').get())
+                        
+                        if char_name and char_value:
+                            detailed_info['other_characteristics'][char_name.strip()] = char_value.strip()
+                            logging.info(f"    - {char_name.strip()}: {char_value.strip()}")
+                        else:
+                            logging.warning(f"    - Row {i+1}: char_name='{char_name}', char_value='{char_value}' (skipped)")
+                else:
+                    logging.warning("  [OUTRAS CARACTERÍSTICAS] Tabela não encontrada com nenhum seletor")
+                
+                # Log do resumo
+                total_chars = len(detailed_info['main_characteristics']) + len(detailed_info['other_characteristics'])
+                logging.info(f"  [CARACTERÍSTICAS] Extração concluída: {total_chars} características encontradas")
+                    
+            except Exception as e:
+                logging.error(f"  [CARACTERÍSTICAS] Erro durante extração: {str(e)}")
+                detailed_info['main_characteristics'] = {}
+                detailed_info['other_characteristics'] = {}
 
             logging.info(f"Extração detalhada concluída para: {detailed_info.get('nome_produto', 'N/A')}")
             return detailed_info
@@ -829,13 +1122,21 @@ class MercadoLivreSpider(scrapy.Spider):
                 logging.info(f"  [LINK] Encontrado: '{product['LINK']}'")
 
                 # --- Extrair ID do Produto do Link ---
-                match_id = re.search(r'/p/([^#?]+)', product['LINK'])
+                # Regex melhorado para capturar ID do produto em diferentes formatos
+                # Padrão 1: /p/MLB + números/letras
+                match_id = re.search(r'/(?:p|up)/(MLB[A-Z0-9]+)', product['LINK'])
                 if match_id:
                     product['ID_PRODUTO'] = match_id.group(1)
                     logging.info(f"  [ID PRODUTO] Encontrado: '{product['ID_PRODUTO']}'")
                 else:
-                    product['ID_PRODUTO'] = 'N/A'
-                    logging.warning(f"  [ID PRODUTO] Não encontrado no link: {product['LINK']}")
+                    # Fallback: tentar capturar qualquer ID após /p/ ou /up/ mas antes de parâmetros
+                    fallback_match = re.search(r'/(?:p|up)/([A-Z0-9]+)', product['LINK'])
+                    if fallback_match:
+                        product['ID_PRODUTO'] = fallback_match.group(1)
+                        logging.info(f"  [ID PRODUTO] Encontrado (fallback): '{product['ID_PRODUTO']}'")
+                    else:
+                        product['ID_PRODUTO'] = 'N/A'
+                        logging.warning(f"  [ID PRODUTO] Não encontrado no link: {product['LINK']}")
                 # --- Fim da Extração do ID ---
             else:
                 product['LINK'] = 'N/A'
@@ -1286,25 +1587,46 @@ class MercadoLivreProductDetailsSpider(scrapy.Spider):
                             logging.info(f"  [TOTAL REVIEWS] Encontrado (fallback): {total_reviews}")
                             break
             
-            # Extrair Características Principais
-            main_chars_table_selector = '#highlighted_specs_attrs > div.ui-pdp-container__row.ui-pdp-container__row--technical-specifications > div > div > div > div:nth-child(1) > div > table > tbody'
-            main_chars_rows = response.css(main_chars_table_selector + ' tr')
+            # Extrair Características Principais - Seletores baseados na estrutura real
+            main_chars_selectors = [
+                # Seletor baseado na estrutura observada na imagem
+                '.ui-vpp-striped-specs_table table.andes-table tbody tr',
+                # Seletores alternativos para diferentes layouts
+                '#highlighted_specs_attrs .ui-vpp-striped-specs_table table.andes-table tbody tr',
+                '.ui-pdp-specs .ui-vpp-striped-specs_table table.andes-table tbody tr',
+                # Seletores mais genéricos como fallback
+                '.andes-table tbody tr',
+                '[data-testid="specifications"] table tbody tr'
+            ]
+            
+            main_chars_rows = None
+            used_selector = None
+            
+            for selector in main_chars_selectors:
+                main_chars_rows = response.css(selector)
+                if main_chars_rows:
+                    used_selector = selector
+                    logging.info(f"  [CARACTERÍSTICAS PRINCIPAIS] Usando seletor: {selector}")
+                    break
             
             if main_chars_rows:
                 logging.info(f"  [CARACTERÍSTICAS PRINCIPAIS] Encontradas {len(main_chars_rows)} características")
                 for i, row in enumerate(main_chars_rows):
-                    # Múltiplos seletores para nome da característica
-                    char_name = (row.css('th div::text').get() or 
+                    # Seletores precisos baseados na estrutura HTML observada
+                    char_name = (row.css('th .andes-table_header_container::text').get() or
+                                row.css('th div::text').get() or 
                                 row.css('th::text').get() or
                                 row.css('th span::text').get() or
-                                row.css('.andes-table__header--left div::text').get())
+                                row.css('.andes-table__header--left div::text').get() or
+                                row.css('.ui-vpp-striped-specs_row_column--id div::text').get())
                     
-                    # Múltiplos seletores para valor da característica  
-                    char_value = (row.css('td div::text').get() or 
+                    # Seletores precisos para valor baseados na estrutura observada
+                    char_value = (row.css('td .andes-table_column--value::text').get() or
+                                 row.css('td span[id$="-value"]::text').get() or
+                                 row.css('td .andes-table_column--value span::text').get() or
+                                 row.css('td div::text').get() or 
                                  row.css('td::text').get() or
-                                 row.css('td span::text').get() or
-                                 row.css('.andes-table__column--value div::text').get() or
-                                 row.css('.andes-table__column--value span::text').get())
+                                 row.css('td span::text').get())
                     
                     if char_name and char_value:
                         product_details['main_characteristics'][char_name.strip()] = char_value.strip()
@@ -1312,27 +1634,48 @@ class MercadoLivreProductDetailsSpider(scrapy.Spider):
                     else:
                         logging.warning(f"    - Row {i+1}: char_name='{char_name}', char_value='{char_value}' (skipped)")
             else:
-                logging.warning("  [CARACTERÍSTICAS PRINCIPAIS] Tabela não encontrada")
+                logging.warning("  [CARACTERÍSTICAS PRINCIPAIS] Tabela não encontrada com nenhum seletor")
             
-            # Extrair Outras Características
-            other_chars_table_selector = '#highlighted_specs_attrs > div.ui-pdp-container__row.ui-pdp-container__row--technical-specifications > div > div > div > div:nth-child(2) > div > table > tbody'
-            other_chars_rows = response.css(other_chars_table_selector + ' tr')
+            # Extrair Outras Características - Usar mesma abordagem precisa
+            other_chars_selectors = [
+                # Procurar por segunda tabela de características
+                '.ui-vpp-striped-specs_table:nth-of-type(2) table.andes-table tbody tr',
+                '#highlighted_specs_attrs .ui-vpp-striped-specs_table:nth-of-type(2) table.andes-table tbody tr',
+                '.ui-pdp-specs .ui-vpp-striped-specs_table:nth-of-type(2) table.andes-table tbody tr',
+                # Seletores alternativos para layout de duas colunas
+                '#highlighted_specs_attrs > div.ui-pdp-container__row.ui-pdp-container__row--technical-specifications > div > div > div > div:nth-child(2) > div > table > tbody tr',
+                # Seletores genéricos como fallback
+                '.andes-table:nth-of-type(2) tbody tr',
+                '[data-testid="specifications"] table:nth-of-type(2) tbody tr'
+            ]
+            
+            other_chars_rows = None
+            used_other_selector = None
+            
+            for selector in other_chars_selectors:
+                other_chars_rows = response.css(selector)
+                if other_chars_rows:
+                    used_other_selector = selector
+                    logging.info(f"  [OUTRAS CARACTERÍSTICAS] Usando seletor: {selector}")
+                    break
             
             if other_chars_rows:
                 logging.info(f"  [OUTRAS CARACTERÍSTICAS] Encontradas {len(other_chars_rows)} características")
                 for i, row in enumerate(other_chars_rows):
-                    # Múltiplos seletores para nome da característica
-                    char_name = (row.css('th div::text').get() or 
+                    # Usar os mesmos seletores precisos
+                    char_name = (row.css('th .andes-table_header_container::text').get() or
+                                row.css('th div::text').get() or 
                                 row.css('th::text').get() or
                                 row.css('th span::text').get() or
-                                row.css('.andes-table__header--left div::text').get())
+                                row.css('.andes-table__header--left div::text').get() or
+                                row.css('.ui-vpp-striped-specs_row_column--id div::text').get())
                     
-                    # Múltiplos seletores para valor da característica
-                    char_value = (row.css('td div::text').get() or 
+                    char_value = (row.css('td .andes-table_column--value::text').get() or
+                                 row.css('td span[id$="-value"]::text').get() or
+                                 row.css('td .andes-table_column--value span::text').get() or
+                                 row.css('td div::text').get() or 
                                  row.css('td::text').get() or
-                                 row.css('td span::text').get() or
-                                 row.css('.andes-table__column--value div::text').get() or
-                                 row.css('.andes-table__column--value span::text').get())
+                                 row.css('td span::text').get())
                     
                     if char_name and char_value:
                         product_details['other_characteristics'][char_name.strip()] = char_value.strip()
@@ -1340,7 +1683,7 @@ class MercadoLivreProductDetailsSpider(scrapy.Spider):
                     else:
                         logging.warning(f"    - Row {i+1}: char_name='{char_name}', char_value='{char_value}' (skipped)")
             else:
-                logging.warning("  [OUTRAS CARACTERÍSTICAS] Tabela não encontrada")
+                logging.warning("  [OUTRAS CARACTERÍSTICAS] Tabela não encontrada com nenhum seletor")
             
             # Fallback: tentar seletores alternativos para características
             if not product_details['main_characteristics'] and not product_details['other_characteristics']:
@@ -1417,7 +1760,7 @@ def get_basic_scrapy_settings():
     """Retorna configurações padronizadas anti-detecção"""
     return get_scrapy_settings()
 
-def _run_spider_process(query, extract_images, results_queue, sort_by='relevance', condition='all', max_items=None, custom_url=None):
+def _run_spider_process(query, extract_images, results_queue, sort_by='relevance', condition='all', max_items=None, custom_url=None, request_delay=2.0):
     """
     Internal function to run the spider in a separate process 
     and put results into a queue.
@@ -1444,6 +1787,22 @@ def _run_spider_process(query, extract_images, results_queue, sort_by='relevance
         # Obter configurações básicas do Scrapy
         optimized_settings = get_basic_scrapy_settings()
         
+        # Aplicar delay configurado pelo usuário
+        from ..core.shared_scraping_config import calculate_user_delay
+        
+        # Calcular delays baseados no parâmetro do usuário
+        base_delay = calculate_user_delay(request_delay, 'request')
+        page_delay = calculate_user_delay(request_delay, 'page')
+        
+        # Atualizar configurações com delays personalizados
+        optimized_settings.update({
+            'DOWNLOAD_DELAY': base_delay,
+            'RANDOMIZE_DOWNLOAD_DELAY': True,
+            'AUTOTHROTTLE_START_DELAY': base_delay,
+            'AUTOTHROTTLE_MAX_DELAY': page_delay,
+            'DOWNLOAD_TIMEOUT': 60,  # Timeout aumentado
+        })
+        
         # Aplicar todas as configurações de uma vez
         settings.update(optimized_settings)
         
@@ -1451,6 +1810,8 @@ def _run_spider_process(query, extract_images, results_queue, sort_by='relevance
         logging.info(f"Spider iniciado com configurações otimizadas:")
         logging.info(f"   CONCURRENT_REQUESTS: {settings.get('CONCURRENT_REQUESTS')}")
         logging.info(f"   CONCURRENT_REQUESTS_PER_DOMAIN: {settings.get('CONCURRENT_REQUESTS_PER_DOMAIN')}")
+        logging.info(f"   DOWNLOAD_DELAY: {settings.get('DOWNLOAD_DELAY')}s (baseado em {request_delay}s)")
+        logging.info(f"   AUTOTHROTTLE_MAX_DELAY: {settings.get('AUTOTHROTTLE_MAX_DELAY')}s")
         logging.info(f"   DOWNLOAD_TIMEOUT: {settings.get('DOWNLOAD_TIMEOUT')}s")
         logging.info(f"   HTTPCACHE_ENABLED: {settings.get('HTTPCACHE_ENABLED')}")
         
@@ -1471,7 +1832,7 @@ def _run_spider_process(query, extract_images, results_queue, sort_by='relevance
         logging.error(f"Error in Scrapy process for query '{query}': {e}", exc_info=True)
         results_queue.put({'results': [], 'urls_used': []})
 
-def run_spider(query, extract_images=True, sort_by='relevance', condition='all', max_items=None, custom_url=None):
+def run_spider(query, extract_images=True, sort_by='relevance', condition='all', max_items=None, custom_url=None, request_delay=2.0):
     """
     Executa o spider em um processo separado e retorna os resultados via uma Queue.
     OTIMIZADO PARA ALTA PERFORMANCE.
@@ -1483,12 +1844,13 @@ def run_spider(query, extract_images=True, sort_by='relevance', condition='all',
         condition (str): Condição dos produtos
         max_items (int): Número máximo de itens
         custom_url (str): URL específica do Mercado Livre para usar como base
+        request_delay (float): Delay entre requisições em segundos
     """
     results_queue = multiprocessing.Queue()
     
     scrapy_process = multiprocessing.Process(
         target=_run_spider_process, 
-        args=(query, extract_images, results_queue, sort_by, condition, max_items, custom_url)
+        args=(query, extract_images, results_queue, sort_by, condition, max_items, custom_url, request_delay)
     )
     scrapy_process.start()
     
